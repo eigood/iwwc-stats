@@ -8,16 +8,24 @@
 #iwwc-app.loading .iwwc-content { display: none; }
 #iwwc-app:not(.loading) > .loading { display: none; }
 
+body {
+	background:#333333;
+}
+
 .stat-pane {
-	height: 400px;
-	width: 300px;
+	height: 485px;
 	overflow: hidden;
 	border:1px solid #888888;
 	border-radius: 10px;
-	padding: 10px 0 0 0;
+	padding: 0;
+	display:flex;
+	flex-direction:column;
+	background:#cccccc;
 }
 .stat-header {
 	border-bottom:1px solid black;
+	margin:0;
+	padding: 5px 0 0 5px;
 }
 .stat-value {
 	padding-right:5px;
@@ -25,13 +33,17 @@
 	min-width:40px;
 	text-align:right;
 }
-.stat-list {
+.stat-content {
 	overflow: hidden scroll;
 	height:100%;
-	counter-reset:stat-position;
 	margin:0;
 	padding:0 0 0 10px;
 }
+.stat-list {
+	counter-reset:stat-position;
+	display:table;
+}
+
 .stat-row {
 	display:table-row;
 	counter-increment:stat-position;
