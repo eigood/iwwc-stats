@@ -40,7 +40,7 @@ body {
 	width:300px;
 }
 .stat-pane {
-	height: 485px;
+	max-height: 485px;
 	overflow: hidden;
 	border:1px solid #888888;
 	border-radius: 10px;
@@ -62,7 +62,6 @@ body {
 }
 .stat-content {
 	overflow: hidden scroll;
-	height:100%;
 }
 .stat-list {
 	counter-reset:stat-position;
@@ -79,11 +78,27 @@ body {
 	height:0;
 	visibility:collapse;
 }
-.stat-row::before {
+.stat-row .stat-position {
 	content: counter(stat-position);
 	display: table-cell;
 	text-align:right;
 	padding-right:5px;
+}
+.stat-row:nth-child(1) .stat-reward {
+	content: "*";
+	color: #d4af37;
+}
+.stat-row:nth-child(2) .stat-reward {
+	content: "*";
+	color: #c0c0c0;
+}
+.stat-row:nth-child(3) .stat-reward {
+	content: "*";
+	color: #cd7f32;
+}
+.stat-row:nth-child(n+4):nth-child(-n+15) .stat-reward {
+	content: "*";
+	color: #b5a642;
 }
 .stat-row * {
 	display:table-cell;
