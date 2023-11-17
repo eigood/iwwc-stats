@@ -23,6 +23,16 @@ body {
 	cursor:pointer;
 	display:inline-block;
 }
+.agent-search {
+	background:white;
+	border:1px solid black;
+	border-radius:5px;
+	padding:5px;
+	color:#888888;
+	cursor:pointer;
+	display:inline-block;
+	width:100px;
+}
 .stat-pane {
 	height: 485px;
 	overflow: hidden;
@@ -58,6 +68,9 @@ body {
 .stat-row {
 	display:table-row;
 	counter-increment:stat-position;
+}
+.stat-row.hidden {
+	display:none;
 }
 .stat-row::before {
 	content: counter(stat-position);

@@ -40,6 +40,7 @@ function handleLoad() {
   //fetchText(ghPagesBase + '/app.html', setHtml);
   loadData();
   document.querySelector('.reload-button').addEventListener('click', loadData)
+  document.querySelector('.agent-search').addEventListener('change', agentSearch)
 }
 
 function loadData(e) {
@@ -48,6 +49,21 @@ function loadData(e) {
     e.stopPropagation();
   }
   fetchJSON(iwwcCustomURL, handleData)
+}
+
+function agentSearch(e) {
+  e.preventDefault()
+  e.stopPropagation()
+  console.log('search', e)
+  const agentSearch = e.target.value
+  document.querySelectorAll('.stat-row').forEach(statRowNode => {
+    const agentName = statRowNode.getAttribute('data-agent');
+    if (!agentSearch || agentName.indexOf(agentSearch) !== -1) {
+      statRowNode.className = 'stat-row'
+    } else {
+      statRowNode.className = 'stat-row hidden'
+    }
+  })
 }
 
 function handleData(iwwcData) {
@@ -89,7 +105,9 @@ function handleData(iwwcData) {
       const newStatListNode = newStatPaneFragment.querySelector('.stat-list')
       statList.forEach(([ statValue, agentName ]) => {
         const newStatRowFragment = statListRowTemplate.content.cloneNode(true)
-        newStatRowFragment.querySelector('.stat-row').setAttribute('data-value', statValue)
+        const statRowNode = newStatRowFragment.querySelector('.stat-row')
+        statRowNode.setAttribute('data-value', statValue)
+        statRowNode.setAttribute('data-agent', statValue)
         const agentInfo = iwwcData[ agentName ]
         newStatRowFragment.querySelector('.stat-value').textContent = statValue.toLocaleString({ useGrouping:true })
         const agentNode = newStatRowFragment.querySelector('.agent')
