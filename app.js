@@ -57,10 +57,10 @@ function agentSearch(e) {
   e.preventDefault()
   e.stopPropagation()
   console.log('search', e)
-  const agentSearch = e.target.value
+  const agentSearch = e.target.value.toUpperCase()
   document.querySelectorAll('.stat-row').forEach(statRowNode => {
     const agentName = statRowNode.getAttribute('data-agent');
-    if (!agentSearch || agentName.indexOf(agentSearch) !== -1) {
+    if (!agentSearch || agentName.toUpperCase().indexOf(agentSearch) !== -1) {
       statRowNode.className = 'stat-row'
     } else {
       statRowNode.className = 'stat-row hidden'
