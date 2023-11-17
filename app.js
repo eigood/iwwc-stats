@@ -56,20 +56,38 @@ function handleData(iwwcData) {
   const appContentNode = document.querySelector('#iwwc-app .iwwc-content')
   appContentNode.innerHtml = '';
   statEntries.forEach(([ statName, statList ]) => {
-    const newStatPaneNode = statPaneTemplate.content.cloneNode(true)
-    newStatPaneNode.querySelector('.stat-header').textContent = statName
-    const newStatListNode = newStatPaneNode.querySelector('.stat-list')
+    const newStatPaneFragment = statPaneTemplate.content.cloneNode(true)
+    newStatPaneFragment.querySelector('.stat-header').textContent = statName
+    const newStatListNode = newStatPaneFragment.querySelector('.stat-list')
     statList.forEach(([ statValue, agentName ]) => {
-      const newStatRowNode = statListRowTemplate.content.cloneNode(true)
-      newStatRowNode.setAttribute('data-value', statValue)
+      const newStatRowFragment = statListRowTemplate.content.cloneNode(true)
+      newStatRowFragment.querySelector('.stat-row').setAttribute('data-value', statValue)
       const agentInfo = iwwcData[ agentName ]
-      newStatRowNode.querySelector('.stat-value').textContent(statValue)
-      const agentNode = newStatRowNode.querySelector('.agent')
+      newStatRowFragment.querySelector('.stat-value').textContent(statValue)
+      const agentNode = newStatRowFragment.querySelector('.agent')
       agentNode.className += ' faction-' + agentInfo.faction
       agentNode.textContent = agentName
-      newStatListNode.appendChild(newStatRowNode)
+      newStatListNode.appendChild(newStatRowFragment)
     })
-    appContentNnode.appendChild(newStatPaneNode)
+    appContentNnode.appendChild(newStatPaneFragment)
   })
 }
 window.addEventListener('load', handleLoad);
+/*
+ * <link rel="stylesheet" href="app.css">
+<script type='module' src='app.js'></script>
+<template id="stat-pane">
+ <div class="stat-pane">
+  <h4 class="stat-header"></h4>
+  <ol class="stat-list"></ol>
+ </div>
+</template>
+<template id="stat-list-row">
+ <li class="stat-row" data-value="0"><dfn class="stat-value"></dfn><span class="agent"></span></li>
+</template>
+<div id='iwwc-app' class='loading'>
+  <div class="loading">Loading, please wait.</div>
+  <div class="iwwc-content">
+  </div>
+</div>
+*/
