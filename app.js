@@ -37,6 +37,14 @@ async function fetchJSON(url, handler) {
   return handler(json)
 }
 
+function debounce(func, timeout = 300){
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => { func.apply(this, args) }, timeout)
+  }
+}
+
 function handleLoad() {
   //fetchText(ghPagesBase + '/app.html', setHtml);
   loadData();
@@ -53,7 +61,7 @@ function loadData(e) {
   fetchJSON(iwwcInfoURL, handleInfo)
 }
 
-function agentSearch(e) {
+const agentSearch = debounce((e) => {
   e.preventDefault()
   e.stopPropagation()
   console.log('search', e)
@@ -66,7 +74,7 @@ function agentSearch(e) {
       statRowNode.className = 'stat-row hidden'
     }
   })
-}
+})
 
 function handleInfo(iwwcInfo) {
   if (!iwwcInfo) return;
