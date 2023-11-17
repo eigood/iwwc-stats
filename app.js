@@ -11,9 +11,11 @@ async function fetchJSON(url, handler) {
     console.log('r', r)
     const json = await r.json()
     console.log('json');
-    return handler(json);
-  } finally (e) {
+    return await handler(json);
+  } catch (e) {
     console.error(e);
+  } finally {
+    console.log('finally', url);
   }
 }
 
