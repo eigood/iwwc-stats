@@ -3,3 +3,11 @@
 .iwwc-app.loading .iwwc-content { display: none; }
 .iwwc-app:not(.loading) > .loading { display: none; }
 
+.stat-pane {
+	max-height: 400px;
+	max-width: 300px;
+	overflow: visible;
+}
+.iwwc-content {
+	display: flex;
+}
