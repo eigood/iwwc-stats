@@ -56,11 +56,11 @@ function handleData(iwwcData) {
   const appContentNode = document.querySelector('#iwwc-app .iwwc-content')
   appContentNode.innerHtml = '';
   statEntries.forEach(([ statName, statList ]) => {
-    const newStatPaneNode = statPaneTemplate.cloneNode()
+    const newStatPaneNode = statPaneTemplate.content.cloneNode(true)
     newStatPaneNode.querySelector('.stat-header').textContent = statName
     const newStatListNode = newStatPaneNode.querySelector('.stat-list')
     statList.forEach(([ statValue, agentName ]) => {
-      const newStatRowNode = statListRowTemplate.cloneNode()
+      const newStatRowNode = statListRowTemplate.content.cloneNode(true)
       newStatRowNode.setAttribute('data-value', statValue)
       const agentInfo = iwwcData[ agentName ]
       newStatRowNode.querySelector('.stat-value').textContent(statValue)
