@@ -36,12 +36,12 @@ body {
 .stat-content {
 	overflow: hidden scroll;
 	height:100%;
-	margin:0;
-	padding:0 0 0 10px;
 }
 .stat-list {
 	counter-reset:stat-position;
 	display:table;
+	margin:0;
+	padding:0 0 0 10px;
 }
 
 .stat-row {
