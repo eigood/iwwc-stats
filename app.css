@@ -24,6 +24,7 @@
 .stat-list {
 	overflow: scroll;
 	height:100%;
+}
 .iwwc-content {
 	display: grid;
 	grid-gap:calc(var(--grid-list-gap) * 1px);
