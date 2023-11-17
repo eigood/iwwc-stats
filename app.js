@@ -69,7 +69,7 @@ function handleData(iwwcData) {
       agentNode.textContent = agentName
       newStatListNode.appendChild(newStatRowFragment)
     })
-    appContentNnode.appendChild(newStatPaneFragment)
+    appContentNode.appendChild(newStatPaneFragment)
   })
 }
 window.addEventListener('load', handleLoad);
