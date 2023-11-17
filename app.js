@@ -1,23 +1,8 @@
 var iwwcCustomURL = 'https://eigood.github.io/iwwc-stats-data/iwwc-custom.json';
 
-var iwwcData = null;
-
-function fetchNoCors(url, handler) {
-  return fetch(url, {mode: 'no-cors', redirect: 'follow'}).then(handler);
-}
-
 async function fetchJSON(url, handler) {
-  try {
-    const response = await fetch(url, {mode: 'no-cors'})
-    console.log('response', response)
-    const json = await response.json();
-    console.log('json', json);
-    return await handler(json);
-  } catch (e) {
-    console.error(e);
-  } finally {
-    console.log('finally', url);
-  }
+  const response = await fetch(url, {mode: 'no-cors'})
+  return await response.json();
 }
 
 function handleLoad() {
@@ -27,31 +12,35 @@ function handleLoad() {
 }
 
 function loadData() {
-  fetchJSON(iwwcCustomURL, setIwwcCustom);
+  fetchJSON(iwwcCustomURL, handleData)
 }
 
-function setIwwcCustom(json) {
-  iwwcData = json;
-  checkApp();
-}
-
-function checkApp() {
+function handleData(iwwcData) {
   console.log('checkApp', {iwwcData: iwwcData});
   if (!iwwcData) return;
   var statPaneTemplate = document.querySelector('#stat-pane');
   var statListRowTemplate = document.querySelector('#stat-list-row');
   console.log('templates', {
-    statPaneTemplate: statPaneTemplate,
-    statListRowTemplate: statListRowTemplate,
+    statPaneTemplate,
+    statListRowTemplate,
   });
-  /*
-
-  console.log('about to call fetch');
-  try {
-    fetch(iwwcCustomURL, {mode: 'no-cors'}).then(function(r) { return r.json(); }).then(parseIwwc);
-  } catch (e) {
-    console.error(e);
-  }
-  */
+  const byAgent = {}
+  const byStat = {};
+  Object.entries(iwwcData).forEach(([ agentName, agentData ]) => {
+    const forAgent = byAgent[ agentName ] = {}
+    Object.entries(agentData).forEach(([ statName, statValue ]) => {
+      forAgent[ statName ] = [ statValue ]
+      const statList = byStat[ statName ] || (byStat[ statName ] = [])
+      statList.push([ statValue, agentName ])
+    })
+  })
+  const statSorter = (a, b) => a[0] - b[0]
+  Object.entries(byStat).forEach(([ statName, statList ]) => {
+    statList.sort(statSorter)
+    statList.forEach(([ statValue, agentName ], index) => {
+      byAgent[ agentName ][ statName ][ 1 ] = index
+    })
+  })
+  console.log('by', {byAgent, byStat})
 }
 window.addEventListener('load', handleLoad);
