@@ -40,7 +40,7 @@ function handleLoad() {
   //fetchText(ghPagesBase + '/app.html', setHtml);
   loadData();
   document.querySelector('.reload-button').addEventListener('click', loadData)
-  document.querySelector('.agent-search').addEventListener('change', agentSearch)
+  document.querySelector('.agent-search input').addEventListener('keyup', agentSearch)
 }
 
 function loadData(e) {
@@ -107,7 +107,7 @@ function handleData(iwwcData) {
         const newStatRowFragment = statListRowTemplate.content.cloneNode(true)
         const statRowNode = newStatRowFragment.querySelector('.stat-row')
         statRowNode.setAttribute('data-value', statValue)
-        statRowNode.setAttribute('data-agent', statValue)
+        statRowNode.setAttribute('data-agent', agentName)
         const agentInfo = iwwcData[ agentName ]
         newStatRowFragment.querySelector('.stat-value').textContent = statValue.toLocaleString({ useGrouping:true })
         const agentNode = newStatRowFragment.querySelector('.agent')

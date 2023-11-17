@@ -31,6 +31,14 @@ body {
 	color:#888888;
 	cursor:pointer;
 	display:inline-block;
+}
+.agent-search::before {
+	display:block;
+	content: 'Search: ';
+	border-left:1px solid black;
+}
+
+.agent-search input {
 	width:100px;
 }
 .stat-pane {
