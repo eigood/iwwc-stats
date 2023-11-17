@@ -13,6 +13,9 @@
 	width: 300px;
 	overflow: scroll;
 }
+.stat-value {
+	padding-right:5px;
+}
 .iwwc-content {
 	display: grid;
 	grid-gap:calc(var(--grid-list-gap) * 1px);
