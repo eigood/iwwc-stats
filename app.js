@@ -73,21 +73,3 @@ function handleData(iwwcData) {
   })
 }
 window.addEventListener('load', handleLoad);
-/*
- * <link rel="stylesheet" href="app.css">
-<script type='module' src='app.js'></script>
-<template id="stat-pane">
- <div class="stat-pane">
-  <h4 class="stat-header"></h4>
-  <ol class="stat-list"></ol>
- </div>
-</template>
-<template id="stat-list-row">
- <li class="stat-row" data-value="0"><dfn class="stat-value"></dfn><span class="agent"></span></li>
-</template>
-<div id='iwwc-app' class='loading'>
-  <div class="loading">Loading, please wait.</div>
-  <div class="iwwc-content">
-  </div>
-</div>
-*/
