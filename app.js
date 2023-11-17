@@ -9,8 +9,10 @@ async function fetchJSON(url, handler) {
   try {
     const r = await fetchNoCors(url)
     console.log('r', r)
-    const json = await r.json()
-    console.log('json');
+    const text = await r.text()
+    console.log('text', text);
+    const json = JSON.parse(text);
+    console.log('json', json);
     return await handler(json);
   } catch (e) {
     console.error(e);
