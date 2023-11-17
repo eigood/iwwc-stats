@@ -78,21 +78,20 @@ body {
 	height:0;
 	visibility:collapse;
 }
-.stat-row .stat-position {
+.stat-row .stat-position::before {
 	content: counter(stat-position);
-	display: table-cell;
 	text-align:right;
 	padding-right:5px;
 }
-.stat-row:nth-child(1) .stat-reward {
+.stat-row:nth-child(1) .stat-reward::before {
 	content: "*";
 	color: #d4af37;
 }
-.stat-row:nth-child(2) .stat-reward {
+.stat-row:nth-child(2) .stat-reward::before {
 	content: "*";
 	color: #c0c0c0;
 }
-.stat-row:nth-child(3) .stat-reward {
+.stat-row:nth-child(3) .stat-reward::before {
 	content: "*";
 	color: #cd7f32;
 }
