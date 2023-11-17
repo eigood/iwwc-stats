@@ -1,4 +1,4 @@
-var iwwcCustomURL = 'https://raw.githubusercontent.com/eigood/iwwc-stats/iwwc-data/iwwc-custom.json';
+var iwwcCustomURL = 'https://eigood.github.io/iwwc-stats-data/iwwc-custom.json';
 
 var iwwcData = null;
 
