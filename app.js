@@ -6,6 +6,30 @@ const skipStats = {
   'last_submit': true,
 }
 
+const awardStats = {
+  'lifetime_ap': 'AP',
+  'explorer': 'Explorer',
+  'recon': 'Recon',
+  'scout': 'Scout',
+  'scout_controller': 'Scout Controller',
+  'builder': 'Builder',
+  'connector': 'Connector',
+  'mind-controller', 'Mind Controller',
+  'llluminator': 'Illuminator',
+  'recharger': 'Recharger',
+  'liberator': 'Liberator',
+  'pioneer': 'Pioneer',
+  'engineer': 'Engineer',
+  'hacker': 'Hacker',
+  'maverick': 'Maverick',
+  'translator': 'Translator',
+  'purifier': 'Purifier',
+  'trekker': 'Trekker',
+  'specops': 'Specops',
+  'recursions': 'Recursions',
+  'crafter': 'Kinetic Capsules Completed',
+}
+
 async function fetchJSON(url, handler) {
   const response = await fetch(url, {mode: 'no-cors'})
   const json = await response.json()
@@ -56,8 +80,10 @@ function handleData(iwwcData) {
   const appContentNode = document.querySelector('#iwwc-app .iwwc-content')
   appContentNode.innerHtml = '';
   statEntries.forEach(([ statName, statList ]) => {
+    const statDesc = awardStats[ statName ]
+    if (!statDesc) return
     const newStatPaneFragment = statPaneTemplate.content.cloneNode(true)
-    newStatPaneFragment.querySelector('.stat-header').textContent = statName
+    newStatPaneFragment.querySelector('.stat-header').textContent = statDesc
     const newStatListNode = newStatPaneFragment.querySelector('.stat-list')
     statList.forEach(([ statValue, agentName ]) => {
       const newStatRowFragment = statListRowTemplate.content.cloneNode(true)
