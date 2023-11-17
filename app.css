@@ -13,7 +13,8 @@
 	width: 300px;
 	overflow: hidden;
 	border:1px solid #888888;
-	border-radius:
+	border-radius: 10px;
+	padding: 0 10px;
 }
 .stat-value {
 	padding-right:5px;
@@ -24,7 +25,19 @@
 .stat-list {
 	overflow: scroll;
 	height:100%;
+	counter-reset:stat-position;
 }
+.stat-row {
+	display:table-row;
+}
+.stat-row::before {
+	content: counter(stat-position);
+	display: table-cell;
+}
+.stat-row * {
+	display:table-cell;
+}
+
 .iwwc-content {
 	display: grid;
 	grid-gap:calc(var(--grid-list-gap) * 1px);
