@@ -49,6 +49,9 @@ body {
 
 .agent-search input {
 	width:300px;
+	padding:0;
+	border:0;
+	background:#aaaaaa;
 }
 .stat-pane {
 	max-height: 485px;

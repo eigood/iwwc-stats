@@ -72,9 +72,9 @@ function handleInfo(iwwcInfo) {
   if (!iwwcInfo) return;
   const fullFormatOptions = { weekday:"short", year:"numeric", month:"short", day:"numeric", hour: "2-digit", minute: "numeric", second: "numeric" }
   const shortFormatOptions = { weekday:"short", year:"numeric", month:"short", day:"numeric" }
-  document.querySelector('.last-refresh').textContent = new Date(iwwcInfo.lastRefresh + 'Z').toLocalString(navigator.language, fullFormatOptions)
-  document.querySelector('.start-date').textContent = new Date(iwwcInfo.startDate).toLocalString(navigator.language, shortFormatOptions)
-  document.querySelector('.end-date').textContent = new Date(iwwcInfo.endDate).toLocalString(navigator.language, shortFormatOptions)
+  document.querySelector('.last-refresh').textContent = new Date(iwwcInfo.lastRefresh + 'Z').toLocaleString(navigator.language, fullFormatOptions)
+  document.querySelector('.start-date').textContent = new Date(iwwcInfo.startDate).toLocaleString(navigator.language, shortFormatOptions)
+  document.querySelector('.end-date').textContent = new Date(iwwcInfo.endDate).toLocaleString(navigator.language, shortFormatOptions)
 }
 
 function handleCustom(iwwcCustom) {
