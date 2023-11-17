@@ -43,7 +43,7 @@ function handleData(iwwcData) {
       statList.push([ statValue, agentName ])
     })
   })
-  const statSorter = (a, b) => a[0] - b[0]
+  const statSorter = (a, b) => b[0] - a[0]
   const statEntries = Object.entries(byStat)
   statEntries.forEach(([ statName, statList ]) => {
     statList.sort(statSorter)

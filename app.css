@@ -1,12 +1,12 @@
 .faction-enl { color: green; }
 .faction-res { color: blue; }
-.iwwc-app {
+#iwwc-app {
 	--grid-list-container-columns: auto-fill;
 	--grid-list-column-min-size: 300;
 	--grid-list-gap: 8;
 }
-.iwwc-app.loading .iwwc-content { display: none; }
-.iwwc-app:not(.loading) > .loading { display: none; }
+#iwwc-app.loading .iwwc-content { display: none; }
+#iwwc-app:not(.loading) > .loading { display: none; }
 
 .stat-pane {
 	height: 400px;
