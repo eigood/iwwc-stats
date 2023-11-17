@@ -14,7 +14,10 @@
 	overflow: hidden;
 	border:1px solid #888888;
 	border-radius: 10px;
-	padding: 0 10px;
+	padding: 10px 0 0 0;
+}
+.stat-header {
+	border-bottom:1px solid black;
 }
 .stat-value {
 	padding-right:5px;
@@ -23,16 +26,21 @@
 	text-align:right;
 }
 .stat-list {
-	overflow: scroll;
+	overflow: hidden scroll;
 	height:100%;
 	counter-reset:stat-position;
+	margin:0;
+	padding:0 0 0 10px;
 }
 .stat-row {
 	display:table-row;
+	counter-increment:stat-position;
 }
 .stat-row::before {
 	content: counter(stat-position);
 	display: table-cell;
+	text-align:right;
+	padding-right:5px;
 }
 .stat-row * {
 	display:table-cell;
