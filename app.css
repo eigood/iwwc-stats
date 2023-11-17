@@ -25,7 +25,18 @@ body {
 	color:#888888;
 	display:inline-block;
 }
-
+.last-refresh::before {
+	content: "Last Refresh:";
+	display:inline-block;
+}
+.start-date::before {
+	content: "From:";
+	display:inline-block;
+}
+.end-date::before {
+	content: "To:";
+	display:inline-block;
+}
 .agent-search {
 	clear:both;
 	display:inline-flex;
