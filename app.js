@@ -5,12 +5,10 @@ function fetchNoCors(url, handler) {
   return fetch(url, {mode: 'no-cors'}).then(handler);
 }
 
-function fetchText(url, handler) {
-  return fetchNoCors(url, function(r) { return r.text().then(handler); } );
-}
-
 function fetchJSON(url, handler) {
-  return fetchNoCors(url, function(r) { return r.json().then(handler); } );
+  return fetchNoCors(url, function(r) {
+    return r.json().then(handler);
+  });
 }
 
 function handleLoad() {
