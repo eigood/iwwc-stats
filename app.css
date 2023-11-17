@@ -16,6 +16,6 @@
 .iwwc-content {
 	display: grid;
 	grid-gap:calc(var(--grid-list-gap) * 1px);
-	grid-template-columns: repeat(var(--grid-list-container-columns), minmax(calc(var(--grid-list-column-min-size) * 1px), 1fr);
+	grid-template-columns: repeat(var(--grid-list-container-columns), minmax(calc(var(--grid-list-column-min-size) * 1px), 1fr));
 	grid-template-rows: 1fr;
 }
