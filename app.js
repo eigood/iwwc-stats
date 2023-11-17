@@ -78,7 +78,9 @@ function handleData(iwwcData) {
   })
   //console.log('by', {byAgent, byStat})
   const appContentNode = document.querySelector('#iwwc-app .iwwc-content')
-  appContentNode.innerHtml = '';
+  while (appContentNode.firstChild) {
+    appContentNode.removeChild(appContentNode.lastChild)
+  }
   setTimeout(function() {
     displayStats.forEach(([ statName, statTitle ]) => {
       const statList = byStat[ statName ]
