@@ -30,7 +30,7 @@ body {
 	padding:5px;
 	color:#888888;
 	cursor:pointer;
-	display:inline-block;
+	display:flex;
 }
 .agent-search::before {
 	display:block;
@@ -78,7 +78,8 @@ body {
 	counter-increment:stat-position;
 }
 .stat-row.hidden {
-	display:none;
+	height:0;
+	visibility:collapse;
 }
 .stat-row::before {
 	content: counter(stat-position);
