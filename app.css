@@ -79,9 +79,14 @@ body {
 	height:0;
 	visibility:collapse;
 }
+.stat-position {
+	text-align:right;
+}
+.stat-reward {
+	padding-right:5px;
+}
 .stat-row .stat-position::before {
 	content: counter(stat-position);
-	text-align:right;
 	padding-right:5px;
 }
 .stat-row:nth-child(1) .stat-reward::before {
@@ -96,7 +101,7 @@ body {
 .stat-row:nth-child(-n+20) .stat-position {
 	color:white;
 }
-.stat-row:nth-child(n+4) .stat-reward {
+.stat-row:nth-child(n+4) .stat-reward::before {
 	display:none;
 }
 .stat-row * {
