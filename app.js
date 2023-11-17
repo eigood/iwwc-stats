@@ -117,7 +117,7 @@ function handleCustom(iwwcCustom) {
         const statRowNode = newStatRowFragment.querySelector('.stat-row')
         statRowNode.setAttribute('data-value', statValue)
         statRowNode.setAttribute('data-agent', agentName)
-        const agentInfo = iwwcData[ agentName ]
+        const agentInfo = iwwcCustom[ agentName ]
         newStatRowFragment.querySelector('.stat-value').textContent = statValue.toLocaleString({ useGrouping:true })
         const agentNode = newStatRowFragment.querySelector('.agent')
         agentNode.className += ' faction-' + agentInfo.faction
