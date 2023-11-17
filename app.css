@@ -5,6 +5,7 @@
 	--grid-list-column-min-size: 300;
 	--grid-list-gap: 8;
 }
+.loading { color: white; }
 #iwwc-app.loading .iwwc-content { display: none; }
 #iwwc-app:not(.loading) > .loading { display: none; }
 

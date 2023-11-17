@@ -14,7 +14,7 @@ const awardStats = {
   'scout_controller': 'Scout Controller',
   'builder': 'Builder',
   'connector': 'Connector',
-  'mind-controller', 'Mind Controller',
+  'mind-controller': 'Mind Controller',
   'llluminator': 'Illuminator',
   'recharger': 'Recharger',
   'liberator': 'Liberator',
