@@ -5,10 +5,16 @@ function fetchNoCors(url, handler) {
   return fetch(url, {mode: 'no-cors'}).then(handler);
 }
 
-function fetchJSON(url, handler) {
-  return fetchNoCors(url, function(r) {
-    return r.json().then(handler);
-  });
+async function fetchJSON(url, handler) {
+  try {
+    const r = await fetchNoCors(url)
+    console.log('r', r)
+    const json = await r.json()
+    console.log('json');
+    return handler(json);
+  } finally (e) {
+    console.error(e);
+  }
 }
 
 function handleLoad() {
