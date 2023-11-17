@@ -5,6 +5,11 @@
 	--grid-list-column-min-size: 300;
 	--grid-list-gap: 24;
 }
+@media (max-width:500px) {
+	#iwwc-app {
+		padding-right:24px;
+	}
+}
 .loading { color: white; }
 #iwwc-app.loading .iwwc-content { display: none; }
 #iwwc-app.loading .reload-button { display: none; }
