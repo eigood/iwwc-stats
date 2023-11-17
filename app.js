@@ -6,29 +6,29 @@ const skipStats = {
   'last_submit': true,
 }
 
-const awardStats = {
-  'lifetime_ap': 'AP',
-  'explorer': 'Explorer',
-  'recon': 'Recon',
-  'scout': 'Scout',
-  'scout_controller': 'Scout Controller',
-  'builder': 'Builder',
-  'connector': 'Connector',
-  'mind-controller': 'Mind Controller',
-  'llluminator': 'Illuminator',
-  'recharger': 'Recharger',
-  'liberator': 'Liberator',
-  'pioneer': 'Pioneer',
-  'engineer': 'Engineer',
-  'hacker': 'Hacker',
-  'maverick': 'Maverick',
-  'translator': 'Translator',
-  'purifier': 'Purifier',
-  'trekker': 'Trekker',
-  'specops': 'Specops',
-  'recursions': 'Recursions',
-  'crafter': 'Kinetic Capsules Completed',
-}
+const displayStats = [
+  ['lifetime_ap', 'AP'],
+  ['explorer', 'Explorer'],
+  ['recon', 'Recon'],
+  ['scout', 'Scout'],
+  ['scout_controller', 'Scout Controller'],
+  ['builder', 'Builder'],
+  ['connector', 'Connector'],
+  ['mind-controller', 'Mind Controller'],
+  ['llluminator', 'Illuminator'],
+  ['recharger', 'Recharger'],
+  ['liberator', 'Liberator'],
+  ['pioneer', 'Pioneer'],
+  ['engineer', 'Engineer'],
+  ['hacker', 'Hacker'],
+  ['maverick', 'Maverick'],
+  ['translator', 'Translator'],
+  ['purifier', 'Purifier'],
+  ['trekker', 'Trekker'],
+  ['specops', 'Specops'],
+  ['recursions', 'Recursions'],
+  ['crafter', 'Kinetic Capsules Completed'],
+]
 
 async function fetchJSON(url, handler) {
   const response = await fetch(url, {mode: 'no-cors'})
@@ -37,9 +37,9 @@ async function fetchJSON(url, handler) {
 }
 
 function handleLoad() {
-  console.log('handleLoad');
   //fetchText(ghPagesBase + '/app.html', setHtml);
   loadData();
+  document.querySelector('.reloadButton').addListener('click', loadData)
 }
 
 function loadData() {
@@ -47,14 +47,12 @@ function loadData() {
 }
 
 function handleData(iwwcData) {
-  console.log('checkApp', {iwwcData: iwwcData});
   if (!iwwcData) return;
   const app = document.querySelector('#iwwc-app')
   app.className = ''
 
   var statPaneTemplate = document.querySelector('#stat-pane');
   var statListRowTemplate = document.querySelector('#stat-list-row');
-  console.log('templates', { statPaneTemplate, statListRowTemplate });
   const byAgent = {}
   const byStat = {};
 
@@ -68,22 +66,19 @@ function handleData(iwwcData) {
     })
   })
   const statSorter = (a, b) => b[0] - a[0]
-  const statEntries = Object.entries(byStat)
-  statEntries.forEach(([ statName, statList ]) => {
+  Object.entries(byStat).forEach(([ statName, statList ]) => {
     statList.sort(statSorter)
     statList.forEach(([ statValue, agentName ], index) => {
       byAgent[ agentName ][ statName ][ 1 ] = index
     })
   })
-  console.log('by', {byAgent, byStat})
-  statEntries.sort((a, b) => a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0)
+  //console.log('by', {byAgent, byStat})
   const appContentNode = document.querySelector('#iwwc-app .iwwc-content')
   appContentNode.innerHtml = '';
-  statEntries.forEach(([ statName, statList ]) => {
-    const statDesc = awardStats[ statName ]
-    if (!statDesc) return
+  displayStats.forEach(([ statName, statTitle ]) => {
+    const statList = byStat[ statName ]
     const newStatPaneFragment = statPaneTemplate.content.cloneNode(true)
-    newStatPaneFragment.querySelector('.stat-header').textContent = statDesc
+    newStatPaneFragment.querySelector('.stat-header').textContent = statTitle
     const newStatListNode = newStatPaneFragment.querySelector('.stat-list')
     statList.forEach(([ statValue, agentName ]) => {
       const newStatRowFragment = statListRowTemplate.content.cloneNode(true)

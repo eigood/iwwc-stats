@@ -7,12 +7,20 @@
 }
 .loading { color: white; }
 #iwwc-app.loading .iwwc-content { display: none; }
+#iwwc-app.loading .reload-button { display: none; }
 #iwwc-app:not(.loading) > .loading { display: none; }
 
 body {
 	background:#333333;
 }
-
+.reload-button {
+	background:white;
+	border:1px solid black;
+	border-radius:5px;
+	padding:5px;
+	color:#888888;
+	cursor:pointer;
+}
 .stat-pane {
 	height: 485px;
 	overflow: hidden;
