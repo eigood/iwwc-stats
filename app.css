@@ -4,6 +4,11 @@
 	--grid-list-container-columns: auto-fill;
 	--grid-list-column-min-size: 300;
 	--grid-list-gap: 24;
+	display:flex;
+	flex-direction:column;
+	height:100%;
+}
+#iwwc-app header {
 }
 @media (max-width:500px) {
 	#iwwc-app {
@@ -15,9 +20,12 @@
 #iwwc-app.loading .reload-button { display: none; }
 #iwwc-app:not(.loading) > .loading { display: none; }
 
+html, body {
+	margin:0;
+	height:100%;
+}
 body {
 	background:#333333;
-	margin:0;
 }
 .reload-button {
 	cursor:pointer;
@@ -130,6 +138,10 @@ body {
 	display:table-cell;
 }
 
+#iwwc-app > .container {
+	height:100%;
+	overflow:auto;
+}
 .iwwc-content {
 	display: grid;
 	grid-gap:calc(var(--grid-list-gap) * 1px);
