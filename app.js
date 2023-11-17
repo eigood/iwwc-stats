@@ -1,8 +1,4 @@
-
 var iwwcCustomURL = 'https://drive.google.com/uc?export=download&id=11ds9bn7JQ0GQkdQmoGgGQ3Z1dFvvSILf';
-var ghPagesBase = 'https://eigood.github.io/iwwc-stats';
-
-var hasHtml = false;
 var iwwcData = null;
 
 function fetchNoCors(url, handler) {
@@ -22,14 +18,8 @@ function handleLoad() {
   var style = document.createElement('style');
   style.src = ghPagesBase + '/app.css';
   document.getElementsByTagName('head')[0].appendChild(style);
-  fetchText(ghPagesBase + '/app.html', setHtml);
+  //fetchText(ghPagesBase + '/app.html', setHtml);
   fetchJSON(iwwcCustomURL, setIwwcCustom);
-}
-
-function setHtml(appHtml) {
-  document.body.innerHtml = appHtml;
-  hasHtml = true;
-  checkApp();
 }
 
 function setIwwcCustom(json) {
@@ -38,12 +28,16 @@ function setIwwcCustom(json) {
 }
 
 function checkApp() {
-  console.log('checkApp', {hasHtml: hasHtml, iwwcData: iwwcData});
-  if (!hasHtml || !iwwcData) return;
-  /*
-
+  console.log('checkApp', {iwwcData: iwwcData});
+  if (!iwwcData) return;
   var statPaneTemplate = document.querySelector('#stat-pane');
   var statListRowTemplate = document.querySelector('#stat-list-row');
+  console.log('templates', {
+    statPaneTemplate: statPaneTemplate,
+    statListRowTemplate: statListRowTemplate,
+  });
+  /*
+
   console.log('about to call fetch');
   try {
     fetch(iwwcCustomURL, {mode: 'no-cors'}).then(function(r) { return r.json(); }).then(parseIwwc);
