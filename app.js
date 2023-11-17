@@ -2,7 +2,8 @@ var iwwcCustomURL = 'https://eigood.github.io/iwwc-stats-data/iwwc-custom.json';
 
 async function fetchJSON(url, handler) {
   const response = await fetch(url, {mode: 'no-cors'})
-  return await response.json();
+  const json = await response.json()
+  return handler(json)
 }
 
 function handleLoad() {
@@ -20,10 +21,7 @@ function handleData(iwwcData) {
   if (!iwwcData) return;
   var statPaneTemplate = document.querySelector('#stat-pane');
   var statListRowTemplate = document.querySelector('#stat-list-row');
-  console.log('templates', {
-    statPaneTemplate,
-    statListRowTemplate,
-  });
+  console.log('templates', { statPaneTemplate, statListRowTemplate });
   const byAgent = {}
   const byStat = {};
   Object.entries(iwwcData).forEach(([ agentName, agentData ]) => {
