@@ -15,21 +15,19 @@ body {
 	margin:0;
 }
 .reload-button {
+	cursor:pointer;
+}
+.reload-button, .start-date, .end-date, .last-refresh, .agent-search {
 	background:white;
 	border:1px solid black;
 	border-radius:5px;
 	padding:5px;
 	color:#888888;
-	cursor:pointer;
 	display:inline-block;
 }
+
 .agent-search {
-	background:white;
-	border:1px solid black;
-	border-radius:5px;
-	padding:5px;
-	color:#888888;
-	cursor:pointer;
+	clear:both;
 	display:inline-flex;
 }
 .agent-search::before {

@@ -1,4 +1,5 @@
 var iwwcCustomURL = 'https://eigood.github.io/iwwc-stats-data/iwwc-custom.json';
+var iwwcInfoURL = 'https://eigood.github.io/iwwc-stats-data/iwwc-info.json';
 const skipStats = {
   'ap': true,
   'level': true,
@@ -48,7 +49,8 @@ function loadData(e) {
     e.preventDefault();
     e.stopPropagation();
   }
-  fetchJSON(iwwcCustomURL, handleData)
+  fetchJSON(iwwcCustomURL, handleCustom)
+  fetchJSON(iwwcInfoURL, handleInfo)
 }
 
 function agentSearch(e) {
@@ -66,8 +68,15 @@ function agentSearch(e) {
   })
 }
 
-function handleData(iwwcData) {
-  if (!iwwcData) return;
+function handleInfo(iwwcInfo) {
+  if (!iwwcInfo) return;
+  document.querySelector('.last-refresh').textContent = new Date(iwwcInfo.lastRefresh + 'Z')
+  document.querySelector('.start-date').textContent = new Date(iwwcInfo.startDate)
+  document.querySelector('.end-date').textContent = new Date(iwwcInfo.endDate)
+}
+
+function handleCustom(iwwcCustom) {
+  if (!iwwcCustom) return;
   const app = document.querySelector('#iwwc-app')
   app.className = ''
 
@@ -76,7 +85,7 @@ function handleData(iwwcData) {
   const byAgent = {}
   const byStat = {};
 
-  Object.entries(iwwcData).forEach(([ agentName, agentData ]) => {
+  Object.entries(iwwcCustom).forEach(([ agentName, agentData ]) => {
     const forAgent = byAgent[ agentName ] = {}
     Object.entries(agentData).forEach(([ statName, statValue ]) => {
       if (skipStats[ statName ]) return
