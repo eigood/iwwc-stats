@@ -4,10 +4,21 @@
 .iwwc-app:not(.loading) > .loading { display: none; }
 
 .stat-pane {
-	max-height: 400px;
-	max-width: 300px;
-	overflow: visible;
+	height: 400px;
+	width: 300px;
+	overflow: scroll;
 }
 .iwwc-content {
-	display: flex;
+	display: grid;
+	grid-gap:calc(var(--grid-list-gap) * 1px);
+	grid-template-columns: repeat(var(--grid-list-container-columns), minmax(calc(var(--grid-list-column-min-size) * 1px), 1fr);
+	grid-template-rows: 1fr;
+	--grid-list-container-columns: auto-fill;
+	--grid-list-column-min-size: 300;
+	--grid-list-gap: 8;
 }
+/*
+    [theme.breakpoints.down('sm')]: {
+      '--grid-list-gap': 2,
+    },
+*/
