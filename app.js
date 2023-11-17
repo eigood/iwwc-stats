@@ -39,7 +39,7 @@ async function fetchJSON(url, handler) {
 function handleLoad() {
   //fetchText(ghPagesBase + '/app.html', setHtml);
   loadData();
-  document.querySelector('.reloadButton').addEventHandler('click', loadData)
+  document.querySelector('.reload-button').addEventHandler('click', loadData)
 }
 
 function loadData(e) {
