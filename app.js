@@ -1,4 +1,5 @@
-var iwwcCustomURL = 'https://drive.google.com/uc?export=download&id=11ds9bn7JQ0GQkdQmoGgGQ3Z1dFvvSILf';
+var iwwcCustomURL = 'https://raw.githubusercontent.com/eigood/iwwc-stats/iwwc-data/iwwc-custom.json';
+
 var iwwcData = null;
 
 function fetchNoCors(url, handler) {
@@ -7,7 +8,7 @@ function fetchNoCors(url, handler) {
 
 async function fetchJSON(url, handler) {
   try {
-    const response = await fetch(url, {mode: 'cors'})
+    const response = await fetch(url, {mode: 'no-cors'})
     console.log('response', response)
     const json = await response.json();
     console.log('json', json);
