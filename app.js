@@ -15,7 +15,7 @@ const displayStats = [
   ['builder', 'Builder'],
   ['connector', 'Connector'],
   ['mind-controller', 'Mind Controller'],
-  ['llluminator', 'Illuminator'],
+  ['illuminator', 'Illuminator'],
   ['recharger', 'Recharger'],
   ['liberator', 'Liberator'],
   ['pioneer', 'Pioneer'],

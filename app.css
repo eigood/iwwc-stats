@@ -3,7 +3,7 @@
 #iwwc-app {
 	--grid-list-container-columns: auto-fill;
 	--grid-list-column-min-size: 300;
-	--grid-list-gap: 8;
+	--grid-list-gap: 24;
 }
 .loading { color: white; }
 #iwwc-app.loading .iwwc-content { display: none; }
@@ -12,6 +12,7 @@
 
 body {
 	background:#333333;
+	margin:0;
 }
 .reload-button {
 	background:white;
@@ -20,6 +21,7 @@ body {
 	padding:5px;
 	color:#888888;
 	cursor:pointer;
+	display:inline-block;
 }
 .stat-pane {
 	height: 485px;
