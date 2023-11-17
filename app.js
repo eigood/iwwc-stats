@@ -7,11 +7,9 @@ function fetchNoCors(url, handler) {
 
 async function fetchJSON(url, handler) {
   try {
-    const r = await fetch(url, {mode: 'no-cors'})
-    console.log('r', r)
-    const text = await r.text()
-    console.log('text', text);
-    const json = JSON.parse(text);
+    const response = await fetch(url)
+    console.log('response', response)
+    const json = await response.json();
     console.log('json', json);
     return await handler(json);
   } catch (e) {
