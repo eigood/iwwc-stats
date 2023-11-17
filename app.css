@@ -1,0 +1,5 @@
+.faction-enl { color: green; }
+.faction-res { color: blue; }
+.iwwc-app.loading .iwwc-content { display: none; }
+.iwwc-app:not(.loading) > .loading { display: none; }
+
