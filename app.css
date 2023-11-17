@@ -25,6 +25,9 @@ body {
 	color:#888888;
 	display:inline-block;
 }
+.start-date, .end-date {
+	display:none;
+}
 .last-refresh::before {
 	content: "Last Refresh:";
 	display:inline-block;
