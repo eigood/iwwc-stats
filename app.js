@@ -32,7 +32,7 @@ const displayStats = [
 ]
 
 async function fetchJSON(url, handler) {
-  const response = await fetch(url, {mode: 'no-cors'})
+  const response = await fetch(url, {_mode: 'no-cors'})
   const json = await response.json()
   return handler(json)
 }
