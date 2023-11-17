@@ -30,7 +30,7 @@ body {
 	padding:5px;
 	color:#888888;
 	cursor:pointer;
-	display:flex;
+	display:inline-flex;
 }
 .agent-search::before {
 	display:block;
@@ -39,7 +39,7 @@ body {
 }
 
 .agent-search input {
-	width:100px;
+	width:300px;
 }
 .stat-pane {
 	height: 485px;
