@@ -15,10 +15,11 @@ function fetchJSON(url, handler) {
 
 function handleLoad() {
   console.log('handleLoad');
-  var style = document.createElement('style');
-  style.src = ghPagesBase + '/app.css';
-  document.getElementsByTagName('head')[0].appendChild(style);
   //fetchText(ghPagesBase + '/app.html', setHtml);
+  loadData();
+}
+
+function loadData() {
   fetchJSON(iwwcCustomURL, setIwwcCustom);
 }
 
