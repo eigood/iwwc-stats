@@ -79,22 +79,24 @@ function handleData(iwwcData) {
   //console.log('by', {byAgent, byStat})
   const appContentNode = document.querySelector('#iwwc-app .iwwc-content')
   appContentNode.innerHtml = '';
-  displayStats.forEach(([ statName, statTitle ]) => {
-    const statList = byStat[ statName ]
-    const newStatPaneFragment = statPaneTemplate.content.cloneNode(true)
-    newStatPaneFragment.querySelector('.stat-header').textContent = statTitle
-    const newStatListNode = newStatPaneFragment.querySelector('.stat-list')
-    statList.forEach(([ statValue, agentName ]) => {
-      const newStatRowFragment = statListRowTemplate.content.cloneNode(true)
-      newStatRowFragment.querySelector('.stat-row').setAttribute('data-value', statValue)
-      const agentInfo = iwwcData[ agentName ]
-      newStatRowFragment.querySelector('.stat-value').textContent = statValue.toLocaleString({ useGrouping:true })
-      const agentNode = newStatRowFragment.querySelector('.agent')
-      agentNode.className += ' faction-' + agentInfo.faction
-      agentNode.textContent = agentName
-      newStatListNode.appendChild(newStatRowFragment)
+  setTimeout(function() {
+    displayStats.forEach(([ statName, statTitle ]) => {
+      const statList = byStat[ statName ]
+      const newStatPaneFragment = statPaneTemplate.content.cloneNode(true)
+      newStatPaneFragment.querySelector('.stat-header').textContent = statTitle
+      const newStatListNode = newStatPaneFragment.querySelector('.stat-list')
+      statList.forEach(([ statValue, agentName ]) => {
+        const newStatRowFragment = statListRowTemplate.content.cloneNode(true)
+        newStatRowFragment.querySelector('.stat-row').setAttribute('data-value', statValue)
+        const agentInfo = iwwcData[ agentName ]
+        newStatRowFragment.querySelector('.stat-value').textContent = statValue.toLocaleString({ useGrouping:true })
+        const agentNode = newStatRowFragment.querySelector('.agent')
+        agentNode.className += ' faction-' + agentInfo.faction
+        agentNode.textContent = agentName
+        newStatListNode.appendChild(newStatRowFragment)
+      })
+      appContentNode.appendChild(newStatPaneFragment)
     })
-    appContentNode.appendChild(newStatPaneFragment)
-  })
+  }, 0)
 }
 window.addEventListener('load', handleLoad);
