@@ -63,7 +63,7 @@ function handleData(iwwcData) {
       const newStatRowFragment = statListRowTemplate.content.cloneNode(true)
       newStatRowFragment.querySelector('.stat-row').setAttribute('data-value', statValue)
       const agentInfo = iwwcData[ agentName ]
-      newStatRowFragment.querySelector('.stat-value').textContent(statValue)
+      newStatRowFragment.querySelector('.stat-value').textContent = statValue
       const agentNode = newStatRowFragment.querySelector('.agent')
       agentNode.className += ' faction-' + agentInfo.faction
       agentNode.textContent = agentName
