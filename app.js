@@ -2,12 +2,12 @@ var iwwcCustomURL = 'https://drive.google.com/uc?export=download&id=11ds9bn7JQ0G
 var iwwcData = null;
 
 function fetchNoCors(url, handler) {
-  return fetch(url, {mode: 'no-cors'}).then(handler);
+  return fetch(url, {mode: 'no-cors', redirect: 'follow'}).then(handler);
 }
 
 async function fetchJSON(url, handler) {
   try {
-    const r = await fetchNoCors(url)
+    const r = await fetch(url, {mode: 'no-cors'})
     console.log('r', r)
     const text = await r.text()
     console.log('text', text);
