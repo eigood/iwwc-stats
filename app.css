@@ -62,6 +62,7 @@ body {
 }
 .stat-content {
 	overflow: hidden scroll;
+	background:rgba(100, 100, 100, .5)
 }
 .stat-list {
 	counter-reset:stat-position;
@@ -84,20 +85,19 @@ body {
 	padding-right:5px;
 }
 .stat-row:nth-child(1) .stat-reward::before {
-	content: "*";
 	color: #d4af37;
 }
 .stat-row:nth-child(2) .stat-reward::before {
-	content: "*";
 	color: #c0c0c0;
 }
 .stat-row:nth-child(3) .stat-reward::before {
-	content: "*";
 	color: #cd7f32;
 }
-.stat-row:nth-child(n+4):nth-child(-n+15) .stat-reward {
-	content: "*";
-	color: #b5a642;
+.stat-row:nth-child(-n+20) .stat-position {
+	color:white;
+}
+.stat-row:nth-child(n+4) .stat-reward {
+	display:none;
 }
 .stat-row * {
 	display:table-cell;
