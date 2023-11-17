@@ -39,10 +39,14 @@ async function fetchJSON(url, handler) {
 function handleLoad() {
   //fetchText(ghPagesBase + '/app.html', setHtml);
   loadData();
-  document.querySelector('.reloadButton').addListener('click', loadData)
+  document.querySelector('.reloadButton').addEventHandler('click', loadData)
 }
 
-function loadData() {
+function loadData(e) {
+  if (e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
   fetchJSON(iwwcCustomURL, handleData)
 }
 
