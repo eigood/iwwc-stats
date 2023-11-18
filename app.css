@@ -83,6 +83,7 @@ body {
 	border-bottom:1px solid black;
 	margin:0;
 	padding: 5px 0 0 5px;
+	min-height:32px;
 }
 .stat-value {
 	padding-right:5px;
@@ -147,4 +148,48 @@ body {
 	grid-gap:calc(var(--grid-list-gap) * 1px);
 	grid-template-columns: repeat(var(--grid-list-container-columns), minmax(calc(var(--grid-list-column-min-size) * 1px), 1fr));
 	grid-template-rows: 1fr;
+}
+.stat-pane {
+	--badge-width:24;
+	--badge-height:24;
+}
+.stat-row {
+	--badge-width:20;
+	--badge-height:20;
+}
+.stat-pane[data-medal='builder']		.badge::before { content:""; background-image:url(./images/builder.png); }
+.stat-pane[data-medal='connector']		.badge::before { content:""; background-image:url(./images/connector.png); }
+.stat-pane[data-medal='engineer']		.badge::before { content:""; background-image:url(./images/engineer.png); }
+.stat-pane[data-medal='explorer']		.badge::before { content:""; background-image:url(./images/explorer.png); }
+.stat-pane[data-medal='hacker']			.badge::before { content:""; background-image:url(./images/hacker.png); }
+.stat-pane[data-medal='illuminator']		.badge::before { content:""; background-image:url(./images/illuminator.png); }
+.stat-pane[data-medal='liberator']		.badge::before { content:""; background-image:url(./images/liberator.png); }
+.stat-pane[data-medal='maverick']		.badge::before { content:""; background-image:url(./images/maverick.png); }
+.stat-pane[data-medal='mind-controller']	.badge::before { content:""; background-image:url(./images/mind_controller.png); }
+.stat-pane[data-medal='pioneer']		.badge::before { content:""; background-image:url(./images/pioneer.png); }
+.stat-pane[data-medal='purifier']		.badge::before { content:""; background-image:url(./images/purifier.png); }
+.stat-pane[data-medal='recharger']		.badge::before { content:""; background-image:url(./images/recharger.png); }
+.stat-pane[data-medal='recon']			.badge::before { content:""; background-image:url(./images/recon.png); }
+.stat-pane[data-medal='scout']			.badge::before { content:""; background-image:url(./images/scout.png); }
+.stat-pane[data-medal='scout_controller']	.badge::before { content:""; background-image:url(./images/scout_controller.png); }
+.stat-pane[data-medal='specops']		.badge::before { content:""; background-image:url(./images/specops.png); }
+.stat-pane[data-medal='translator']		.badge::before { content:""; background-image:url(./images/translator.png); }
+.stat-pane[data-medal='trekker']		.badge::before { content:""; background-image:url(./images/trekker.png); }
+.stat-row.bronze .badge::before, .bronze::before	{ background-position:calc(var(--badge-width) * 0 * -1px); }
+.stat-row.silver .badge::before, .silver::before	{ background-position:calc(var(--badge-width) * 1 * -1px); }
+.stat-row.gold .badge::before, .gold::before		{ background-position:calc(var(--badge-width) * 2 * -1px); }
+.stat-row.platinum .badge::before, .platinum::before	{ background-position:calc(var(--badge-width) * 3 * -1px); }
+.stat-row.onyx .badge::before, .onyx::before		{ background-position:calc(var(--badge-width) * 4 * -1px); }
+
+.stat-pane .stat-header .badge::before {
+	background-size:cover;
+	width:calc(var(--badge-width) * 5 * 1px);
+	height:calc(var(--badge-height) * 1 * 1px);
+	display:inline-block;
+}
+.stat-pane .stat-reward.badge::before {
+	background-size:cover;
+	width:calc(var(--badge-width) * 1 * 1px);
+	height:calc(var(--badge-height) * 1 * 1px);
+	display:inline-block;
 }

@@ -120,13 +120,24 @@ function handleCustom(iwwcCustom) {
     displayStats.forEach(([ statName, statTitle ]) => {
       const statList = byStat[ statName ]
       const newStatPaneFragment = statPaneTemplate.content.cloneNode(true)
-      newStatPaneFragment.querySelector('.stat-header').textContent = statTitle
+      const newStatPaneNode = newStatPaneFragment.querySelector('.stat-pane')
+      newStatPaneNode.dataset.medal = statName
+      newStatPaneFragment.querySelector('.stat-header .title').textContent = statTitle
       const newStatListNode = newStatPaneFragment.querySelector('.stat-list')
-      statList.forEach(([ statValue, agentName ]) => {
+      statList.forEach(([ statValue, agentName ], index) => {
         const newStatRowFragment = statListRowTemplate.content.cloneNode(true)
         const statRowNode = newStatRowFragment.querySelector('.stat-row')
-        statRowNode.setAttribute('data-value', statValue)
-        statRowNode.setAttribute('data-agent', agentName)
+        statRowNode.dataset.value = statValue
+        statRowNode.dataset.agent = agentName
+        if (index === 0) {
+          statRowNode.className += ' onyx'
+        } else if (index === 1) {
+          statRowNode.className += ' platinum'
+        } else if (index === 2) {
+          statRowNode.className += ' gold'
+        } else if (index < 20) {
+          statRowNode.className += ' silver'
+        }
         const agentInfo = iwwcCustom[ agentName ]
         newStatRowFragment.querySelector('.stat-value').textContent = statValue.toLocaleString({ useGrouping:true })
         const agentNode = newStatRowFragment.querySelector('.agent')

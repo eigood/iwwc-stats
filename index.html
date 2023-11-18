@@ -7,7 +7,10 @@
 <body>
 <template id="stat-pane">
  <div class="stat-pane">
-  <h4 class="stat-header"></h4>
+  <h4 class="stat-header">
+   <span class="title"></span>
+   <span class="badge"></span>
+  </h4>
   <div class="stat-content">
     <ol class="stat-list"></ol>
   </div>
@@ -16,7 +19,7 @@
 <template id="stat-list-row">
  <li class='stat-row' data-value="0">
   <span class="stat-position"></span>
-  <span class="stat-reward fa-solid fa-medal"></span>
+  <span class="stat-reward -fa-solid -fa-medal badge"></span>
   <dfn class="stat-value"></dfn>
   <span class="agent"></span>
  </li>
