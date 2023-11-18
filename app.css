@@ -120,19 +120,22 @@ body {
 	content: counter(stat-position);
 	padding-right:5px;
 }
-.stat-row:nth-child(1) .stat-reward::before {
+.stat-row.onyx .stat-reward::before {
 	color: #d4af37;
 }
-.stat-row:nth-child(2) .stat-reward::before {
+.stat-row.platinum .stat-reward::before {
 	color: #c0c0c0;
 }
-.stat-row:nth-child(3) .stat-reward::before {
+.stat-row.gold .stat-reward::before {
 	color: #cd7f32;
 }
-.stat-row:nth-child(-n+20) .stat-position {
+.stat-row.silver .stat-position {
 	color:white;
 }
-.stat-row:nth-child(n+4) .stat-reward::before {
+.stat-row.silver .stat-reward::before {
+	display:none;
+}
+.stat-row.none .stat-reward::before {
 	display:none;
 }
 .stat-row * {
@@ -157,24 +160,24 @@ body {
 	--badge-width:20;
 	--badge-height:20;
 }
-.stat-pane[data-medal='builder']		.badge::before { content:""; background-image:url(./images/builder.png); }
-.stat-pane[data-medal='connector']		.badge::before { content:""; background-image:url(./images/connector.png); }
-.stat-pane[data-medal='engineer']		.badge::before { content:""; background-image:url(./images/engineer.png); }
-.stat-pane[data-medal='explorer']		.badge::before { content:""; background-image:url(./images/explorer.png); }
-.stat-pane[data-medal='hacker']			.badge::before { content:""; background-image:url(./images/hacker.png); }
-.stat-pane[data-medal='illuminator']		.badge::before { content:""; background-image:url(./images/illuminator.png); }
-.stat-pane[data-medal='liberator']		.badge::before { content:""; background-image:url(./images/liberator.png); }
-.stat-pane[data-medal='maverick']		.badge::before { content:""; background-image:url(./images/maverick.png); }
-.stat-pane[data-medal='mind-controller']	.badge::before { content:""; background-image:url(./images/mind_controller.png); }
-.stat-pane[data-medal='pioneer']		.badge::before { content:""; background-image:url(./images/pioneer.png); }
-.stat-pane[data-medal='purifier']		.badge::before { content:""; background-image:url(./images/purifier.png); }
-.stat-pane[data-medal='recharger']		.badge::before { content:""; background-image:url(./images/recharger.png); }
-.stat-pane[data-medal='recon']			.badge::before { content:""; background-image:url(./images/recon.png); }
-.stat-pane[data-medal='scout']			.badge::before { content:""; background-image:url(./images/scout.png); }
-.stat-pane[data-medal='scout_controller']	.badge::before { content:""; background-image:url(./images/scout_controller.png); }
-.stat-pane[data-medal='specops']		.badge::before { content:""; background-image:url(./images/specops.png); }
-.stat-pane[data-medal='translator']		.badge::before { content:""; background-image:url(./images/translator.png); }
-.stat-pane[data-medal='trekker']		.badge::before { content:""; background-image:url(./images/trekker.png); }
+.stat-pane[data-medal='builder']		.badge::before { content:""; background-image:url(./images/builder.png); display:inline-block; }
+.stat-pane[data-medal='connector']		.badge::before { content:""; background-image:url(./images/connector.png); display:inline-block; }
+.stat-pane[data-medal='engineer']		.badge::before { content:""; background-image:url(./images/engineer.png); display:inline-block; }
+.stat-pane[data-medal='explorer']		.badge::before { content:""; background-image:url(./images/explorer.png); display:inline-block; }
+.stat-pane[data-medal='hacker']			.badge::before { content:""; background-image:url(./images/hacker.png); display:inline-block; }
+.stat-pane[data-medal='illuminator']		.badge::before { content:""; background-image:url(./images/illuminator.png); display:inline-block; }
+.stat-pane[data-medal='liberator']		.badge::before { content:""; background-image:url(./images/liberator.png); display:inline-block; }
+.stat-pane[data-medal='maverick']		.badge::before { content:""; background-image:url(./images/maverick.png); display:inline-block; }
+.stat-pane[data-medal='mind-controller']	.badge::before { content:""; background-image:url(./images/mind_controller.png); display:inline-block; }
+.stat-pane[data-medal='pioneer']		.badge::before { content:""; background-image:url(./images/pioneer.png); display:inline-block; }
+.stat-pane[data-medal='purifier']		.badge::before { content:""; background-image:url(./images/purifier.png); display:inline-block; }
+.stat-pane[data-medal='recharger']		.badge::before { content:""; background-image:url(./images/recharger.png); display:inline-block; }
+.stat-pane[data-medal='recon']			.badge::before { content:""; background-image:url(./images/recon.png); display:inline-block; }
+.stat-pane[data-medal='scout']			.badge::before { content:""; background-image:url(./images/scout.png); display:inline-block; }
+.stat-pane[data-medal='scout_controller']	.badge::before { content:""; background-image:url(./images/scout_controller.png); display:inline-block; }
+.stat-pane[data-medal='specops']		.badge::before { content:""; background-image:url(./images/specops.png); display:inline-block; }
+.stat-pane[data-medal='translator']		.badge::before { content:""; background-image:url(./images/translator.png); display:inline-block; }
+.stat-pane[data-medal='trekker']		.badge::before { content:""; background-image:url(./images/trekker.png); display:inline-block; }
 .stat-row.bronze .badge::before, .bronze::before	{ background-position:calc(var(--badge-width) * 0 * -1px); }
 .stat-row.silver .badge::before, .silver::before	{ background-position:calc(var(--badge-width) * 1 * -1px); }
 .stat-row.gold .badge::before, .gold::before		{ background-position:calc(var(--badge-width) * 2 * -1px); }
@@ -185,11 +188,12 @@ body {
 	background-size:cover;
 	width:calc(var(--badge-width) * 5 * 1px);
 	height:calc(var(--badge-height) * 1 * 1px);
-	display:inline-block;
 }
 .stat-pane .stat-reward.badge::before {
 	background-size:cover;
 	width:calc(var(--badge-width) * 1 * 1px);
 	height:calc(var(--badge-height) * 1 * 1px);
-	display:inline-block;
+}
+.stat-row.none .stat-reward.badge::before {
+	-display:none;
 }

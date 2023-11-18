@@ -137,6 +137,8 @@ function handleCustom(iwwcCustom) {
           statRowNode.className += ' gold'
         } else if (index < 20) {
           statRowNode.className += ' silver'
+        } else {
+          statRowNode.className += ' none'
         }
         const agentInfo = iwwcCustom[ agentName ]
         newStatRowFragment.querySelector('.stat-value').textContent = statValue.toLocaleString({ useGrouping:true })
