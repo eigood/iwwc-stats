@@ -49,7 +49,14 @@ function handleLoad() {
   //fetchText(ghPagesBase + '/app.html', setHtml);
   loadData();
   document.querySelector('.reload-button').addEventListener('click', loadData)
-  document.querySelector('.agent-search input').addEventListener('keyup', handleAgentSearch)
+  const searchInput = document.querySelector('.agent-search input')
+  searchInput.addEventListener('keyup', handleAgentSearch)
+  const location = document.location
+  console.log('location', location)
+  const hash = location.hash
+  if (hash) {
+    setSearch(hash.substring(1))
+  }
   document.querySelector('.clear-search').addEventListener('click', handleClearSearch)
 }
 
@@ -94,7 +101,9 @@ function setSearch(value) {
 }
 
 function filterDisplay(search) {
-  console.log('searching', { search })
+  const newHash = search ? '#' + search : '#'
+  console.log('searching', { search, newHash })
+  history.replaceState(null, '', newHash)
   const agentSearch = search.toUpperCase()
   document.querySelector('#iwwc-app').classList.remove('searching')
   if (agentSearch) {
