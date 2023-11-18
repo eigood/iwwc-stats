@@ -49,7 +49,7 @@ function handleLoad() {
   //fetchText(ghPagesBase + '/app.html', setHtml);
   loadData();
   document.querySelector('.reload-button').addEventListener('click', loadData)
-  document.querySelector('.agent-search input').addEventListener('keyup', agentSearch)
+  document.querySelector('.agent-search input').addEventListener('keyup', handleAgentSearch)
 }
 
 function loadData(e) {
@@ -61,23 +61,45 @@ function loadData(e) {
   fetchJSON(iwwcInfoURL, handleInfo)
 }
 
-const agentSearch = debounce((e) => {
+let byAgent = {}, byStat = {}, iwwcCustom = {}, iwwcInfo = {}
+
+function removeClassFromList(nodeList, className) {
+  for (const node of nodeList) {
+    node.classList.remove(className)
+  }
+}
+
+function addClassToList(nodeList, className) {
+  for (const node of nodeList) {
+    node.classList.add(className)
+  }
+}
+
+const handleAgentSearch = debounce((e) => {
   e.preventDefault()
   e.stopPropagation()
   console.log('search', e)
-  const agentSearch = e.target.value.toUpperCase()
-  document.querySelectorAll('.stat-row').forEach(statRowNode => {
-    const agentName = statRowNode.getAttribute('data-agent');
-    if (!agentSearch || agentName.toUpperCase().indexOf(agentSearch) !== -1) {
-      statRowNode.className = 'stat-row'
-    } else {
-      statRowNode.className = 'stat-row hidden'
-    }
-  })
+  setFilter(e.target.value)
 })
 
-function handleInfo(iwwcInfo) {
-  if (!iwwcInfo) return;
+function setFilter(search) {
+  console.log('searching', { search })
+  const agentSearch = search.toUpperCase()
+  document.querySelector('#iwwc-app').classList.remove('searching')
+  if (agentSearch) {
+    document.querySelector('#iwwc-app').classList.add('searching')
+    const foundAgents = Object.keys(byAgent).filter(agentName => agentName.toUpperCase().indexOf(agentSearch) !== -1)
+    console.log('foundAgents', foundAgents)
+    removeClassFromList(document.querySelectorAll('.stat-row.matched'), 'matched')
+    for (const agentName of foundAgents) {
+      addClassToList(document.querySelectorAll('.stat-row[data-agent="' + agentName + '"]'), 'matched')
+    }
+  }
+}
+
+function handleInfo(result) {
+  if (!result) return;
+  iwwcInfo = result
   const fullFormatOptions = { weekday:"short", year:"numeric", month:"short", day:"numeric", hour: "2-digit", minute: "numeric", second: "numeric" }
   const shortFormatOptions = { weekday:"short", year:"numeric", month:"short", day:"numeric" }
   document.querySelector('.last-refresh').textContent = new Date(iwwcInfo.lastRefresh + 'Z').toLocaleString(navigator.language, fullFormatOptions)
@@ -85,30 +107,31 @@ function handleInfo(iwwcInfo) {
   document.querySelector('.end-date').textContent = new Date(iwwcInfo.endDate).toLocaleString(navigator.language, shortFormatOptions)
 }
 
-function handleCustom(iwwcCustom) {
-  if (!iwwcCustom) return;
+function handleCustom(result) {
+  if (!result) return;
+  iwwcCustom = result
   const app = document.querySelector('#iwwc-app')
   app.className = ''
 
   var statPaneTemplate = document.querySelector('#stat-pane');
   var statListRowTemplate = document.querySelector('#stat-list-row');
-  const byAgent = {}
-  const byStat = {};
+  byAgent = {}
+  byStat = {};
 
   Object.entries(iwwcCustom).forEach(([ agentName, agentData ]) => {
     const forAgent = byAgent[ agentName ] = {}
     Object.entries(agentData).forEach(([ statName, statValue ]) => {
       if (skipStats[ statName ]) return
-      forAgent[ statName ] = [ statValue ]
-      const statList = byStat[ statName ] || (byStat[ statName ] = [])
-      statList.push([ statValue, agentName ])
+      byStat[ statName ] = null;
     })
   })
-  const statSorter = (a, b) => b[0] - a[0]
-  Object.entries(byStat).forEach(([ statName, statList ]) => {
-    statList.sort(statSorter)
-    statList.forEach(([ statValue, agentName ], index) => {
-      byAgent[ agentName ][ statName ][ 1 ] = index
+  const allAgents = Object.keys(iwwcCustom)
+  const statSorter = statName => (a, b) => iwwcCustom[ b ][ statName ] - iwwcCustom[ a ][ statName ]
+
+  Object.keys(byStat).forEach(statName => {
+    const statSorted = byStat[ statName ] = [...allAgents].sort(statSorter(statName))
+    statSorted.forEach((agentName, index) => {
+      byAgent[ agentName ][ statName ] = index
     })
   })
   //console.log('by', {byAgent, byStat})
@@ -124,7 +147,8 @@ function handleCustom(iwwcCustom) {
       newStatPaneNode.dataset.medal = statName
       newStatPaneFragment.querySelector('.stat-header .title').textContent = statTitle
       const newStatListNode = newStatPaneFragment.querySelector('.stat-list')
-      statList.forEach(([ statValue, agentName ], index) => {
+      statList.forEach((agentName, index) => {
+        const statValue = iwwcCustom[ agentName ][ statName ]
         const newStatRowFragment = statListRowTemplate.content.cloneNode(true)
         const statRowNode = newStatRowFragment.querySelector('.stat-row')
         statRowNode.dataset.value = statValue
@@ -149,6 +173,7 @@ function handleCustom(iwwcCustom) {
       })
       appContentNode.appendChild(newStatPaneFragment)
     })
+    setFilter(document.querySelector('.agent-search input').value)
   }, 0)
 }
 window.addEventListener('load', handleLoad);

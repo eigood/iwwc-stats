@@ -106,7 +106,7 @@ body {
 	display:table-row;
 	counter-increment:stat-position;
 }
-.stat-row.hidden {
+#iwwc-app.searching .stat-row:not(.matched) {
 	height:0;
 	visibility:collapse;
 }
