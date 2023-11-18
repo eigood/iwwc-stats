@@ -62,7 +62,9 @@ body {
 	content: 'Search: ';
 	border-left:1px solid black;
 }
-
+.clear-search {
+	cursor:pointer;
+}
 .agent-search input {
 	width:300px;
 	padding:0;

@@ -50,6 +50,7 @@ function handleLoad() {
   loadData();
   document.querySelector('.reload-button').addEventListener('click', loadData)
   document.querySelector('.agent-search input').addEventListener('keyup', handleAgentSearch)
+  document.querySelector('.clear-search').addEventListener('click', handleClearSearch)
 }
 
 function loadData(e) {
@@ -81,6 +82,12 @@ const handleAgentSearch = debounce((e) => {
   console.log('search', e)
   setFilter(e.target.value)
 })
+
+function handleClearSearch(e) {
+  console.log('handleClearSearch', e)
+  document.querySelector('.agent-search input').value = ''
+  setFilter('')
+}
 
 function setFilter(search) {
   console.log('searching', { search })
