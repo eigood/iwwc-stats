@@ -80,16 +80,20 @@ const handleAgentSearch = debounce((e) => {
   e.preventDefault()
   e.stopPropagation()
   console.log('search', e)
-  setFilter(e.target.value)
+  filterDisplay(e.target.value)
 })
 
 function handleClearSearch(e) {
   console.log('handleClearSearch', e)
-  document.querySelector('.agent-search input').value = ''
-  setFilter('')
+  setSearch('')
 }
 
-function setFilter(search) {
+function setSearch(value) {
+  document.querySelector('.agent-search input').value = value
+  filterDisplay(value)
+}
+
+function filterDisplay(search) {
   console.log('searching', { search })
   const agentSearch = search.toUpperCase()
   document.querySelector('#iwwc-app').classList.remove('searching')
@@ -176,11 +180,15 @@ function handleCustom(result) {
         const agentNode = newStatRowFragment.querySelector('.agent')
         agentNode.className += ' faction-' + agentInfo.faction
         agentNode.textContent = agentName
+        agentNode.addEventListener('click', e => {
+          console.log('click agent', {agentName})
+          setSearch(agentName)
+        })
         newStatListNode.appendChild(newStatRowFragment)
       })
       appContentNode.appendChild(newStatPaneFragment)
     })
-    setFilter(document.querySelector('.agent-search input').value)
+    filterDisplay(document.querySelector('.agent-search input').value)
   }, 0)
 }
 window.addEventListener('load', handleLoad);
