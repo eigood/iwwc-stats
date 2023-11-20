@@ -153,7 +153,13 @@ function handleCustom(result) {
     })
   })
   const allAgents = Object.keys(iwwcCustom)
-  const statSorter = statName => (a, b) => iwwcCustom[ b ][ statName ] - iwwcCustom[ a ][ statName ]
+  const statSorter = statName => (a, b) => {
+    const valueDiff = iwwcCustom[ b ][ statName ] - iwwcCustom[ a ][ statName ]
+    if (valueDiff) return valueDiff
+    if (a < b) return -1
+    if (a > b) return 1
+    return 0
+  }
 
   Object.keys(byStat).forEach(statName => {
     const statSorted = byStat[ statName ] = [...allAgents].sort(statSorter(statName))
@@ -178,6 +184,7 @@ function handleCustom(result) {
       const newStatListNode = newStatPaneFragment.querySelector('.stat-list')
       const activeAgents = { enl: 0, res: 0 }
       const sumAgents = { enl: 0, res: 0 }
+      let lastValue = undefined, lastPosition = undefined
       statList.forEach((agentName, index) => {
         const forAgent = byAgent[ agentName ]
         const agentInfo = iwwcCustom[ agentName ]
@@ -190,13 +197,21 @@ function handleCustom(result) {
         statRowNode.dataset.value = statValue
         statRowNode.dataset.agent = agentName
         forAgent.rows.push(statRowNode)
-        if (index === 0) {
+        if (lastValue === undefined) {
+          lastValue = statValue
+          lastPosition = index + 1
+        } else if (statValue !== lastValue) {
+          lastValue = statValue
+          lastPosition = index + 1
+        }
+        newStatRowFragment.querySelector('.stat-position').textContent = lastPosition
+        if (lastPosition === 1) {
           statRowNode.className += ' onyx'
-        } else if (index === 1) {
+        } else if (lastPosition === 2) {
           statRowNode.className += ' platinum'
-        } else if (index === 2) {
+        } else if (lastPosition === 3) {
           statRowNode.className += ' gold'
-        } else if (index < 20) {
+        } else if (lastPosition < 21) {
           statRowNode.className += ' silver'
         } else {
           statRowNode.className += ' none'

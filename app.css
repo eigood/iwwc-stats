@@ -136,12 +136,13 @@ body {
 }
 .stat-position {
 	text-align:right;
+	padding-right:5px;
 }
 .stat-reward {
 	padding-right:5px;
 }
 .stat-row .stat-position::before {
-	content: counter(stat-position);
+	//content: counter(stat-position);
 	padding-right:5px;
 }
 .stat-row.onyx .stat-reward::before {
