@@ -18,10 +18,12 @@ purifier := purifier1-300x300.png purifier2-300x300.png purifier3-300x300.png pu
 recharger := recharger1-300x300.png recharger2-300x300.png recharger3-300x300.png recharger4-1-300x300.png recharger5-1-300x300.png
 recon := bronze_recon-300x300.png silver_recon-300x300.png gold_recon-300x300.png plat_recon-300x300.png black_recon-300x300.png
 scout_controller := scout-controller-bronze.png scout-controller-gold.png scout-controller-onyx.png scout-controller-platinum.png scout-controller-silver.png
-scout_controller_geometry := +20+20
+scout_controller_size := 44x44
+scout_controller_geometry := +3+3
 specops := specops1-300x300.png specops2-300x300.png specops3-300x300.png specops4-1-300x300.png specops5-1-300x300.png
 scout := scout-bronze.png scout-gold.png scout-onyx.png scout-platinum.png scout-silver.png
-scout_geometry := +20+20
+scout_size := 44x44
+scout_geometry := +3+3
 translator := trans_bronze-300x300.png trans_silver-300x300.png trans_gold-300x300.png translator4-300x300.png translator5-300x300.png
 trekker := trekker11-300x300.png trekker2-300x300.png trekker3-300x300.png trekker4-1-300x300.png trekker5-1-300x300.png
 
@@ -33,11 +35,12 @@ png_compression := #-depth 24 -define png:compression-filter=0 -define png:compr
 define make_badge_sprite
 all: badge_$(1)
 badge_$(1): $(DIST)/images/badge_$(1).png
-$$(DIST)/images/badge_$(1).png: montage_geometry := $$(if $$($(1)_geometry),$$($(1)_geometry),+0)
+$$(DIST)/images/badge_$(1).png: sprite_geometry := $$(if $$($(1)_geometry),$$($(1)_geometry),+0)
+$$(DIST)/images/badge_$(1).png: sprite_size := $$(if $$($(1)_size),$$($(1)_size),$$(sprite_size))
 $$(DIST)/images/badge_$(1).png: $$(patsubst %,$$(CURDIR)/src/images/badges/%,$$($(1)))
 	@echo "Creating badge sprite: $(1)"
 	@mkdir -p "$$(@D)"
-	montage $$^ -background none $$(png_compression) -geometry '$$(sprite_size)^$$(montage_geometry)' -tile 5x1 png32:$$(@D)/.tmp.$$(@F)
+	montage $$^ -background none $$(png_compression) -geometry '$$(sprite_size)!$$(sprite_geometry)' -tile 5x1 png32:$$(@D)/.tmp.$$(@F)
 	@mv $$(@D)/.tmp.$$(@F) $$@
 
 endef
