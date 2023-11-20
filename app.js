@@ -143,7 +143,9 @@ function handleCustom(result) {
   byAgent = {}
   byStat = {};
 
+  const factionCounts = { enl: 0, res: 0 }
   Object.entries(iwwcCustom).forEach(([ agentName, agentData ]) => {
+    factionCounts[ agentData.faction ]++
     const forAgent = byAgent[ agentName ] = { index: undefined, rows: [] }
     Object.entries(agentData).forEach(([ statName, statValue ]) => {
       if (skipStats[ statName ]) return
@@ -164,6 +166,8 @@ function handleCustom(result) {
   while (appContentNode.firstChild) {
     appContentNode.removeChild(appContentNode.lastChild)
   }
+   //<span class="enl-sum"></span>[<span class="enl-agent"></span>/<span class="enl-total">]</span>
+   //<span class="res-sum"></span>[<span class="res-agent"></span>/<span class="res-total">]</span>
   setTimeout(function() {
     displayStats.forEach(([ statName, statTitle ]) => {
       const statList = byStat[ statName ]
@@ -172,11 +176,17 @@ function handleCustom(result) {
       newStatPaneNode.dataset.medal = statName
       newStatPaneFragment.querySelector('.stat-header .title').textContent = statTitle
       const newStatListNode = newStatPaneFragment.querySelector('.stat-list')
+      const activeAgents = { enl: 0, res: 0 }
+      const sumAgents = { enl: 0, res: 0 }
       statList.forEach((agentName, index) => {
         const forAgent = byAgent[ agentName ]
-        const statValue = iwwcCustom[ agentName ][ statName ]
+        const agentInfo = iwwcCustom[ agentName ]
+        const faction = agentInfo.faction
+        const statValue = agentInfo[ statName ]
         const newStatRowFragment = statListRowTemplate.content.cloneNode(true)
         const statRowNode = newStatRowFragment.querySelector('.stat-row')
+        if (statValue) activeAgents[ faction ]++
+        sumAgents[ faction ] += statValue
         statRowNode.dataset.value = statValue
         statRowNode.dataset.agent = agentName
         forAgent.rows.push(statRowNode)
@@ -191,7 +201,6 @@ function handleCustom(result) {
         } else {
           statRowNode.className += ' none'
         }
-        const agentInfo = iwwcCustom[ agentName ]
         newStatRowFragment.querySelector('.stat-value').textContent = statValue.toLocaleString({ useGrouping:true })
         const agentNode = newStatRowFragment.querySelector('.agent')
         agentNode.className += ' faction-' + agentInfo.faction
@@ -202,6 +211,12 @@ function handleCustom(result) {
         })
         newStatListNode.appendChild(newStatRowFragment)
       })
+      newStatPaneFragment.querySelector('.stat-footer .enl-stat .sum').textContent = sumAgents.enl.toLocaleString({ useGrouping:true })
+      newStatPaneFragment.querySelector('.stat-footer .enl-stat .total').textContent = factionCounts.enl
+      newStatPaneFragment.querySelector('.stat-footer .enl-stat .agent').textContent = activeAgents.enl
+      newStatPaneFragment.querySelector('.stat-footer .res-stat .sum').textContent = sumAgents.res.toLocaleString({ useGrouping:true })
+      newStatPaneFragment.querySelector('.stat-footer .res-stat .total').textContent = factionCounts.res
+      newStatPaneFragment.querySelector('.stat-footer .res-stat .agent').textContent = activeAgents.res
       appContentNode.appendChild(newStatPaneFragment)
     })
     filterDisplay(document.querySelector('.agent-search input').value)
