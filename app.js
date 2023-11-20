@@ -83,12 +83,12 @@ function addClassToList(nodeList, className) {
   }
 }
 
-const handleAgentSearch = debounce((e) => {
+const handleAgentSearch = (e) => {
   e.preventDefault()
   e.stopPropagation()
   console.log('search', e)
   filterDisplay(e.target.value)
-})
+}
 
 function handleClearSearch(e) {
   console.log('handleClearSearch', e)
@@ -100,22 +100,27 @@ function setSearch(value) {
   filterDisplay(value)
 }
 
-function filterDisplay(search) {
+let lastMatchRows = []
+
+const filterDisplay = debounce(search => {
   const newHash = search ? '#' + search : '#'
   console.log('searching', { search, newHash })
   history.replaceState(null, '', newHash)
   const agentSearch = search.toUpperCase()
   document.querySelector('#iwwc-app').classList.remove('searching')
+  removeClassFromList(lastMatchRows, 'matched')
+  lastMatchRows = []
   if (agentSearch) {
     document.querySelector('#iwwc-app').classList.add('searching')
     const foundAgents = Object.keys(byAgent).filter(agentName => agentName.toUpperCase().indexOf(agentSearch) !== -1)
     console.log('foundAgents', foundAgents)
-    removeClassFromList(document.querySelectorAll('.stat-row.matched'), 'matched')
     for (const agentName of foundAgents) {
-      addClassToList(document.querySelectorAll('.stat-row[data-agent="' + agentName + '"]'), 'matched')
+      const agentRows = byAgent[ agentName ].rows
+      lastMatchRows.splice(lastMatchRows.length, 0, ...agentRows)
+      addClassToList(agentRows, 'matched')
     }
   }
-}
+})
 
 function handleInfo(result) {
   if (!result) return;
@@ -139,7 +144,7 @@ function handleCustom(result) {
   byStat = {};
 
   Object.entries(iwwcCustom).forEach(([ agentName, agentData ]) => {
-    const forAgent = byAgent[ agentName ] = {}
+    const forAgent = byAgent[ agentName ] = { index: undefined, rows: [] }
     Object.entries(agentData).forEach(([ statName, statValue ]) => {
       if (skipStats[ statName ]) return
       byStat[ statName ] = null;
@@ -168,11 +173,13 @@ function handleCustom(result) {
       newStatPaneFragment.querySelector('.stat-header .title').textContent = statTitle
       const newStatListNode = newStatPaneFragment.querySelector('.stat-list')
       statList.forEach((agentName, index) => {
+        const forAgent = byAgent[ agentName ]
         const statValue = iwwcCustom[ agentName ][ statName ]
         const newStatRowFragment = statListRowTemplate.content.cloneNode(true)
         const statRowNode = newStatRowFragment.querySelector('.stat-row')
         statRowNode.dataset.value = statValue
         statRowNode.dataset.agent = agentName
+        forAgent.rows.push(statRowNode)
         if (index === 0) {
           statRowNode.className += ' onyx'
         } else if (index === 1) {
