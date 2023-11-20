@@ -106,6 +106,14 @@ body {
 	margin:0;
 	padding: 5px 0 0 5px;
 	min-height:32px;
+	display:flex;
+	align-items:flex-start;
+}
+.stat-header .badge {
+	flex-grow:1;
+}
+.stat-pane:not(.stat-loading) .stat-header .loading-icon {
+	display:none;
 }
 .stat-value {
 	padding-right:5px;
@@ -130,10 +138,6 @@ body {
 .stat-row {
 	display:table-row;
 	counter-increment:stat-position;
-}
-#iwwc-app.searching .stat-row:not(.matched) {
-	height:0;
-	visibility:collapse;
 }
 .stat-position {
 	text-align:right;
