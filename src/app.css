@@ -114,6 +114,7 @@ body {
 	text-align:right;
 }
 .stat-content {
+	flex-grow:1;
 	overflow: hidden scroll;
 	background:rgba(100, 100, 100, .5)
 }
