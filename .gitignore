@@ -1,3 +1,7 @@
 .*.sw?
+.cache
 .jekyll-cache
+.sass-cache
+_site
 /dist/
+
