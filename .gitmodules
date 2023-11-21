@@ -1,4 +1,0 @@
-[submodule "dist"]
-	path = dist
-	url = git@github.com:eigood/iwwc-stats.git
-	branch = gh-pages
