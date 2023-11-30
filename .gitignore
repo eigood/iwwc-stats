@@ -4,4 +4,7 @@
 .sass-cache
 _site
 /dist/
-
+/deploy/
+.env.*
+.env
+/node_modules/

@@ -1,0 +1,22 @@
+---
+import BaseLayout from '../layouts/base.astro'
+import { displayStats } from '../data/iwwc-config.js'
+import { load } from '../data/iwwc-stats.js'
+
+import StatPane from '../components/StatPane.jsx'
+import Header from '../components/Header.jsx'
+
+await load()
+---
+<BaseLayout title="IWWC Stats">
+  <div id='iwwc-app' class=''>
+    <Header client:load/>
+    <div class="container">
+      <div class="iwwc-content">
+        {displayStats.map(([ statName, statTitle ]) => (
+          <StatPane client:load statName={statName} statTitle={statTitle}/>
+        ))}
+      </div>
+    </div>
+  </div>
+</BaseLayout>

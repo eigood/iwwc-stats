@@ -1,0 +1,96 @@
+---
+import '../app.css'
+import { iwwcInfo, iwwcData } from '../data/iwwc-stats.js'
+import { $rawIwwcData } from '../stores/iwwc-stats.js'
+
+const rawIwwcData = $rawIwwcData.get()
+---
+<html>
+  <head>
+    <link rel="stylesheet" href="/css/fontawesome-free-6.4.2-web/css/all.css">
+  </head>
+  <body>
+    <slot/>
+  </body>
+</html>
+<script>
+import { $rawIwwcData } from '../stores/iwwc-stats.js'
+
+window.$rawIwwcData = $rawIwwcData
+</script>
+<script define:vars={{rawIwwcData}}>
+window.addEventListener('load', () => {
+  window.$rawIwwcData.set(rawIwwcData)
+})
+</script>
+<script is:global>
+
+function debounce(func, timeout = 300){
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => { func.apply(this, args) }, timeout)
+  }
+}
+
+const setSearch = (value) => {
+  document.querySelector('.agent-search input').value = value
+  filterDisplay(value)
+}
+
+let lastSearch
+
+const filterDisplay = (search) => {
+  const newHash = search ? '#' + search : '#'
+  console.log('searching', { search, newHash, skip: lastSearch === search })
+  if (lastSearch === search) return
+  lastSearch = search
+  history.replaceState(null, '', newHash)
+  const agentSearch = search.toUpperCase()
+
+  setTimeout(() => {
+    const iwwcAppNode = document.querySelector('#iwwc-app')
+    if (agentSearch) {
+      if (!iwwcAppNode.classList.contains('searching')) iwwcAppNode.classList.add('searching')
+      const searchStyleNode = document.querySelector('#search-style')
+      searchStyleNode.textContent = `
+#iwwc-app.searching .stat-row:not([data-agent*='${agentSearch}' i]) {
+        height:0;
+        visibility:collapse;
+}
+      `
+    } else {
+      iwwcAppNode.classList.remove('searching')
+    }
+  }, 0)
+}
+
+const debouncedFilterDisplay = debounce(filterDisplay)
+
+window.addEventListener('load', () => {
+  const searchStyleElement = document.createElement('style')
+  searchStyleElement.setAttribute('id', 'search-style')
+  document.querySelector('head').appendChild(searchStyleElement)
+  document.addEventListener('click', e => {
+    if (e.target.matches('.agent')) {
+      const agentName = e.target.dataset.agent
+      e.stopPropagation()
+      e.preventDefault()
+      debouncedFilterDisplay(agentName)
+    }
+  })
+  document.querySelector('.agent-search input').addEventListener('keyup', e => {
+    e.stopPropagation()
+    e.preventDefault()
+    debouncedFilterDisplay(e.target.value)
+  })
+  document.querySelector('.clear-search').addEventListener('click', e => {
+    setSearch('')
+  })
+  const location = document.location
+  const hash = location.hash
+  if (hash) {
+    setSearch(hash.substring(1))
+  }
+})
+</script>

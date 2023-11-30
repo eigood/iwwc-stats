@@ -1,0 +1,31 @@
+version: '3.4'
+
+x-logging: &_logging
+  driver: "json-file"
+  options:
+    max-size: "50m"
+    max-file: "10"
+
+x-node-environment: &_node-environment
+  {}
+x-node-base: &_node-base
+  environment:
+    <<: *_node-environment
+  image: node:21
+  logging:
+    <<: *_logging
+  restart: always
+
+services:
+  astro:
+    <<: *_node-base
+    command:
+      - npm
+      - run
+      - dev
+    ports:
+      - "$HOST_PORT:4321"
+    user: "${UID}:${GID}"
+    working_dir: /srv/app
+    volumes:
+      - ./:/srv/app:rw

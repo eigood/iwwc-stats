@@ -1,0 +1,6 @@
+---
+import StatPane from './StatPane.jsx'
+
+const { statName } = Astro.props
+---
+<StatPane client:load statName={statName}/>

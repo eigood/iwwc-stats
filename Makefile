@@ -1,6 +1,8 @@
 #!/usr/bin/make -f
 
-DIST := $(CURDIR)/dist
+include $(CURDIR)/.env
+
+DIST := $(CURDIR)/public
 SILENT := $(findstring s,$(word 1, $(MAKEFLAGS)))
 
 # ---
@@ -62,5 +64,16 @@ endef
 $(foreach logo,$(logos),$(eval $(call make_logo,$(logo))))
 
 # ---
+
+wget := wget -q -O - --header "AS-Key: $(AS_KEY)"
+
+as-refresh:
+	$(wget) -O /dev/null --method post 'https://api.agent-stats.com/groups/$(AS_GROUP_ID)/refresh'
+
+site-build:
+	docker-compose run --rm astro npm run build
+	cd $(CURDIR)/deploy && git add .
+	cd $(CURDIR)/deploy && ( git diff-index --quiet HEAD || git commit --quiet -m 'Auto-commit.' )
+	#cd $(CURDIR)/deploy && git push --quiet
 
 #.SILENT:
