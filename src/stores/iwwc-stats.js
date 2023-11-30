@@ -2,7 +2,7 @@ import { atom, computed } from 'nanostores'
 
 export const $rawIwwcData = atom({})
 
-const statsUrl = import.meta.env.IWWC_STATS_URL || '/data/iwwc-stats.json'
+const statsUrl = import.meta.env.PUBLIC_IWWC_STATS_URL || '/data/iwwc-stats.json'
 
 export const refresh = async () => {
   const rawIwwcData = await fetch(statsUrl).then(response => response.json())
