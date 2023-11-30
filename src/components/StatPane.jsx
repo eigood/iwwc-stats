@@ -50,7 +50,7 @@ const StatPane = (props) => {
   }, [ stats ])
 
   return (
-    <div className={`stat-pane ${(statRows.length ? '' : 'loading')}`} data-medal={statName}>
+    <div className={`stat-pane ${(statRows.length ? '' : 'stat-loading')}`} data-medal={statName}>
       <h4 className="stat-header">
         <span className="title">{statTitle}:{(statRows.length ? '' : 'loading')}</span>
         <span className="badge"></span>
