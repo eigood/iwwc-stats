@@ -11,7 +11,7 @@ JEKYLL_VERSION=4.2.0
 exec docker run \
 	--rm \
 	-ti \
-	--volume="$PWD:/srv/jekyll:Z" \
+	--volume="$PWD/deploy:/srv/jekyll:Z" \
 	--publish [::1]:$HOST_PORT:4000 \
 	jekyll/jekyll:$JEKYLL_VERSION \
 	jekyll serve

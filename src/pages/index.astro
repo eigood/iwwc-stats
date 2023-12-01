@@ -1,20 +1,28 @@
 ---
 import BaseLayout from '../layouts/base.astro'
 import { displayStats } from '../data/iwwc-config.js'
+import { rot13, shuffle } from '../data/util.js'
 import { load } from '../data/iwwc-stats.js'
 
 import StatPane from '../components/StatPane.jsx'
 import Header from '../components/Header.jsx'
 
 await load()
+const passKey = rot13(import.meta.env.SEARCH_PASS_KEY)
+
+const displayStatsOrder = displayStats.map(([ statName, statTitle ], index) => {
+  return [ statName, statTitle, passKey ? passKey[ index ] : '' ]
+})
+if (passKey) shuffle(displayStatsOrder)
+
 ---
 <BaseLayout title="IWWC Stats">
   <div id='iwwc-app' class=''>
-    <Header client:load/>
+    <Header client:load />
     <div class="container">
       <div class="iwwc-content">
-        {displayStats.map(([ statName, statTitle ]) => (
-          <StatPane client:load statName={statName} statTitle={statTitle}/>
+        {displayStatsOrder.map(([ statName, statTitle, codeChar ]) => (
+          <StatPane client:load statName={statName} statTitle={statTitle} codeChar={codeChar}/>
         ))}
       </div>
     </div>

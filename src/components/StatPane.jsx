@@ -34,7 +34,7 @@ const StatRow = (props) => {
 }
 
 const StatPane = (props) => {
-  const { statName, statTitle } = props
+  const { statName, statTitle, codeChar } = props
   const factionCounts = useStore($factionCounts) || {}
   const agents = useStore($agents) || {}
   const stats = useStore($stats)
@@ -45,14 +45,14 @@ const StatPane = (props) => {
   })
   const { statRows, sumAgents, activeAgents } = statInfo
   React.useEffect(() => {
-    const { [ statName ]: { statRows, sumAgents, activeAgents } } = stats
+    const { [ statName ]: { statRows, sumAgents, activeAgents } = {} } = stats
     setStatInfo({ statRows, sumAgents, activeAgents })
   }, [ stats ])
 
   return (
     <div className={`stat-pane ${(statRows.length ? '' : 'stat-loading')}`} data-medal={statName}>
       <h4 className="stat-header">
-        <span className="title">{statTitle}</span>
+        <span className="title">{statTitle}{codeChar ? `:${codeChar}` : ''}</span>
         <span className="badge"></span>
         <span className="loading-icon fa-solid fa-spinner fa-spin"></span>
       </h4>

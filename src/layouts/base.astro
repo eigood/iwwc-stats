@@ -2,8 +2,18 @@
 import '../app.css'
 import { iwwcInfo, iwwcData } from '../data/iwwc-stats.js'
 import { $rawIwwcData } from '../stores/iwwc-stats.js'
+import { rot13 } from '../data/util.js'
+
+const addWindowSecret = (vars, name, value) => {
+  if (!name || !value) return
+  vars[ name ] = rot13(btoa(rot13(value)))
+}
 
 const rawIwwcData = $rawIwwcData.get()
+const scriptVars = { rawIwwcData }
+addWindowSecret(scriptVars, import.meta.env.PUBLIC_SEARCH_PASS_KEY_NAME, import.meta.env.SEARCH_PASS_KEY)
+addWindowSecret(scriptVars, import.meta.env.PUBLIC_PM_PASS_KEY_NAME, import.meta.env.PM_PASS_KEY)
+
 ---
 <html>
   <head>
@@ -18,7 +28,9 @@ import { $rawIwwcData } from '../stores/iwwc-stats.js'
 
 window.$rawIwwcData = $rawIwwcData
 </script>
-<script define:vars={{rawIwwcData}}>
+<script define:vars={{vars: scriptVars}}>
+const { rawIwwcData, ...rest } = vars
+Object.assign(window, rest)
 window.addEventListener('load', () => {
   window.$rawIwwcData.set(rawIwwcData)
 })
