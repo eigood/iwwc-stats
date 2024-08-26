@@ -16,6 +16,9 @@ x-node-base: &_node-base
     <<: *_logging
   restart: always
 
+volumes:
+  postgresql-data:
+
 services:
   astro:
     <<: *_node-base
@@ -29,3 +32,14 @@ services:
     working_dir: /srv/app
     volumes:
       - ./:/srv/app:rw
+
+  postgresql:
+    environment:
+      POSTGRES_PASSWORD:
+    image: postgres:16-bookworm
+    logging:
+      <<: *_logging
+    restart: always
+    volumes:
+      - postgresql-data:/var/lib/postgresql/data
+
