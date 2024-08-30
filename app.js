@@ -1,5 +1,5 @@
-var iwwcCustomURL = 'https://eigood.github.io/iwwc-stats-data/iwwc-custom.json';
-var iwwcInfoURL = 'https://eigood.github.io/iwwc-stats-data/iwwc-info.json';
+var iwwcCustomURL = 'https://eigood.github.io/iwwc-stats-data/iwwc-custom-2024.json';
+var iwwcInfoURL = 'https://eigood.github.io/iwwc-stats-data/iwwc-info-2024.json';
 const skipStats = {
   'ap': true,
   'level': true,
@@ -9,26 +9,28 @@ const skipStats = {
 
 const displayStats = [
   ['lifetime_ap', 'AP'],
-  ['explorer', 'Explorer'],
-  ['recon', 'Recon'],
-  ['scout', 'Scout'],
-  ['scout_controller', 'Scout Controller'],
   ['builder', 'Builder'],
   ['connector', 'Connector'],
-  ['mind-controller', 'Mind Controller'],
-  ['illuminator', 'Illuminator'],
-  ['recharger', 'Recharger'],
-  ['liberator', 'Liberator'],
-  ['pioneer', 'Pioneer'],
   ['engineer', 'Engineer'],
+  ['explorer', 'Explorer'],
   ['hacker', 'Hacker'],
-  ['maverick', 'Maverick'],
-  ['translator', 'Translator'],
-  ['purifier', 'Purifier'],
-  ['trekker', 'Trekker'],
-  ['specops', 'Specops'],
-  ['recursions', 'Recursions'],
+  ['illuminator', 'Illuminator'],
   ['crafter', 'Kinetic Capsules Completed'],
+  ['liberator', 'Liberator'],
+  ['maverick', 'Maverick'],
+  ['mind-controller', 'Mind Controller'],
+  ['overclocker', 'Overclock'],
+  ['pioneer', 'Pioneer'],
+  ['purifier', 'Purifier'],
+  ['recharger', 'Recharger'],
+  ['reclaimer', 'Reclaimer'],
+  ['recon', 'Recon'],
+  ['recursions', 'Recursions'],
+  ['scout', 'Scout'],
+  ['scout_controller', 'Scout Controller'],
+  ['specops', 'Specops'],
+  ['translator', 'Translator'],
+  ['trekker', 'Trekker'],
 ]
 
 async function fetchJSON(url, handler) {
