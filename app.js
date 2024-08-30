@@ -49,17 +49,16 @@ function debounce(func, timeout = 300){
 
 function handleLoad() {
   //fetchText(ghPagesBase + '/app.html', setHtml);
-  loadData();
   document.querySelector('.reload-button').addEventListener('click', loadData)
   const searchInput = document.querySelector('.agent-search input')
   searchInput.addEventListener('keyup', handleAgentSearch)
   const location = document.location
-  console.log('location', location)
   const hash = location.hash
   if (hash) {
     setSearch(hash.substring(1))
   }
   document.querySelector('.clear-search').addEventListener('click', handleClearSearch)
+  loadData();
 }
 
 function loadData(e) {
@@ -88,8 +87,7 @@ function addClassToList(nodeList, className) {
 const handleAgentSearch = (e) => {
   e.preventDefault()
   e.stopPropagation()
-  console.log('search', e)
-  filterDisplay(e.target.value)
+  debouncedFilterDisplay(e.target.value)
 }
 
 function handleClearSearch(e) {
@@ -102,27 +100,56 @@ function setSearch(value) {
   filterDisplay(value)
 }
 
-let lastMatchRows = []
+let lastSearch = null
+let lastSearchStyleElement = null
 
-const filterDisplay = debounce(search => {
+function filterDisplay(search) {
   const newHash = search ? '#' + search : '#'
-  console.log('searching', { search, newHash })
+  console.log('searching', { search, newHash, skip: lastSearch === search })
+  if (lastSearch === search) return
+  lastSearch = search
+  console.time('filterDisplay')
   history.replaceState(null, '', newHash)
   const agentSearch = search.toUpperCase()
-  document.querySelector('#iwwc-app').classList.remove('searching')
-  removeClassFromList(lastMatchRows, 'matched')
-  lastMatchRows = []
-  if (agentSearch) {
-    document.querySelector('#iwwc-app').classList.add('searching')
-    const foundAgents = Object.keys(byAgent).filter(agentName => agentName.toUpperCase().indexOf(agentSearch) !== -1)
-    console.log('foundAgents', foundAgents)
-    for (const agentName of foundAgents) {
-      const agentRows = byAgent[ agentName ].rows
-      lastMatchRows.splice(lastMatchRows.length, 0, ...agentRows)
-      addClassToList(agentRows, 'matched')
+  //const foundAgents = agentSearch ? Object.keys(byAgent).filter(agentName => agentName.toUpperCase().indexOf(agentSearch) !== -1) : []
+  //console.timeLog('filterDisplay', { foundAgents })
+
+  setTimeout(() => {
+    const iwwcAppNode = document.querySelector('#iwwc-app')
+    if (agentSearch) {
+      if (!iwwcAppNode.classList.contains('searching')) iwwcAppNode.classList.add('searching')
+      const searchStyleNode = document.querySelector('#search-style')
+      searchStyleNode.textContent = `
+#iwwc-app.searching .stat-row:not([data-agent*='${agentSearch}' i]) {
+        height:0;
+        visibility:collapse;
+}
+      `
+    } else {
+      iwwcAppNode.classList.remove('searching')
     }
-  }
-})
+    /*
+    if (lastSearchStyleElement) {
+      lastSearchStyleElement.parentNode.removeChild(lastSearchStyleElement)
+    }
+    lastSearchStyleElement = null
+    if (agentSearch) {
+      iwwcAppNode.classList.add('searching')
+      lastSearchStyleElement = document.createElement('style')
+      document.querySelector('head').appendChild(lastSearchStyleElement)
+      if (false) {
+      for (const agentName of foundAgents) {
+        const agentRows = byAgent[ agentName ].rows
+        lastMatchRows.splice(lastMatchRows.length, 0, ...agentRows)
+        addClassToList(agentRows, 'matched')
+      }
+      }
+    }
+    */
+    console.timeEnd('filterDisplay')
+  }, 0)
+}
+const debouncedFilterDisplay = debounce(filterDisplay)
 
 function handleInfo(result) {
   if (!result) return;
@@ -138,7 +165,7 @@ function handleCustom(result) {
   if (!result) return;
   iwwcCustom = result
   const app = document.querySelector('#iwwc-app')
-  app.className = ''
+  app.classList.remove('loading')
 
   var statPaneTemplate = document.querySelector('#stat-pane');
   var statListRowTemplate = document.querySelector('#stat-list-row');
@@ -170,73 +197,112 @@ function handleCustom(result) {
     })
   })
   //console.log('by', {byAgent, byStat})
-  const appContentNode = document.querySelector('#iwwc-app .iwwc-content')
-  while (appContentNode.firstChild) {
-    appContentNode.removeChild(appContentNode.lastChild)
-  }
    //<span class="enl-sum"></span>[<span class="enl-agent"></span>/<span class="enl-total">]</span>
    //<span class="res-sum"></span>[<span class="res-agent"></span>/<span class="res-total">]</span>
-  setTimeout(function() {
-    displayStats.forEach(([ statName, statTitle ]) => {
+
+    console.time('getNewNodes')
+    const statInfos = displayStats.map(([ statName, statTitle ]) => {
       const statList = byStat[ statName ]
-      const newStatPaneFragment = statPaneTemplate.content.cloneNode(true)
-      const newStatPaneNode = newStatPaneFragment.querySelector('.stat-pane')
-      newStatPaneNode.dataset.medal = statName
-      newStatPaneFragment.querySelector('.stat-header .title').textContent = statTitle
-      const newStatListNode = newStatPaneFragment.querySelector('.stat-list')
+      const paneFragment = statPaneTemplate.content.cloneNode(true)
+      const paneNode = paneFragment.querySelector('.stat-pane')
+      const headerNode = paneFragment.querySelector('.stat-header')
+      const footerNode = paneFragment.querySelector('.stat-footer')
+      const listNode = paneFragment.querySelector('.stat-list')
       const activeAgents = { enl: 0, res: 0 }
       const sumAgents = { enl: 0, res: 0 }
       let lastValue = undefined, lastPosition = undefined
-      statList.forEach((agentName, index) => {
+      console.time(`statList:${statName}`)
+      const rowInfos = statList.map((agentName, index) => {
         const forAgent = byAgent[ agentName ]
         const agentInfo = iwwcCustom[ agentName ]
         const faction = agentInfo.faction
         const statValue = agentInfo[ statName ]
-        const newStatRowFragment = statListRowTemplate.content.cloneNode(true)
-        const statRowNode = newStatRowFragment.querySelector('.stat-row')
+        const rowFragment = statListRowTemplate.content.cloneNode(true)
+        const rowNode = rowFragment.querySelector('.stat-row')
+        const valueNode = rowFragment.querySelector('.stat-value')
+        const positionNode = rowFragment.querySelector('.stat-position')
+        const agentNode = rowFragment.querySelector('.agent')
+
         if (statValue) activeAgents[ faction ]++
         sumAgents[ faction ] += statValue
-        statRowNode.dataset.value = statValue
-        statRowNode.dataset.agent = agentName
-        forAgent.rows.push(statRowNode)
+
+        forAgent.rows.push(rowNode)
+        let position
         if (lastValue === undefined) {
           lastValue = statValue
-          lastPosition = index + 1
+          position = lastPosition = index + 1
         } else if (statValue !== lastValue) {
           lastValue = statValue
-          lastPosition = index + 1
-        }
-        newStatRowFragment.querySelector('.stat-position').textContent = lastPosition
-        if (lastPosition === 1) {
-          statRowNode.className += ' onyx'
-        } else if (lastPosition === 2) {
-          statRowNode.className += ' platinum'
-        } else if (lastPosition === 3) {
-          statRowNode.className += ' gold'
-        } else if (lastPosition < 21) {
-          statRowNode.className += ' silver'
+          position = lastPosition = index + 1
         } else {
-          statRowNode.className += ' none'
+          position = lastPosition
         }
-        newStatRowFragment.querySelector('.stat-value').textContent = statValue.toLocaleString({ useGrouping:true })
-        const agentNode = newStatRowFragment.querySelector('.agent')
-        agentNode.className += ' faction-' + agentInfo.faction
-        agentNode.textContent = agentName
-        agentNode.addEventListener('click', e => {
-          console.log('click agent', {agentName})
-          setSearch(agentName)
-        })
-        newStatListNode.appendChild(newStatRowFragment)
+        const updateDOM = () => {
+          rowNode.dataset.value = statValue
+          rowNode.dataset.agent = agentName
+          positionNode.textContent = position
+          if (position === 1) {
+            rowNode.className += ' onyx'
+          } else if (position === 2) {
+            rowNode.className += ' platinum'
+          } else if (position === 3) {
+            rowNode.className += ' gold'
+          } else if (position < 21) {
+            rowNode.className += ' silver'
+          } else {
+            rowNode.className += ' none'
+          }
+          valueNode.textContent = statValue.toLocaleString({ useGrouping:true })
+          agentNode.className += ' faction-' + agentInfo.faction
+          agentNode.textContent = agentName
+          agentNode.addEventListener('click', e => {
+            console.log('click agent', {agentName})
+            setSearch(agentName)
+          })
+        }
+        return { rowFragment, updateDOM }
       })
-      newStatPaneFragment.querySelector('.stat-footer .enl-stat .sum').textContent = sumAgents.enl.toLocaleString({ useGrouping:true })
-      newStatPaneFragment.querySelector('.stat-footer .enl-stat .total').textContent = factionCounts.enl
-      newStatPaneFragment.querySelector('.stat-footer .enl-stat .agent').textContent = activeAgents.enl
-      newStatPaneFragment.querySelector('.stat-footer .res-stat .sum').textContent = sumAgents.res.toLocaleString({ useGrouping:true })
-      newStatPaneFragment.querySelector('.stat-footer .res-stat .total').textContent = factionCounts.res
-      newStatPaneFragment.querySelector('.stat-footer .res-stat .agent').textContent = activeAgents.res
-      appContentNode.appendChild(newStatPaneFragment)
+      console.timeEnd(`statList:${statName}`)
+      const updateDOM = () => {
+        paneNode.dataset.medal = statName
+        headerNode.querySelector('.title').textContent = statTitle
+        footerNode.querySelector('.enl-stat .sum').textContent = sumAgents.enl.toLocaleString({ useGrouping:true })
+        footerNode.querySelector('.enl-stat .total').textContent = factionCounts.enl
+        footerNode.querySelector('.enl-stat .agent').textContent = activeAgents.enl
+        footerNode.querySelector('.res-stat .sum').textContent = sumAgents.res.toLocaleString({ useGrouping:true })
+        footerNode.querySelector('.res-stat .total').textContent = factionCounts.res
+        footerNode.querySelector('.res-stat .agent').textContent = activeAgents.res
+        setTimeout(async () => {
+          console.time(`statNode:${statName}`)
+          try {
+            const rowUpdaters = rowInfos.map(({ rowFragment, updateDOM }) => {
+              listNode.appendChild(rowFragment)
+              return updateDOM()
+            })
+            await Promise.all(rowUpdaters)
+            setTimeout(() => paneNode.classList.remove('stat-loading'), 0)
+          } finally {
+            console.timeEnd(`statNode:${statName}`)
+          }
+        }, 0)
+      }
+      return { paneFragment, updateDOM }
     })
-    filterDisplay(document.querySelector('.agent-search input').value)
+  console.timeEnd('getNewNodes')
+
+  setTimeout(function() {
+    console.time('replaceNodes')
+    const appContentNode = document.querySelector('#iwwc-app .iwwc-content')
+    while (appContentNode.firstChild) {
+      appContentNode.removeChild(appContentNode.lastChild)
+    }
+    const statUpdaters = statInfos.map(({ paneFragment, updateDOM }) => {
+      appContentNode.appendChild(paneFragment)
+      return updateDOM()
+    })
+    Promise.all(statUpdaters).then(() => {
+      console.timeEnd('replaceNodes')
+    })
   }, 0)
 }
 window.addEventListener('load', handleLoad);

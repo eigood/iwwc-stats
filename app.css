@@ -54,10 +54,10 @@ body {
 	display:inline-block;
 }
 .enl-stat::before {
-	background-image:url('images/enl-logo.png');
+	background-image:url('images/logo_enl.png');
 }
 .res-stat::before {
-	background-image:url('images/res-logo.png');
+	background-image:url('images/logo_res.png');
 }
 .start-date, .end-date {
 	display:none;
@@ -106,6 +106,14 @@ body {
 	margin:0;
 	padding: 5px 0 0 5px;
 	min-height:32px;
+	display:flex;
+	align-items:flex-start;
+}
+.stat-header .badge {
+	flex-grow:1;
+}
+.stat-pane:not(.stat-loading) .stat-header .loading-icon {
+	display:none;
 }
 .stat-value {
 	padding-right:5px;
@@ -114,6 +122,7 @@ body {
 	text-align:right;
 }
 .stat-content {
+	flex-grow:1;
 	overflow: hidden scroll;
 	background:rgba(100, 100, 100, .5)
 }
@@ -129,10 +138,6 @@ body {
 .stat-row {
 	display:table-row;
 	counter-increment:stat-position;
-}
-#iwwc-app.searching .stat-row:not(.matched) {
-	height:0;
-	visibility:collapse;
 }
 .stat-position {
 	text-align:right;
@@ -185,24 +190,24 @@ body {
 	--badge-width:20;
 	--badge-height:20;
 }
-.stat-pane[data-medal='builder']		.badge::before { content:""; background-image:url(./images/builder.png); display:inline-block; }
-.stat-pane[data-medal='connector']		.badge::before { content:""; background-image:url(./images/connector.png); display:inline-block; }
-.stat-pane[data-medal='engineer']		.badge::before { content:""; background-image:url(./images/engineer.png); display:inline-block; }
-.stat-pane[data-medal='explorer']		.badge::before { content:""; background-image:url(./images/explorer.png); display:inline-block; }
-.stat-pane[data-medal='hacker']			.badge::before { content:""; background-image:url(./images/hacker.png); display:inline-block; }
-.stat-pane[data-medal='illuminator']		.badge::before { content:""; background-image:url(./images/illuminator.png); display:inline-block; }
-.stat-pane[data-medal='liberator']		.badge::before { content:""; background-image:url(./images/liberator.png); display:inline-block; }
-.stat-pane[data-medal='maverick']		.badge::before { content:""; background-image:url(./images/maverick.png); display:inline-block; }
-.stat-pane[data-medal='mind-controller']	.badge::before { content:""; background-image:url(./images/mind_controller.png); display:inline-block; }
-.stat-pane[data-medal='pioneer']		.badge::before { content:""; background-image:url(./images/pioneer.png); display:inline-block; }
-.stat-pane[data-medal='purifier']		.badge::before { content:""; background-image:url(./images/purifier.png); display:inline-block; }
-.stat-pane[data-medal='recharger']		.badge::before { content:""; background-image:url(./images/recharger.png); display:inline-block; }
-.stat-pane[data-medal='recon']			.badge::before { content:""; background-image:url(./images/recon.png); display:inline-block; }
-.stat-pane[data-medal='scout']			.badge::before { content:""; background-image:url(./images/scout.png); display:inline-block; }
-.stat-pane[data-medal='scout_controller']	.badge::before { content:""; background-image:url(./images/scout_controller.png); display:inline-block; }
-.stat-pane[data-medal='specops']		.badge::before { content:""; background-image:url(./images/specops.png); display:inline-block; }
-.stat-pane[data-medal='translator']		.badge::before { content:""; background-image:url(./images/translator.png); display:inline-block; }
-.stat-pane[data-medal='trekker']		.badge::before { content:""; background-image:url(./images/trekker.png); display:inline-block; }
+.stat-pane[data-medal='builder']		.badge::before { content:""; background-image:url(images/badge_builder.png); display:inline-block; }
+.stat-pane[data-medal='connector']		.badge::before { content:""; background-image:url(images/badge_connector.png); display:inline-block; }
+.stat-pane[data-medal='engineer']		.badge::before { content:""; background-image:url(images/badge_engineer.png); display:inline-block; }
+.stat-pane[data-medal='explorer']		.badge::before { content:""; background-image:url(images/badge_explorer.png); display:inline-block; }
+.stat-pane[data-medal='hacker']			.badge::before { content:""; background-image:url(images/badge_hacker.png); display:inline-block; }
+.stat-pane[data-medal='illuminator']		.badge::before { content:""; background-image:url(images/badge_illuminator.png); display:inline-block; }
+.stat-pane[data-medal='liberator']		.badge::before { content:""; background-image:url(images/badge_liberator.png); display:inline-block; }
+.stat-pane[data-medal='maverick']		.badge::before { content:""; background-image:url(images/badge_maverick.png); display:inline-block; }
+.stat-pane[data-medal='mind-controller']	.badge::before { content:""; background-image:url(images/badge_mind_controller.png); display:inline-block; }
+.stat-pane[data-medal='pioneer']		.badge::before { content:""; background-image:url(images/badge_pioneer.png); display:inline-block; }
+.stat-pane[data-medal='purifier']		.badge::before { content:""; background-image:url(images/badge_purifier.png); display:inline-block; }
+.stat-pane[data-medal='recharger']		.badge::before { content:""; background-image:url(images/badge_recharger.png); display:inline-block; }
+.stat-pane[data-medal='recon']			.badge::before { content:""; background-image:url(images/badge_recon.png); display:inline-block; }
+.stat-pane[data-medal='scout']			.badge::before { content:""; background-image:url(images/badge_scout.png); display:inline-block; }
+.stat-pane[data-medal='scout_controller']	.badge::before { content:""; background-image:url(images/badge_scout_controller.png); display:inline-block; }
+.stat-pane[data-medal='specops']		.badge::before { content:""; background-image:url(images/badge_specops.png); display:inline-block; }
+.stat-pane[data-medal='translator']		.badge::before { content:""; background-image:url(images/badge_translator.png); display:inline-block; }
+.stat-pane[data-medal='trekker']		.badge::before { content:""; background-image:url(images/badge_trekker.png); display:inline-block; }
 .stat-row.bronze .badge::before, .bronze::before	{ background-position:calc(var(--badge-width) * 0 * -1px); }
 .stat-row.silver .badge::before, .silver::before	{ background-position:calc(var(--badge-width) * 1 * -1px); }
 .stat-row.gold .badge::before, .gold::before		{ background-position:calc(var(--badge-width) * 2 * -1px); }
