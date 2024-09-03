@@ -131,6 +131,7 @@ body {
 	display:table;
 	margin:0;
 	padding:0 0 0 10px;
+	position:relative;
 }
 .stat-row .agent {
 	cursor:pointer;
@@ -138,6 +139,7 @@ body {
 .stat-row {
 	display:table-row;
 	counter-increment:stat-position;
+	position:relative;
 }
 .stat-position {
 	text-align:right;
@@ -170,6 +172,19 @@ body {
 }
 .stat-row * {
 	display:table-cell;
+}
+.stat-row .rollover {
+	display:none;
+	position:absolute;
+	right:0;
+	top:0;
+	opacity:0.5;
+	background:#444;
+	border-radius:3px;
+	border:1px solid #444;
+}
+.stat-row:hover .rollover {
+	display:block;
 }
 
 #iwwc-app > .container {

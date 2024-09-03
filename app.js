@@ -33,6 +33,30 @@ const displayStats = [
   ['trekker', 'Trekker'],
 ]
 
+const apRollover = (agentName) => {
+  const { [ agentName ]: { [ 'lifetime_ap' ]: lifetimeAp } } = iwwcCustom
+  return lifetimeAp.toLocaleString({ useGrouping:true }) + ' AP'
+}
+
+const linkFieldRatioRollover = (agentName) => {
+  const { [ agentName ]: { connector, [ 'mind-controller' ]: mindController } } = iwwcCustom
+  if (!connector) return '-'
+  return (mindController / connector).toLocaleString({ useGrouping:true })
+}
+
+const muPerFieldRollover = (agentName) => {
+  const { [ agentName ]: { illuminator, [ 'mind-controller' ]: mindController } } = iwwcCustom
+  if (!mindController) return '-'
+  return (illuminator / mindController).toLocaleString({ useGrouping:true }) + ' fields'
+}
+
+const rollovers = {
+  'recursions': apRollover,
+  'connector': linkFieldRatioRollover,
+  'mind-controller': linkFieldRatioRollover,
+  'illuminator': muPerFieldRollover,
+}
+
 async function fetchJSON(url, handler) {
   const response = await fetch(url, {_mode: 'no-cors'})
   const json = await response.json()
@@ -208,6 +232,7 @@ function handleCustom(result) {
     console.time('getNewNodes')
     const statInfos = displayStats.map(([ statName, statTitle ]) => {
       const statList = byStat[ statName ]
+      const rolloverBuilder = rollovers[ statName ]
       const paneFragment = statPaneTemplate.content.cloneNode(true)
       const paneNode = paneFragment.querySelector('.stat-pane')
       const headerNode = paneFragment.querySelector('.stat-header')
@@ -227,6 +252,7 @@ function handleCustom(result) {
         const valueNode = rowFragment.querySelector('.stat-value')
         const positionNode = rowFragment.querySelector('.stat-position')
         const agentNode = rowFragment.querySelector('.agent')
+        const rolloverNode = rowFragment.querySelector('.rollover')
 
         if (statValue) activeAgents[ faction ]++
         sumAgents[ faction ] += statValue
@@ -264,6 +290,12 @@ function handleCustom(result) {
             console.log('click agent', {agentName})
             setSearch(agentName)
           })
+        }
+        const rolloverValue = rolloverBuilder ? rolloverBuilder(agentName) : null
+        if (rolloverValue) {
+          rolloverNode.textContent = rolloverValue
+        } else {
+          rolloverNode.parentNode.removeChild(rolloverNode)
         }
         return { rowFragment, updateDOM }
       })
