@@ -22,7 +22,7 @@ export const iwwcInfo = async () => {
 }
 
 export const iwwcData = async () => {
-  const iwwcCustom = await fetchJSON(`https://api.agent-stats.com/groups/${import.meta.env.AS_GROUP_ID}/custom`)
+  const iwwcCustom = await fetchJSON(`https://api.agent-stats.com/groups/${import.meta.env.AS_GROUP_ID}/now`)
   const agents = {}
   const factionCounts = { enl: 0, res: 0 }
 
@@ -116,5 +116,6 @@ export const load = async (force = false) => {
     const data = await iwwcData()
     $rawIwwcData.set({ group, data })
   }
-  return $rawIwwcData.get()
+  const { group, data } = $rawIwwcData.get()
+  return { group, data }
 }

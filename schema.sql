@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS upload (
 	UNIQUE		(agent_id, uploaded_at)
 
 );
-CREATE INDEX upload_at ON upload(uploaded_at);
+CREATE INDEX IF NOT EXISTS upload_at ON upload(uploaded_at);
 
 CREATE SEQUENCE IF NOT EXISTS stat_pk;
 CREATE TABLE IF NOT EXISTS history (
@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS league (
 	source_id	INTEGER REFERENCES source(source_id),
 	external_id	TEXT NOT NULL,
 	UNIQUE		(source_id, external_id)
-)
+);
 
 CREATE TABLE IF NOT EXISTS league_membership (
 	league_id	INTEGER REFERENCES league(league_id),
@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS league_membership (
 	from_date	TIMESTAMP WITH TIME ZONE NOT NULL,
 	thru_date	TIMESTAMP WITH TIME ZONE,
 	UNIQUE		(league_id, agent_id, from_date)
-)
+);
 
 CREATE OR REPLACE FUNCTION isnumeric(text)
 RETURNS pg_catalog.bool AS $BODY$
@@ -180,10 +180,13 @@ CREATE OR REPLACE FUNCTION _ensure_upload_id(_agent_id INTEGER, _uploaded_at TIM
 SECURITY INVOKER AS $$
 DECLARE
 	_upload_id INTEGER;
+	_is_new BOOLEAN;
 	_current_faction TEXT;
 BEGIN
-	INSERT INTO upload(agent_id, uploaded_at, faction) VALUES (_agent_Id, _uploaded_at, _faction) ON CONFLICT DO NOTHING;
-	SELECT upload_id, faction INTO _upload_id, _current_faction FROM upload WHERE agent_id = _agent_id AND uploaded_at = _uploaded_at;
+	INSERT INTO upload(agent_id, uploaded_at, faction) VALUES (_agent_Id, _uploaded_at, _faction) ON CONFLICT DO NOTHING RETURNING upload_id, faction, (xmax = 0) INTO _upload_id, _current_faction, _is_new;
+	IF _is_new THEN
+		RETURN _upload_id;
+	END IF;
 	IF _faction != _current_faction THEN
 		UPDATE upload SET faction = _faction WHERE agent_id = _agent_id AND uploaded_at = _uploaded_at;
 	END IF;
@@ -263,9 +266,12 @@ BEGIN
 		_agent_ids := _agent_ids || _agent_id;
 		_upload_id := _ensure_upload_id(_agent_id, (_agent_info ->> 'last_submit')::timestamp, (_agent_info ->> 'faction'));
 
+		IF _upload_id IS NULL THEN
+			CONTINUE;
+		END IF;
 		FOR _key, _value IN SELECT * FROM jsonb_each(_agent_info) LOOP
 			CASE _key
-				WHEN 'faction', 'last_submit' THEN
+				WHEN 'last_submit' THEN
 					CONTINUE;
 				ELSE
 			END CASE;

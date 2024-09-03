@@ -5,7 +5,9 @@ export const $rawIwwcData = atom({})
 const statsUrl = import.meta.env.PUBLIC_IWWC_STATS_URL || '/data/iwwc-stats.json'
 
 export const refresh = async () => {
+  console.log('statsUrl', {statsUrl})
   const rawIwwcData = await fetch(statsUrl).then(response => response.json())
+  console.log('rawIwwcData', rawIwwcData)
   $rawIwwcData.set(rawIwwcData)
 }
 
@@ -63,7 +65,9 @@ export const $stats = computed($rawIwwcData, rawIwwcData => {
     stats[ statName ] = {
       ...rest,
       sumAgents: Object.entries(sumAgents).reduce((sumAgents, [ key, value ]) => {
+        if (key === "undefined") return sumAgents
         sumAgents[ key ] = value
+        if (value === null) debugger
         sumAgents.$formatted[ key ] = value.toLocaleString(navigator.language, { useGrouping: true })
         return sumAgents
       }, { $formatted: {} }),
