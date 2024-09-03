@@ -183,8 +183,13 @@ function handleCustom(result) {
   })
   const allAgents = Object.keys(iwwcCustom)
   const statSorter = statName => (a, b) => {
-    const valueDiff = iwwcCustom[ b ][ statName ] - iwwcCustom[ a ][ statName ]
+    const { [ a ]: agentA, [ b ]: agentB } = iwwcCustom
+    const valueDiff = agentB[ statName ] - agentA[ statName ]
     if (valueDiff) return valueDiff
+    if (statName !== 'lifetime_ap') {
+      const apDiff = agentB[ 'lifetime_ap' ] - agentA[ 'lifetime_ap' ]
+      if (apDiff) return apDiff
+    }
     if (a < b) return -1
     if (a > b) return 1
     return 0
