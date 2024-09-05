@@ -179,12 +179,12 @@ body {
 .stat-value-container .rollover {
 	display:none;
 	position:absolute;
-	left:100%;
 	top:0;
 	background:#bbb;
 	border-radius:3px;
 	border:1px solid #444;
 	z-index:2;
+	white-space:nowrap;
 }
 .stat-value-container:hover .rollover:not(:hover) {
 	display:block;
