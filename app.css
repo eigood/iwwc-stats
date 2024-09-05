@@ -170,20 +170,23 @@ body {
 .stat-row.none .stat-reward::before {
 	display:none;
 }
-.stat-row * {
+.stat-row > * {
 	display:table-cell;
 }
-.stat-row .rollover {
+.stat-value-container {
+	position:relative;
+}
+.stat-value-container .rollover {
 	display:none;
 	position:absolute;
-	right:0;
+	left:100%;
 	top:0;
-	opacity:0.5;
-	background:#444;
+	background:#bbb;
 	border-radius:3px;
 	border:1px solid #444;
+	z-index:2;
 }
-.stat-row:hover .rollover {
+.stat-value-container:hover .rollover:not(:hover) {
 	display:block;
 }
 
