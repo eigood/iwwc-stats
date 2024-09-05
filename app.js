@@ -42,23 +42,17 @@ const apRollover = (agentName) => {
   return numberFormat.format(lifetimeAp) + ' AP'
 }
 
-const linkFieldRatioRollover = (agentName) => {
-  const { [ agentName ]: { connector, [ 'mind-controller' ]: mindController } } = iwwcCustom
-  if (!connector) return '-'
-  return numberFormat.format(mindController / connector)
-}
-
-const muPerFieldRollover = (agentName) => {
-  const { [ agentName ]: { illuminator, [ 'mind-controller' ]: mindController } } = iwwcCustom
-  if (!mindController) return '-'
-  return numberFormat.format(illuminator / mindController) + ' fields'
+const ratioRollover = (ratioName) => (agentName) => {
+  const { [ agentName ]: { ratios: { [ ratioName ]: ratioValue } } } = iwwcCustom
+  if (!ratioValue) return null
+  return numberFormat.format(ratioValue) + ' ' + ratioName
 }
 
 const rollovers = {
   'recursions': apRollover,
-  'connector': linkFieldRatioRollover,
-  'mind-controller': linkFieldRatioRollover,
-  'illuminator': muPerFieldRollover,
+  'connector': ratioRollover('fieldsPerLink'),
+  'mind-controller': ratioRollover('fieldsPerLink'),
+  'illuminator': ratioRollover('muPerField'),
 }
 
 async function fetchJSON(url, handler) {
@@ -203,6 +197,10 @@ function handleCustom(result) {
   const factionCounts = { enl: 0, res: 0 }
   Object.entries(iwwcCustom).forEach(([ agentName, agentData ]) => {
     factionCounts[ agentData.faction ]++
+    const ratios = agentData.ratios = {}
+    const { connector, illuminator, [ 'mind-controller' ]: mindController } = agentData
+    ratios.fieldsPerLink = connector ? mindController / connector : null
+    ratios.muPerField = mindController ? illuminator / mindController : null
     const forAgent = byAgent[ agentName ] = { index: undefined, rows: [] }
     Object.entries(agentData).forEach(([ statName, statValue ]) => {
       if (skipStats[ statName ]) return
