@@ -55,6 +55,17 @@ const rollovers = {
   'illuminator': ratioRollover('muPerField'),
 }
 
+const statValueDisplays = {
+  'recursions': (agentName, agentInfo, statValue) => {
+    const { recursions, level } = agentInfo
+    if (recursions) {
+      return numberFormat.format(statValue) + '@' + numberFormat.format(level)
+    } else {
+      return statValue
+    }
+  },
+}
+
 async function fetchJSON(url, handler) {
   const response = await fetch(url, {_mode: 'no-cors'})
   const json = await response.json()
@@ -249,6 +260,7 @@ function handleCustom(result) {
         const agentInfo = iwwcCustom[ agentName ]
         const faction = agentInfo.faction
         const statValue = agentInfo[ statName ]
+        const { [ statName ]: statValueDisplay = (agentName, gentInfo, value) => numberFormat.format(value) } = statValueDisplays
         const rowFragment = statListRowTemplate.content.cloneNode(true)
         const rowNode = rowFragment.querySelector('.stat-row')
         const valueNode = rowFragment.querySelector('.stat-value')
@@ -286,7 +298,7 @@ function handleCustom(result) {
           } else {
             rowNode.className += ' none'
           }
-          valueNode.textContent = numberFormat.format(statValue)
+          valueNode.textContent = statValueDisplay(agentName, agentInfo, statValue)
           agentNode.className += ' faction-' + agentInfo.faction
           agentNode.textContent = agentName
           agentNode.addEventListener('click', e => {
