@@ -31,9 +31,13 @@ const displayStats = [
   ['specops', 'Specops'],
   ['translator', 'Translator'],
   ['trekker', 'Trekker'],
-  ['ratio@muPerField', 'MindUnits / Field'],
-  ['ratio@fieldsPerLink', 'Fields / Link'],
-  ['ratio@pioneerExplorer', 'Pioneeer / Explorer'],
+  ['ratio@mu/field', 'MindUnits / Field'],
+  ['ratio@fields/link', 'Fields / Link'],
+  ['ratio@pioneer/explorer', 'Pioneeer / Explorer'],
+  ['ratio@ap/hack', 'AP / Hack'],
+  ['ratio@translator/hacker', 'Translator / Hacker'],
+  ['ratio@purifier/builder', 'Purifier / Builder'],
+  ['ratio@ap/trekker', 'AP / km'],
 ]
 
 const numberFormat = Intl.NumberFormat(navigator.language, { useGrouping:true })
@@ -45,17 +49,17 @@ const apRollover = (agentName) => {
   return numberFormat.format(lifetimeAp) + ' AP'
 }
 
-const ratioRollover = (ratioName) => (agentName) => {
-  const { [ agentName ]: { [ 'ratio@' + ratioName ]: ratioValue } } = iwwcCustom
-  if (!ratioValue) return null
-  return numberFormat.format(ratioValue) + ' ' + ratioName
+const statRollover = (statName) => (agentName) => {
+  const { [ agentName ]: { [ statName ]: statValue } } = iwwcCustom
+  if (!statValue) return null
+  return numberFormat.format(statValue)
 }
 
 const rollovers = {
   'recursions': apRollover,
-  'connector': ratioRollover('fieldsPerLink'),
-  'mind-controller': ratioRollover('fieldsPerLink'),
-  'illuminator': ratioRollover('muPerField'),
+  'connector': statRollover('ratio@fields/link'),
+  'mind-controller': statRollover('ratio@fields/link'),
+  'illuminator': statRollover('ratio@mu/field'),
 }
 
 const statValueDisplays = {
@@ -197,6 +201,29 @@ function handleInfo(result) {
   document.querySelector('.end-date').textContent = dateShortFormat.format(new Date(iwwcInfo.endDate))
 }
 
+function calculateInferredStats(agentData) {
+  const {
+    [ 'lifetime_ap' ]: ap,
+    builder,
+    connector,
+    explorer,
+    hacker,
+    illuminator,
+    [ 'mind-controller' ]: mindController,
+    pioneer,
+    purifier,
+    translator,
+    trekker,
+  } = agentData
+  agentData['ratio@fields/link'] = connector ? mindController / connector : null
+  agentData['ratio@mu/field'] = mindController ? illuminator / mindController : null
+  agentData['ratio@pioneer/explorer'] = explorer ? pioneer / explorer : null
+  agentData['ratio@ap/hack'] = hacker ? ap / hacker : null
+  agentData['ratio@translator/hacker'] = hacker ? translator / hacker : null
+  agentData['ratio@purifier/builder'] = builder ? purifier / builder : null
+  agentData['ratio@ap/trekker'] = trekker ? ap / trekker : null
+}
+
 function handleCustom(result) {
   if (!result) return;
   iwwcCustom = result
@@ -211,11 +238,7 @@ function handleCustom(result) {
   const factionCounts = { enl: 0, res: 0 }
   Object.entries(iwwcCustom).forEach(([ agentName, agentData ]) => {
     factionCounts[ agentData.faction ]++
-    const ratios = agentData.ratios = {}
-    const { connector, illuminator, [ 'mind-controller' ]: mindController, pioneer, explorer } = agentData
-    agentData['ratio@fieldsPerLink'] = connector ? mindController / connector : null
-    agentData['ratio@muPerField'] = mindController ? illuminator / mindController : null
-    agentData['ratio@pioneerExplorer'] = explorer ? pioneer / explorer : null
+    calculateInferredStats(agentData)
     const forAgent = byAgent[ agentName ] = { index: undefined, rows: [] }
     Object.entries(agentData).forEach(([ statName, statValue ]) => {
       if (skipStats[ statName ]) return
