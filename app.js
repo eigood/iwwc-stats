@@ -33,6 +33,7 @@ const displayStats = [
   ['trekker', 'Trekker'],
   ['ratio@muPerField', 'MindUnits / Field'],
   ['ratio@fieldsPerLink', 'Fields / Link'],
+  ['ratio@pioneerExplorer', 'Pioneeer / Explorer'],
 ]
 
 const numberFormat = Intl.NumberFormat(navigator.language, { useGrouping:true })
@@ -211,9 +212,10 @@ function handleCustom(result) {
   Object.entries(iwwcCustom).forEach(([ agentName, agentData ]) => {
     factionCounts[ agentData.faction ]++
     const ratios = agentData.ratios = {}
-    const { connector, illuminator, [ 'mind-controller' ]: mindController } = agentData
+    const { connector, illuminator, [ 'mind-controller' ]: mindController, pioneer, explorer } = agentData
     agentData['ratio@fieldsPerLink'] = connector ? mindController / connector : null
     agentData['ratio@muPerField'] = mindController ? illuminator / mindController : null
+    agentData['ratio@pioneerExplorer'] = explorer ? pioneer / explorer : null
     const forAgent = byAgent[ agentName ] = { index: undefined, rows: [] }
     Object.entries(agentData).forEach(([ statName, statValue ]) => {
       if (skipStats[ statName ]) return
