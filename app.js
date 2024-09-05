@@ -33,21 +33,25 @@ const displayStats = [
   ['trekker', 'Trekker'],
 ]
 
+const numberFormat = Intl.NumberFormat(navigator.language, { useGrouping:true })
+const dateFullFormat = Intl.DateTimeFormat(navigator.language, { weekday:"short", year:"numeric", month:"short", day:"numeric", hour: "2-digit", minute: "numeric", second: "numeric" })
+const dateShortFormat = Intl.DateTimeFormat(navigator.language, { weekday:"short", year:"numeric", month:"short", day:"numeric" })
+
 const apRollover = (agentName) => {
   const { [ agentName ]: { [ 'lifetime_ap' ]: lifetimeAp } } = iwwcCustom
-  return lifetimeAp.toLocaleString({ useGrouping:true }) + ' AP'
+  return numberFormat.format(lifetimeAp) + ' AP'
 }
 
 const linkFieldRatioRollover = (agentName) => {
   const { [ agentName ]: { connector, [ 'mind-controller' ]: mindController } } = iwwcCustom
   if (!connector) return '-'
-  return (mindController / connector).toLocaleString({ useGrouping:true })
+  return numberFormat.format(mindController / connector)
 }
 
 const muPerFieldRollover = (agentName) => {
   const { [ agentName ]: { illuminator, [ 'mind-controller' ]: mindController } } = iwwcCustom
   if (!mindController) return '-'
-  return (illuminator / mindController).toLocaleString({ useGrouping:true }) + ' fields'
+  return numberFormat.format(illuminator / mindController) + ' fields'
 }
 
 const rollovers = {
@@ -180,9 +184,9 @@ function handleInfo(result) {
   iwwcInfo = result
   const fullFormatOptions = { weekday:"short", year:"numeric", month:"short", day:"numeric", hour: "2-digit", minute: "numeric", second: "numeric" }
   const shortFormatOptions = { weekday:"short", year:"numeric", month:"short", day:"numeric" }
-  document.querySelector('.last-refresh').textContent = new Date(iwwcInfo.lastRefresh + 'Z').toLocaleString(navigator.language, fullFormatOptions)
-  document.querySelector('.start-date').textContent = new Date(iwwcInfo.startDate).toLocaleString(navigator.language, shortFormatOptions)
-  document.querySelector('.end-date').textContent = new Date(iwwcInfo.endDate).toLocaleString(navigator.language, shortFormatOptions)
+  document.querySelector('.last-refresh').textContent = dateFullFormat.format(new Date(iwwcInfo.lastRefresh + 'Z'))
+  document.querySelector('.start-date').textContent = dateShortFormat.format(new Date(iwwcInfo.startDate))
+  document.querySelector('.end-date').textContent = dateShortFormat.format(new Date(iwwcInfo.endDate))
 }
 
 function handleCustom(result) {
@@ -283,7 +287,7 @@ function handleCustom(result) {
           } else {
             rowNode.className += ' none'
           }
-          valueNode.textContent = statValue.toLocaleString({ useGrouping:true })
+          valueNode.textContent = numberFormat.format(statValue)
           agentNode.className += ' faction-' + agentInfo.faction
           agentNode.textContent = agentName
           agentNode.addEventListener('click', e => {
@@ -303,10 +307,10 @@ function handleCustom(result) {
       const updateDOM = () => {
         paneNode.dataset.medal = statName
         headerNode.querySelector('.title').textContent = statTitle
-        footerNode.querySelector('.enl-stat .sum').textContent = sumAgents.enl.toLocaleString({ useGrouping:true })
+        footerNode.querySelector('.enl-stat .sum').textContent = numberFormat.format(sumAgents.enl)
         footerNode.querySelector('.enl-stat .total').textContent = factionCounts.enl
         footerNode.querySelector('.enl-stat .agent').textContent = activeAgents.enl
-        footerNode.querySelector('.res-stat .sum').textContent = sumAgents.res.toLocaleString({ useGrouping:true })
+        footerNode.querySelector('.res-stat .sum').textContent = numberFormat.format(sumAgents.res)
         footerNode.querySelector('.res-stat .total').textContent = factionCounts.res
         footerNode.querySelector('.res-stat .agent').textContent = activeAgents.res
         setTimeout(async () => {
