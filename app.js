@@ -31,6 +31,8 @@ const displayStats = [
   ['specops', 'Specops'],
   ['translator', 'Translator'],
   ['trekker', 'Trekker'],
+  ['ratio@muPerField', 'MindUnits / Field'],
+  ['ratio@fieldsPerLink', 'Fields / Link'],
 ]
 
 const numberFormat = Intl.NumberFormat(navigator.language, { useGrouping:true })
@@ -43,7 +45,7 @@ const apRollover = (agentName) => {
 }
 
 const ratioRollover = (ratioName) => (agentName) => {
-  const { [ agentName ]: { ratios: { [ ratioName ]: ratioValue } } } = iwwcCustom
+  const { [ agentName ]: { [ 'ratio@' + ratioName ]: ratioValue } } = iwwcCustom
   if (!ratioValue) return null
   return numberFormat.format(ratioValue) + ' ' + ratioName
 }
@@ -210,8 +212,8 @@ function handleCustom(result) {
     factionCounts[ agentData.faction ]++
     const ratios = agentData.ratios = {}
     const { connector, illuminator, [ 'mind-controller' ]: mindController } = agentData
-    ratios.fieldsPerLink = connector ? mindController / connector : null
-    ratios.muPerField = mindController ? illuminator / mindController : null
+    agentData['ratio@fieldsPerLink'] = connector ? mindController / connector : null
+    agentData['ratio@muPerField'] = mindController ? illuminator / mindController : null
     const forAgent = byAgent[ agentName ] = { index: undefined, rows: [] }
     Object.entries(agentData).forEach(([ statName, statValue ]) => {
       if (skipStats[ statName ]) return
