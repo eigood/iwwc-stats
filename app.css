@@ -220,6 +220,7 @@ body {
 .stat-pane[data-medal='pioneer']		.badge::before { content:""; background-image:url(images/badge_pioneer.png); display:inline-block; }
 .stat-pane[data-medal='purifier']		.badge::before { content:""; background-image:url(images/badge_purifier.png); display:inline-block; }
 .stat-pane[data-medal='recharger']		.badge::before { content:""; background-image:url(images/badge_recharger.png); display:inline-block; }
+.stat-pane[data-medal='reclaimer']		.badge::before { content:""; background-image:url(images/badge_reclaimer.png); display:inline-block; }
 .stat-pane[data-medal='recon']			.badge::before { content:""; background-image:url(images/badge_recon.png); display:inline-block; }
 .stat-pane[data-medal='scout']			.badge::before { content:""; background-image:url(images/badge_scout.png); display:inline-block; }
 .stat-pane[data-medal='scout_controller']	.badge::before { content:""; background-image:url(images/badge_scout_controller.png); display:inline-block; }

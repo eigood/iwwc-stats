@@ -18,6 +18,7 @@ mind_controller := mind_controller1-300x300.png mind_controller2-300x300.png min
 pioneer := pioneer1-300x300.png pioneer2-300x300.png pioneer3-300x300.png pioneer4-1-300x300.png pioneer5-1-300x300.png
 purifier := purifier1-300x300.png purifier2-300x300.png purifier3-300x300.png purifier4-1-300x300.png purifier5-1-300x300.png
 recharger := recharger1-300x300.png recharger2-300x300.png recharger3-300x300.png recharger4-1-300x300.png recharger5-1-300x300.png
+reclaimer := badge_reclaimer_bronze_EzCVWaq6o9.png badge_reclaimer_silver_qomrnZQtii.png badge_reclaimer_gold_hDYa7eB329.png badge_reclaimer_platinum_sykLgHDCb1.png badge_reclaimer_black_cwOsb4IVLO.png
 recon := bronze_recon-300x300.png silver_recon-300x300.png gold_recon-300x300.png plat_recon-300x300.png black_recon-300x300.png
 scout_controller := scout-controller-bronze-100x100.png scout-controller-silver-100x100.png scout-controller-gold-100x100.png scout-controller-platinum-100x100.png scout-controller-onyx-100x100.png
 scout_controller_size := 44x44
@@ -29,7 +30,7 @@ scout_geometry := +3+3
 translator := trans_bronze-300x300.png trans_silver-300x300.png trans_gold-300x300.png translator4-300x300.png translator5-300x300.png
 trekker := trekker11-300x300.png trekker2-300x300.png trekker3-300x300.png trekker4-1-300x300.png trekker5-1-300x300.png
 
-badges := builder connector engineer explorer hacker illuminator liberator maverick mind_controller pioneer purifier recharger recon scout_controller specops scout translator trekker
+badges := builder connector engineer explorer hacker illuminator liberator maverick mind_controller pioneer purifier recharger reclaimer recon scout_controller specops scout translator trekker
 #all: $(patsubst %,%.png,$(all))
 
 sprite_size := 50x50
