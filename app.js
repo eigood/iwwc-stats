@@ -287,7 +287,7 @@ function handleCustom(result) {
         const agentInfo = iwwcCustom[ agentName ]
         const faction = agentInfo.faction
         const statValue = agentInfo[ statName ]
-        const { [ statName ]: statValueDisplay = (agentName, gentInfo, value) => numberFormat.format(value) } = statValueDisplays
+        const { [ statName ]: statValueDisplay = (agentName, agentInfo, value) => numberFormat.format(value) } = statValueDisplays
         const rowFragment = statListRowTemplate.content.cloneNode(true)
         const rowNode = rowFragment.querySelector('.stat-row')
         const valueNode = rowFragment.querySelector('.stat-value')
