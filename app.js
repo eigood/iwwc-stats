@@ -272,6 +272,7 @@ function handleCustom(result) {
         } else {
           position = lastPosition
         }
+        const rolloverValue = rolloverBuilder ? rolloverBuilder(agentName) : null
         const updateDOM = () => {
           rowNode.dataset.value = statValue
           rowNode.dataset.agent = agentName
@@ -294,12 +295,11 @@ function handleCustom(result) {
             console.log('click agent', {agentName})
             setSearch(agentName)
           })
-        }
-        const rolloverValue = rolloverBuilder ? rolloverBuilder(agentName) : null
-        if (rolloverValue) {
-          rolloverNode.textContent = rolloverValue
-        } else {
-          rolloverNode.parentNode.removeChild(rolloverNode)
+          if (rolloverValue) {
+            rolloverNode.textContent = rolloverValue
+          } else {
+            rolloverNode.parentNode.removeChild(rolloverNode)
+          }
         }
         return { rowFragment, updateDOM }
       })
