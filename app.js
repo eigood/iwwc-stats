@@ -50,7 +50,7 @@ const displayStats = [
 const numberFormat = Intl.NumberFormat(navigator.language, { useGrouping:true })
 const dateFullFormat = Intl.DateTimeFormat(navigator.language, { weekday:"short", year:"numeric", month:"short", day:"numeric", hour: "2-digit", minute: "numeric", second: "numeric" })
 const dateShortFormat = Intl.DateTimeFormat(navigator.language, { weekday:"short", year:"numeric", month:"short", day:"numeric" })
-const lastSubmitFormat = Intl.DateTimeFormat(navigator.language, { timeZone: 'UTC', year: 'numeric', month: 'numeric', day:"numeric", hour: "2-digit", minute: "numeric", second: "numeric", hourCycle: 'h23' })
+const lastSubmitFormat = Intl.DateTimeFormat(navigator.language, { timeZone: 'UTC', year: 'numeric', month: '2-digit', day:"2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: 'h23' })
 
 const apRollover = (agentName) => {
   const { [ agentName ]: { [ 'lifetime_ap' ]: lifetimeAp } } = iwwcCustom

@@ -242,6 +242,9 @@ body {
 .stat-pane[data-medal='last_submit'] .stat-reward {
 	display:none;
 }
+.stat-pane[data-medal='last_submit'] .stat-footer .sum {
+	display:none;
+}
 .stat-pane .stat-header .badge::before {
 	background-size:cover;
 	width:calc(var(--badge-width) * 5 * 1px);
