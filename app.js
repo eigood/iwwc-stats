@@ -4,7 +4,13 @@ const skipStats = {
   'ap': true,
   'level': true,
   'faction': true,
-  'last_submit': true,
+}
+
+const statParsers = {
+  ['last_submit']: (value) => {
+    if (value) return new Date(Date.parse(value + '+0000'))
+    return null
+  },
 }
 
 const displayStats = [
@@ -38,11 +44,13 @@ const displayStats = [
   ['ratio@translator/hacker', 'Translator / Hacker'],
   ['ratio@purifier/builder', 'Purifier / Builder'],
   ['ratio@ap/trekker', 'AP / km'],
+  ['last_submit', 'Last Submit'],
 ]
 
 const numberFormat = Intl.NumberFormat(navigator.language, { useGrouping:true })
 const dateFullFormat = Intl.DateTimeFormat(navigator.language, { weekday:"short", year:"numeric", month:"short", day:"numeric", hour: "2-digit", minute: "numeric", second: "numeric" })
 const dateShortFormat = Intl.DateTimeFormat(navigator.language, { weekday:"short", year:"numeric", month:"short", day:"numeric" })
+const lastSubmitFormat = Intl.DateTimeFormat(navigator.language, { timeZone: 'UTC', year: 'numeric', month: 'numeric', day:"numeric", hour: "2-digit", minute: "numeric", second: "numeric", hourCycle: 'h23' })
 
 const apRollover = (agentName) => {
   const { [ agentName ]: { [ 'lifetime_ap' ]: lifetimeAp } } = iwwcCustom
@@ -70,6 +78,9 @@ const statValueDisplays = {
     } else {
       return statValue
     }
+  },
+  'last_submit': (agentName, agentInfo, statValue) => {
+    return lastSubmitFormat.format(statValue)
   },
 }
 
@@ -241,6 +252,10 @@ function handleCustom(result) {
     calculateInferredStats(agentData)
     const forAgent = byAgent[ agentName ] = { index: undefined, rows: [] }
     Object.entries(agentData).forEach(([ statName, statValue ]) => {
+      const { [ statName ]: statParser } = statParsers
+      if (statParser) {
+        agentData[ statName ] = statParser(statValue)
+      }
       if (skipStats[ statName ]) return
       byStat[ statName ] = null;
     })
