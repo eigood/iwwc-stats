@@ -8,6 +8,7 @@ const skipStats = {
 
 const statParsers = {
   ['last_submit']: (value) => {
+    if (value === '0000-00-00 00:00:00') value = 0
     if (value) return new Date(Date.parse(value + '+0000'))
     return null
   },
