@@ -136,6 +136,12 @@ function addClassToList(nodeList, className) {
   }
 }
 
+function getInnerHeight(element){
+  const { paddingTop, paddingBottom } = getComputedStyle(element)
+  const padding = parseInt(paddingTop) + parseInt(paddingBottom)
+  return element.clientHeight - padding
+}
+
 const handleAgentSearch = (e) => {
   e.preventDefault()
   e.stopPropagation()
@@ -248,6 +254,7 @@ function handleCustom(result) {
   byStat = {};
 
   const factionCounts = { enl: 0, res: 0 }
+  console.time('analyze')
   Object.entries(iwwcCustom).forEach(([ agentName, agentData ]) => {
     factionCounts[ agentData.faction ]++
     calculateInferredStats(agentData)
@@ -281,23 +288,25 @@ function handleCustom(result) {
       byAgent[ agentName ][ statName ] = index
     })
   })
+  console.timeEnd('analyze')
   //console.log('by', {byAgent, byStat})
    //<span class="enl-sum"></span>[<span class="enl-agent"></span>/<span class="enl-total">]</span>
    //<span class="res-sum"></span>[<span class="res-agent"></span>/<span class="res-total">]</span>
 
     console.time('getNewNodes')
     const statInfos = displayStats.map(([ statName, statTitle ]) => {
+      console.time(`statList:${statName}`)
       const statList = byStat[ statName ]
       const rolloverBuilder = rollovers[ statName ]
       const paneFragment = statPaneTemplate.content.cloneNode(true)
       const paneNode = paneFragment.querySelector('.stat-pane')
+      const contentNode = paneFragment.querySelector('.stat-content')
       const headerNode = paneFragment.querySelector('.stat-header')
       const footerNode = paneFragment.querySelector('.stat-footer')
       const listNode = paneFragment.querySelector('.stat-list')
       const activeAgents = { enl: 0, res: 0 }
       const sumAgents = { enl: 0, res: 0 }
       let lastValue = undefined, lastPosition = undefined
-      console.time(`statList:${statName}`)
       const rowInfos = statList.map((agentName, index) => {
         const forAgent = byAgent[ agentName ]
         const agentInfo = iwwcCustom[ agentName ]
@@ -356,30 +365,64 @@ function handleCustom(result) {
         }
         return { rowFragment, updateDOM }
       })
-      console.timeEnd(`statList:${statName}`)
-      const updateDOM = () => {
-        paneNode.dataset.medal = statName
-        headerNode.querySelector('.title').textContent = statTitle
-        footerNode.querySelector('.enl-stat .sum').textContent = numberFormat.format(sumAgents.enl)
-        footerNode.querySelector('.enl-stat .total').textContent = factionCounts.enl
-        footerNode.querySelector('.enl-stat .agent').textContent = activeAgents.enl
-        footerNode.querySelector('.res-stat .sum').textContent = numberFormat.format(sumAgents.res)
-        footerNode.querySelector('.res-stat .total').textContent = factionCounts.res
-        footerNode.querySelector('.res-stat .agent').textContent = activeAgents.res
-        setTimeout(async () => {
-          console.time(`statNode:${statName}`)
-          try {
-            const rowUpdaters = rowInfos.map(({ rowFragment, updateDOM }) => {
-              listNode.appendChild(rowFragment)
-              return updateDOM()
-            })
-            await Promise.all(rowUpdaters)
-            setTimeout(() => paneNode.classList.remove('stat-loading'), 0)
-          } finally {
-            console.timeEnd(`statNode:${statName}`)
+      const updateDOM = () => new Promise(async (resolve, reject) => {
+        console.time(`statNode:${statName}`)
+        try {
+          paneNode.dataset.medal = statName
+          headerNode.querySelector('.title').textContent = statTitle
+          footerNode.querySelector('.enl-stat .sum').textContent = numberFormat.format(sumAgents.enl)
+          footerNode.querySelector('.enl-stat .total').textContent = factionCounts.enl
+          footerNode.querySelector('.enl-stat .agent').textContent = activeAgents.enl
+          footerNode.querySelector('.res-stat .sum').textContent = numberFormat.format(sumAgents.res)
+          footerNode.querySelector('.res-stat .total').textContent = factionCounts.res
+          footerNode.querySelector('.res-stat .agent').textContent = activeAgents.res
+          const rowUpdaters = rowInfos.map(async ({ rowFragment, updateDOM }) => {
+            await updateDOM()
+            return rowFragment
+          })
+          const rowFragments = await Promise.all(rowUpdaters)
+          const page = { start: 0, size: 50 }
+          const updatePage = () => {
+            while (listNode.lastChild) {
+              listNode.removeChild(listNode.lastChild)
+            }
+            for (let i = page.start, j = page.size; j && i < rowFragments.length; i++, j--) {
+              const fragmentCloned = rowFragments[ i ].cloneNode(true)
+              listNode.appendChild(fragmentCloned)
+            }
+            const innerHeight = getInnerHeight(listNode)
           }
-        }, 0)
-      }
+          paneNode.querySelector('.stat-content').addEventListener('scroll', (e) => {
+            let { target, target: { offsetTop, scrollTop, scrollHeight } } = e
+            const end = Math.min(page.start + page.size, rowFragments.length)
+            const rowHeight = scrollHeight / (end - page.start)
+            if (scrollTop > rowHeight * 8) {
+              if (page.end !== rowFragments.length) {
+                page.start++
+                updatePage()
+                target.scrollTop = scrollTop - rowHeight
+              }
+            } else if (scrollTop < rowHeight * 4) {
+              const newStart = Math.max(page.start - 4, 0)
+              if (newStart !== page.start) {
+                const diff = page.start - newStart
+                page.start = newStart
+                updatePage()
+                target.scrollTop = scrollTop + diff * rowHeight
+              }
+            }
+
+          })
+          updatePage()
+          resolve()
+        } catch (e) {
+          reject(e)
+        } finally {
+          setTimeout(() => paneNode.classList.remove('stat-loading'), 0)
+          console.timeEnd(`statNode:${statName}`)
+        }
+      })
+      console.timeEnd(`statList:${statName}`)
       return { paneFragment, updateDOM }
     })
   console.timeEnd('getNewNodes')
@@ -390,10 +433,17 @@ function handleCustom(result) {
     while (appContentNode.firstChild) {
       appContentNode.removeChild(appContentNode.lastChild)
     }
-    const statUpdaters = statInfos.map(({ paneFragment, updateDOM }) => {
-      appContentNode.appendChild(paneFragment)
-      return updateDOM()
-    })
+    const statUpdaters = statInfos.map(({ paneFragment, updateDOM }) => new Promise((resolve, reject) => {
+      setTimeout(async () => {
+        try {
+          appContentNode.appendChild(paneFragment)
+          await updateDOM()
+          resolve()
+        } catch (e) {
+          reject(e)
+        }
+      }, 0)
+    }))
     Promise.all(statUpdaters).then(() => {
       console.timeEnd('replaceNodes')
     })
