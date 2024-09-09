@@ -160,6 +160,7 @@ function setSearch(value) {
 
 let lastSearch = null
 let lastSearchStyleElement = null
+const pageSize = 50
 
 function filterDisplay(search) {
   const newHash = search ? '#' + search : '#'
@@ -185,6 +186,11 @@ function filterDisplay(search) {
       `
     } else {
       iwwcAppNode.classList.remove('searching')
+    }
+    const statPanes = document.querySelectorAll('.stat-pane')
+    const searchEvent = new Event('search')
+    for (const statPane of statPanes) {
+      statPane.dispatchEvent(searchEvent)
     }
     /*
     if (lastSearchStyleElement) {
@@ -335,35 +341,36 @@ function handleCustom(result) {
           position = lastPosition
         }
         const rolloverValue = rolloverBuilder ? rolloverBuilder(agentName) : null
-        const updateDOM = () => {
-          rowNode.dataset.value = statValue
-          rowNode.dataset.agent = agentName
-          positionNode.textContent = position
-          if (position === 1) {
-            rowNode.className += ' onyx'
-          } else if (position === 2) {
-            rowNode.className += ' platinum'
-          } else if (position === 3) {
-            rowNode.className += ' gold'
-          } else if (position < 21) {
-            rowNode.className += ' silver'
-          } else {
-            rowNode.className += ' none'
-          }
-          valueNode.textContent = statValueDisplay(agentName, agentInfo, statValue)
-          agentNode.className += ' faction-' + agentInfo.faction
-          agentNode.textContent = agentName
+        rowNode.dataset.value = statValue
+        rowNode.dataset.agent = agentName
+        positionNode.textContent = position
+        if (position === 1) {
+          rowNode.className += ' onyx'
+        } else if (position === 2) {
+          rowNode.className += ' platinum'
+        } else if (position === 3) {
+          rowNode.className += ' gold'
+        } else if (position < 21) {
+          rowNode.className += ' silver'
+        } else {
+          rowNode.className += ' none'
+        }
+        valueNode.textContent = statValueDisplay(agentName, agentInfo, statValue)
+        agentNode.className += ' faction-' + agentInfo.faction
+        agentNode.textContent = agentName
+        if (rolloverValue) {
+          rolloverNode.textContent = rolloverValue
+        } else {
+          rolloverNode.parentNode.removeChild(rolloverNode)
+        }
+        const attachListeners = (rowFragmentClone) => {
+          const agentNode = rowFragmentClone.querySelector('.agent')
           agentNode.addEventListener('click', e => {
             console.log('click agent', {agentName})
             setSearch(agentName)
           })
-          if (rolloverValue) {
-            rolloverNode.textContent = rolloverValue
-          } else {
-            rolloverNode.parentNode.removeChild(rolloverNode)
-          }
         }
-        return { rowFragment, updateDOM }
+        return { rowFragment, attachListeners, agentName }
       })
       const updateDOM = () => new Promise(async (resolve, reject) => {
         console.time(`statNode:${statName}`)
@@ -376,44 +383,59 @@ function handleCustom(result) {
           footerNode.querySelector('.res-stat .sum').textContent = numberFormat.format(sumAgents.res)
           footerNode.querySelector('.res-stat .total').textContent = factionCounts.res
           footerNode.querySelector('.res-stat .agent').textContent = activeAgents.res
-          const rowUpdaters = rowInfos.map(async ({ rowFragment, updateDOM }) => {
-            await updateDOM()
-            return rowFragment
-          })
-          const rowFragments = await Promise.all(rowUpdaters)
-          const page = { start: 0, size: 50 }
+          const page = { full: { start: 0, rowInfos, scrollTop: 0 }, search: { start: 0, scrollTop: 0 } }
           const updatePage = () => {
+            const { current: { start, rowInfos, scrollTop } } = page
             while (listNode.lastChild) {
               listNode.removeChild(listNode.lastChild)
             }
-            for (let i = page.start, j = page.size; j && i < rowFragments.length; i++, j--) {
-              const fragmentCloned = rowFragments[ i ].cloneNode(true)
-              listNode.appendChild(fragmentCloned)
+            for (let i = start, j = pageSize; j && i < rowInfos.length; i++, j--) {
+              const { rowFragment, attachListeners } = rowInfos[ i ]
+              const rowFragmentCloned = rowFragment.cloneNode(true)
+              attachListeners(rowFragmentCloned)
+              listNode.appendChild(rowFragmentCloned)
             }
-            const innerHeight = getInnerHeight(listNode)
+            contentNode.scrollTop = scrollTop
           }
-          paneNode.querySelector('.stat-content').addEventListener('scroll', (e) => {
+          const paneOnChange = () => {
+            const searchTerm = document.querySelector('.agent-search input').value
+            if (searchTerm) {
+              if (page.search.term === searchTerm) return
+              page.search.start = 0
+              page.search.rowInfos = rowInfos.filter(({ agentName }) => agentName.indexOf(searchTerm) !== -1)
+              page.current = page.search
+              updatePage()
+            } else {
+              page.current = page.full
+              updatePage()
+            }
+          }
+          paneNode.addEventListener('search', (e) => {
+            paneOnChange()
+          })
+          contentNode.addEventListener('scroll', (e) => {
             let { target, target: { offsetTop, scrollTop, scrollHeight } } = e
-            const end = Math.min(page.start + page.size, rowFragments.length)
-            const rowHeight = scrollHeight / (end - page.start)
+            const { current } = page
+            current.scrollTop = scrollTop
+            const end = Math.min(current.start + pageSize, current.rowInfos.length)
+            const rowHeight = scrollHeight / (end - current.start)
             if (scrollTop > rowHeight * 8) {
-              if (page.end !== rowFragments.length) {
-                page.start++
-                updatePage()
-                target.scrollTop = scrollTop - rowHeight
+              if (end !== current.rowInfos.length) {
+                current.start++
+                current.scrollTop = scrollTop - rowHeight
+                paneOnChange()
               }
             } else if (scrollTop < rowHeight * 4) {
-              const newStart = Math.max(page.start - 4, 0)
-              if (newStart !== page.start) {
-                const diff = page.start - newStart
-                page.start = newStart
-                updatePage()
-                target.scrollTop = scrollTop + diff * rowHeight
+              const newStart = Math.max(current.start - 4, 0)
+              if (newStart !== current.start) {
+                const diff = current.start - newStart
+                current.start = newStart
+                current.scrollTop = scrollTop + diff * rowHeight
+                paneOnChange()
               }
             }
-
           })
-          updatePage()
+          paneOnChange()
           resolve()
         } catch (e) {
           reject(e)
