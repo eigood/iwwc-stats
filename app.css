@@ -10,13 +10,11 @@
 }
 #iwwc-app header {
 }
-/*
 @media (max-width:500px) {
-	#iwwc-app {
+	.iwwc-content {
 		padding-right:24px;
 	}
 }
-*/
 .loading { color: white; }
 #iwwc-app.loading .iwwc-content { display: none; }
 #iwwc-app.loading .reload-button { display: none; }
