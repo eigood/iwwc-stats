@@ -213,7 +213,9 @@ function handleInfo(result) {
   iwwcInfo = result
   const fullFormatOptions = { weekday:"short", year:"numeric", month:"short", day:"numeric", hour: "2-digit", minute: "numeric", second: "numeric" }
   const shortFormatOptions = { weekday:"short", year:"numeric", month:"short", day:"numeric" }
-  document.querySelector('.last-refresh').textContent = dateFullFormat.format(new Date(iwwcInfo.lastRefresh + 'Z'))
+  const lastRefresh = new Date(iwwcInfo.lastRefresh + 'Z')
+  lastRefresh.setHours(lastRefresh.getHours() - 2)
+  document.querySelector('.last-refresh').textContent = dateFullFormat.format(lastRefresh)
   document.querySelector('.start-date').textContent = dateShortFormat.format(new Date(iwwcInfo.startDate))
   document.querySelector('.end-date').textContent = dateShortFormat.format(new Date(iwwcInfo.endDate))
 }
