@@ -177,13 +177,6 @@ function filterDisplay(search) {
     const iwwcAppNode = document.querySelector('#iwwc-app')
     if (agentSearch) {
       if (!iwwcAppNode.classList.contains('searching')) iwwcAppNode.classList.add('searching')
-      const searchStyleNode = document.querySelector('#search-style')
-      searchStyleNode.textContent = `
-#iwwc-app.searching .stat-row:not([data-agent*='${agentSearch}' i]) {
-        height:0;
-        visibility:collapse;
-}
-      `
     } else {
       iwwcAppNode.classList.remove('searching')
     }
@@ -402,8 +395,11 @@ function handleCustom(result) {
             if (searchTerm) {
               const searchTermLower = searchTerm.toLowerCase()
               if (page.search.term === searchTermLower) return
+              const searchTerms = searchTermLower.split('&')
               page.search.start = 0
-              page.search.rowInfos = rowInfos.filter(({ agentNameLower }) => agentNameLower.indexOf(searchTermLower) !== -1)
+              page.search.rowInfos = rowInfos.filter(({ agentNameLower }) => {
+                return searchTerms.filter(searchTerm => searchTerm.length && agentNameLower.indexOf(searchTerm) !== -1).length
+              })
               page.current = page.search
               updatePage()
             } else {
