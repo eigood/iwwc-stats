@@ -370,7 +370,7 @@ function handleCustom(result) {
             setSearch(agentName)
           })
         }
-        return { rowFragment, attachListeners, agentName }
+        return { rowFragment, attachListeners, agentName, agentNameLower: agentName.toLowerCase() }
       })
       const updateDOM = () => new Promise(async (resolve, reject) => {
         console.time(`statNode:${statName}`)
@@ -400,9 +400,10 @@ function handleCustom(result) {
           const paneOnChange = () => {
             const searchTerm = document.querySelector('.agent-search input').value
             if (searchTerm) {
-              if (page.search.term === searchTerm) return
+              const searchTermLower = searchTerm.toLowerCase()
+              if (page.search.term === searchTermLower) return
               page.search.start = 0
-              page.search.rowInfos = rowInfos.filter(({ agentName }) => agentName.indexOf(searchTerm) !== -1)
+              page.search.rowInfos = rowInfos.filter(({ agentNameLower }) => agentNameLower.indexOf(searchTermLower) !== -1)
               page.current = page.search
               updatePage()
             } else {
