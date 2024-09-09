@@ -10,11 +10,13 @@
 }
 #iwwc-app header {
 }
+/*
 @media (max-width:500px) {
 	#iwwc-app {
 		padding-right:24px;
 	}
 }
+*/
 .loading { color: white; }
 #iwwc-app.loading .iwwc-content { display: none; }
 #iwwc-app.loading .reload-button { display: none; }
@@ -77,6 +79,8 @@ body {
 .agent-search {
 	clear:both;
 	display:inline-flex;
+	width:calc(100% - 5px * 2);
+	max-width:300px;
 }
 .agent-search::before {
 	display:block;
@@ -87,7 +91,7 @@ body {
 	cursor:pointer;
 }
 .agent-search input {
-	width:300px;
+	width:100%;
 	padding:0;
 	border:0;
 	background:#aaaaaa;
