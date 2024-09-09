@@ -213,7 +213,7 @@ function filterDisplay(search) {
     console.timeEnd('filterDisplay')
   }, 0)
 }
-const debouncedFilterDisplay = debounce(filterDisplay)
+const debouncedFilterDisplay = debounce(filterDisplay, 50)
 
 function handleInfo(result) {
   if (!result) return;
