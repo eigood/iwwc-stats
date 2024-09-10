@@ -1,5 +1,18 @@
-var iwwcCustomURL = 'https://eigood.github.io/iwwc-stats-data/iwwc-custom-2024.json';
-var iwwcInfoURL = 'https://eigood.github.io/iwwc-stats-data/iwwc-info-2024.json';
+const eventData = {
+  '2024': {
+    title: '2024',
+    customUrl: 'https://eigood.github.io/iwwc-stats-data/iwwc-custom-2024.json',
+    infoUrl: 'https://eigood.github.io/iwwc-stats-data/iwwc-info-2024.json',
+  },
+  '2023': {
+    title: '2023',
+    customUrl: 'https://eigood.github.io/iwwc-stats-data/iwwc-custom-2023.json',
+    infoUrl: 'https://eigood.github.io/iwwc-stats-data/iwwc-info-2023.json',
+  },
+}
+
+let currentEvent = '2024'
+
 const skipStats = {
   'ap': true,
   'level': true,
@@ -110,7 +123,23 @@ function handleLoad() {
     setSearch(hash.substring(1))
   }
   document.querySelector('.clear-search').addEventListener('click', handleClearSearch)
-  loadData();
+  const currentEventSelect = document.querySelector('select[name="current-event"]')
+  const eventKeys = Object.keys(eventData).sort((a, b) => eventData[ a ].title.localeCompare(eventData[ b ].title))
+  for (const eventKey of eventKeys) {
+    const option = document.createElement('option')
+    option.setAttribute('value', eventKey)
+    option.textContent = eventData[ eventKey ].title
+    if (currentEvent == eventKey) option.setAttribute('selected', true)
+    currentEventSelect.appendChild(option)
+  }
+  currentEventSelect.addEventListener('change', (e) => {
+    const { target: { value } } = e
+    if (currentEvent !== value) {
+      currentEvent = value
+      loadData()
+    }
+  })
+  loadData()
 }
 
 function loadData(e) {
@@ -118,8 +147,8 @@ function loadData(e) {
     e.preventDefault();
     e.stopPropagation();
   }
-  fetchJSON(iwwcCustomURL, handleCustom)
-  fetchJSON(iwwcInfoURL, handleInfo)
+  fetchJSON(eventData[ currentEvent ].customUrl, handleCustom)
+  fetchJSON(eventData[ currentEvent ].infoUrl, handleInfo)
 }
 
 let byAgent = {}, byStat = {}, iwwcCustom = {}, iwwcInfo = {}

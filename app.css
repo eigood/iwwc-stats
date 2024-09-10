@@ -30,7 +30,7 @@ body {
 .reload-button {
 	cursor:pointer;
 }
-.reload-button, .start-date, .end-date, .last-refresh, .agent-search {
+.reload-button, .start-date, .end-date, .last-refresh, .agent-search, .event-selector {
 	background:white;
 	border:1px solid black;
 	border-radius:5px;
