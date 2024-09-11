@@ -139,6 +139,83 @@ function handleLoad() {
       loadData()
     }
   })
+  const appContentNode = document.querySelector('#iwwc-app .iwwc-content')
+  const statPaneTemplate = document.querySelector('#stat-pane')
+  console.time('statInfos')
+  statInfos = displayStats.map(([ statName, statTitle ]) => {
+    const statInfo = { statName, statTitle }
+    const paneFragment = statPaneTemplate.content.cloneNode(true)
+    const paneNode = statInfo.paneNode = paneFragment.querySelector('.stat-pane')
+    const contentNode = paneNode.querySelector('.stat-content')
+    const listNode = paneNode.querySelector('.stat-list')
+    const headerNode = paneFragment.querySelector('.stat-header')
+
+    paneNode.dataset.medal = statName
+    headerNode.querySelector('.title').textContent = statTitle
+
+    appContentNode.appendChild(paneFragment)
+
+    const page = { full: { start: 0, scrollTop: 0 }, search: { start: 0, scrollTop: 0 } }
+    const updatePage = () => {
+      const { current: { start, rowInfos, scrollTop } } = page
+      while (listNode.lastChild) {
+        listNode.removeChild(listNode.lastChild)
+      }
+      for (let i = start, j = pageSize; j && i < rowInfos.length; i++, j--) {
+        const { rowFragment, attachListeners } = rowInfos[ i ]
+        const rowFragmentCloned = rowFragment.cloneNode(true)
+        attachListeners(rowFragmentCloned)
+        listNode.appendChild(rowFragmentCloned)
+      }
+      contentNode.scrollTop = scrollTop
+    }
+    const paneOnChange = () => {
+      const searchTerm = document.querySelector('.agent-search input').value
+      if (searchTerm) {
+        const searchTermLower = searchTerm.toLowerCase()
+        if (page.search.term === searchTermLower) return
+        const searchTerms = searchTermLower.split('&')
+        page.search.start = 0
+        page.search.rowInfos = statInfo.rowInfos.filter(({ agentNameLower }) => {
+          return searchTerms.filter(searchTerm => searchTerm.length && agentNameLower.indexOf(searchTerm) !== -1).length
+        })
+        page.current = page.search
+        updatePage()
+      } else {
+        page.current = page.full
+        updatePage()
+      }
+    }
+    paneNode.addEventListener('paneChange', (e) => {
+      if (e.detail) page.full.rowInfos = statInfo.rowInfos = e.detail
+      paneOnChange()
+    })
+    contentNode.addEventListener('scroll', (e) => {
+      let { target, target: { offsetTop, scrollTop, scrollHeight } } = e
+      const { current } = page
+      current.scrollTop = scrollTop
+      const end = Math.min(current.start + pageSize, current.rowInfos.length)
+      const rowHeight = scrollHeight / (end - current.start)
+      if (scrollTop > rowHeight * 8) {
+        if (end !== current.rowInfos.length) {
+          current.start++
+          current.scrollTop = scrollTop - rowHeight
+          paneOnChange()
+        }
+      } else if (scrollTop < rowHeight * 4) {
+        const newStart = Math.max(current.start - 4, 0)
+        if (newStart !== current.start) {
+          const diff = current.start - newStart
+          current.start = newStart
+          current.scrollTop = scrollTop + diff * rowHeight
+          paneOnChange()
+        }
+      }
+    })
+    return statInfo
+  })
+  console.timeEnd('statInfos')
+
   loadData()
 }
 
@@ -151,7 +228,7 @@ function loadData(e) {
   fetchJSON(eventData[ currentEvent ].infoUrl, handleInfo)
 }
 
-let byAgent = {}, byStat = {}, iwwcCustom = {}, iwwcInfo = {}
+let byAgent = {}, byStat = {}, iwwcCustom = {}, iwwcInfo = {}, statInfos = []
 
 function removeClassFromList(nodeList, className) {
   for (const node of nodeList) {
@@ -210,9 +287,9 @@ function filterDisplay(search) {
       iwwcAppNode.classList.remove('searching')
     }
     const statPanes = document.querySelectorAll('.stat-pane')
-    const searchEvent = new Event('search')
+    const paneChangeEvent = new Event('paneChange')
     for (const statPane of statPanes) {
-      statPane.dispatchEvent(searchEvent)
+      statPane.dispatchEvent(paneChangeEvent)
     }
     /*
     if (lastSearchStyleElement) {
@@ -278,8 +355,6 @@ function handleCustom(result) {
   const app = document.querySelector('#iwwc-app')
   app.classList.remove('loading')
 
-  var statPaneTemplate = document.querySelector('#stat-pane');
-  var statListRowTemplate = document.querySelector('#stat-list-row');
   byAgent = {}
   byStat = {};
 
@@ -323,17 +398,16 @@ function handleCustom(result) {
    //<span class="enl-sum"></span>[<span class="enl-agent"></span>/<span class="enl-total">]</span>
    //<span class="res-sum"></span>[<span class="res-agent"></span>/<span class="res-total">]</span>
 
+  const statListRowTemplate = document.querySelector('#stat-list-row')
     console.time('getNewNodes')
-    const statInfos = displayStats.map(([ statName, statTitle ]) => {
+    const statUpdaters = statInfos.map((statInfo) => {
+      const { statName, paneNode } = statInfo
       console.time(`statList:${statName}`)
       const statList = byStat[ statName ]
       const rolloverBuilder = rollovers[ statName ]
-      const paneFragment = statPaneTemplate.content.cloneNode(true)
-      const paneNode = paneFragment.querySelector('.stat-pane')
-      const contentNode = paneFragment.querySelector('.stat-content')
-      const headerNode = paneFragment.querySelector('.stat-header')
-      const footerNode = paneFragment.querySelector('.stat-footer')
-      const listNode = paneFragment.querySelector('.stat-list')
+      const headerNode = paneNode.querySelector('.stat-header')
+      const footerNode = paneNode.querySelector('.stat-footer')
+      const listNode = paneNode.querySelector('.stat-list')
       const activeAgents = { enl: 0, res: 0 }
       const sumAgents = { enl: 0, res: 0 }
       let lastValue = undefined, lastPosition = undefined
@@ -399,71 +473,14 @@ function handleCustom(result) {
       const updateDOM = () => new Promise(async (resolve, reject) => {
         console.time(`statNode:${statName}`)
         try {
-          paneNode.dataset.medal = statName
-          headerNode.querySelector('.title').textContent = statTitle
           footerNode.querySelector('.enl-stat .sum').textContent = numberFormat.format(sumAgents.enl)
           footerNode.querySelector('.enl-stat .total').textContent = factionCounts.enl
           footerNode.querySelector('.enl-stat .agent').textContent = activeAgents.enl
           footerNode.querySelector('.res-stat .sum').textContent = numberFormat.format(sumAgents.res)
           footerNode.querySelector('.res-stat .total').textContent = factionCounts.res
           footerNode.querySelector('.res-stat .agent').textContent = activeAgents.res
-          const page = { full: { start: 0, rowInfos, scrollTop: 0 }, search: { start: 0, scrollTop: 0 } }
-          const updatePage = () => {
-            const { current: { start, rowInfos, scrollTop } } = page
-            while (listNode.lastChild) {
-              listNode.removeChild(listNode.lastChild)
-            }
-            for (let i = start, j = pageSize; j && i < rowInfos.length; i++, j--) {
-              const { rowFragment, attachListeners } = rowInfos[ i ]
-              const rowFragmentCloned = rowFragment.cloneNode(true)
-              attachListeners(rowFragmentCloned)
-              listNode.appendChild(rowFragmentCloned)
-            }
-            contentNode.scrollTop = scrollTop
-          }
-          const paneOnChange = () => {
-            const searchTerm = document.querySelector('.agent-search input').value
-            if (searchTerm) {
-              const searchTermLower = searchTerm.toLowerCase()
-              if (page.search.term === searchTermLower) return
-              const searchTerms = searchTermLower.split('&')
-              page.search.start = 0
-              page.search.rowInfos = rowInfos.filter(({ agentNameLower }) => {
-                return searchTerms.filter(searchTerm => searchTerm.length && agentNameLower.indexOf(searchTerm) !== -1).length
-              })
-              page.current = page.search
-              updatePage()
-            } else {
-              page.current = page.full
-              updatePage()
-            }
-          }
-          paneNode.addEventListener('search', (e) => {
-            paneOnChange()
-          })
-          contentNode.addEventListener('scroll', (e) => {
-            let { target, target: { offsetTop, scrollTop, scrollHeight } } = e
-            const { current } = page
-            current.scrollTop = scrollTop
-            const end = Math.min(current.start + pageSize, current.rowInfos.length)
-            const rowHeight = scrollHeight / (end - current.start)
-            if (scrollTop > rowHeight * 8) {
-              if (end !== current.rowInfos.length) {
-                current.start++
-                current.scrollTop = scrollTop - rowHeight
-                paneOnChange()
-              }
-            } else if (scrollTop < rowHeight * 4) {
-              const newStart = Math.max(current.start - 4, 0)
-              if (newStart !== current.start) {
-                const diff = current.start - newStart
-                current.start = newStart
-                current.scrollTop = scrollTop + diff * rowHeight
-                paneOnChange()
-              }
-            }
-          })
-          paneOnChange()
+          const paneChangeEvent = new CustomEvent('paneChange', { detail: rowInfos })
+          paneNode.dispatchEvent(paneChangeEvent)
           resolve()
         } catch (e) {
           reject(e)
@@ -473,28 +490,13 @@ function handleCustom(result) {
         }
       })
       console.timeEnd(`statList:${statName}`)
-      return { paneFragment, updateDOM }
+      return updateDOM
     })
   console.timeEnd('getNewNodes')
 
   setTimeout(function() {
     console.time('replaceNodes')
-    const appContentNode = document.querySelector('#iwwc-app .iwwc-content')
-    while (appContentNode.firstChild) {
-      appContentNode.removeChild(appContentNode.lastChild)
-    }
-    const statUpdaters = statInfos.map(({ paneFragment, updateDOM }) => new Promise((resolve, reject) => {
-      setTimeout(async () => {
-        try {
-          appContentNode.appendChild(paneFragment)
-          await updateDOM()
-          resolve()
-        } catch (e) {
-          reject(e)
-        }
-      }, 0)
-    }))
-    Promise.all(statUpdaters).then(() => {
+    Promise.all(statUpdaters.map(statUpdater => statUpdater())).then(() => {
       console.timeEnd('replaceNodes')
     })
   }, 0)
