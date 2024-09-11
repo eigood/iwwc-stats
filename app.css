@@ -38,9 +38,18 @@ body {
 	color:#888888;
 	display:inline-block;
 }
+header .enl-stat, header .res-stat {
+	background:rgb(50, 50, 50, .9);
+	color:white;
+	display:inline-block;
+}
 .stat-footer {
 	background:rgba(50, 50, 50, .9);
 	color:white;
+	font-size:16px;
+}
+.stat-footer .total {
+	display:none;
 }
 .enl-stat, .res-stat {
 	white-space:nowrap;
@@ -63,7 +72,7 @@ body {
 	display:none;
 }
 .last-refresh::before {
-	content: "Last Refresh:";
+	content: "Updated:";
 	display:inline-block;
 }
 .start-date::before {
@@ -201,6 +210,7 @@ body {
 	grid-gap:calc(var(--grid-list-gap) * 1px);
 	grid-template-columns: repeat(var(--grid-list-container-columns), minmax(calc(var(--grid-list-column-min-size) * 1px), 1fr));
 	grid-template-rows: 1fr;
+	background-color:#0f0f0f;
 }
 .stat-pane {
 	--badge-width:24;

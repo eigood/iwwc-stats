@@ -17,8 +17,8 @@
     <ol class="stat-list"></ol>
   </div>
   <div class="stat-footer">
-   <span class="enl-stat"><span class="sum"></span>[<span class="agent"></span>/<span class="total"></span>]</span>
-   <span class="res-stat"><span class="sum"></span>[<span class="agent"></span>/<span class="total"></span>]</span>
+   <span class="enl-stat"><span class="sum"></span>(<span class="agent"></span>)</span>
+   <span class="res-stat"><span class="sum"></span>(<span class="agent"></span>)</span>
   </div>
  </div>
 </template>
@@ -38,12 +38,14 @@
   <header>
    <div class="agent-search"><input type="text"/><span class="clear-search fa-solid fa-remove"></span></div>
    <div class="reload-button">Reload</div>
-   <div class="last-refresh"></div>
-   <div class="start-date"></div>
-   <div class="end-date"></div>
    <div class="event-selector">
     <select name="current-event"></select>
    </div>
+   <div class="enl-stat"><span class="total"></span></div>
+   <div class="res-stat"><span class="total"></span></div>
+   <div class="last-refresh"></div>
+   <div class="start-date"></div>
+   <div class="end-date"></div>
   </header>
   <div class="container">
    <div class="iwwc-content">

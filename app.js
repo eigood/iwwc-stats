@@ -73,7 +73,7 @@ const displayStats = [
 ]
 
 const numberFormat = Intl.NumberFormat(navigator.language, { useGrouping:true })
-const dateFullFormat = Intl.DateTimeFormat(navigator.language, { weekday:"short", year:"numeric", month:"short", day:"numeric", hour: "2-digit", minute: "numeric", second: "numeric" })
+const dateFullFormat = Intl.DateTimeFormat(navigator.language, { year:"numeric", month:"short", day:"numeric", hour: "2-digit", minute: "numeric", second: "numeric", hourCycle: 'h23' })
 const dateShortFormat = Intl.DateTimeFormat(navigator.language, { weekday:"short", year:"numeric", month:"short", day:"numeric" })
 const lastSubmitFormat = Intl.DateTimeFormat(navigator.language, { timeZone: 'UTC', year: 'numeric', month: '2-digit', day:"2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: 'h23' })
 
@@ -401,6 +401,8 @@ function handleCustom(result) {
     if (a > b) return 1
     return 0
   }
+  app.querySelector('header .enl-stat .total').textContent = factionCounts.enl
+  app.querySelector('header .res-stat .total').textContent = factionCounts.res
 
   Object.keys(byStat).forEach(statName => {
     const statSorted = byStat[ statName ] = [...allAgents].sort(statSorter(statName))
@@ -489,10 +491,8 @@ function handleCustom(result) {
         console.time(`statNode:${statName}`)
         try {
           footerNode.querySelector('.enl-stat .sum').textContent = numberFormat.format(sumAgents.enl)
-          footerNode.querySelector('.enl-stat .total').textContent = factionCounts.enl
           footerNode.querySelector('.enl-stat .agent').textContent = activeAgents.enl
           footerNode.querySelector('.res-stat .sum').textContent = numberFormat.format(sumAgents.res)
-          footerNode.querySelector('.res-stat .total').textContent = factionCounts.res
           footerNode.querySelector('.res-stat .agent').textContent = activeAgents.res
           const paneChangeEvent = new CustomEvent('paneChange', { detail: rowInfos })
           paneNode.dispatchEvent(paneChangeEvent)
