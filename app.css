@@ -1,5 +1,5 @@
-.faction-enl { color: green; }
-.faction-res { color: blue; }
+.faction-enl { color: #3ad45a; }
+.faction-res { color: #0991fd; }
 #iwwc-app {
 	--grid-list-container-columns: auto-fill;
 	--grid-list-column-min-size: 300;
@@ -110,7 +110,10 @@ header .enl-stat, header .res-stat {
 	padding: 0;
 	display:flex;
 	flex-direction:column;
-	background:#cccccc;
+	background:#333333;
+}
+.stat-value {
+	color:#eef0e3;
 }
 .stat-header {
 	border-bottom:1px solid black;
@@ -119,6 +122,7 @@ header .enl-stat, header .res-stat {
 	min-height:32px;
 	display:flex;
 	align-items:flex-start;
+	background:#eef0e3;
 }
 .stat-header .badge {
 	flex-grow:1;
@@ -166,14 +170,27 @@ header .enl-stat, header .res-stat {
 .stat-row.onyx .stat-reward::before {
 	color: #d4af37;
 }
+.stat-row.onyx .stat-position {
+	color: #d4af37;
+	font-weight:500;
+}
 .stat-row.platinum .stat-reward::before {
 	color: #c0c0c0;
+}
+.stat-row.platinum .stat-position {
+	color: #c0c0c0;
+	font-weight:500;
 }
 .stat-row.gold .stat-reward::before {
 	color: #cd7f32;
 }
+.stat-row.gold .stat-position {
+	color: #cd7f32;
+	font-weight:500;
+}
 .stat-row.silver .stat-position {
 	color:white;
+	font-weight:500;
 }
 .stat-row.silver .stat-reward::before {
 	display:none;
