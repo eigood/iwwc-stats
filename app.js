@@ -1,13 +1,23 @@
 const eventData = {
   '2024': {
-    title: '2024',
+    title: '2024 (September)',
     customUrl: 'https://eigood.github.io/iwwc-stats-data/iwwc-custom-2024.json',
     infoUrl: 'https://eigood.github.io/iwwc-stats-data/iwwc-info-2024.json',
   },
   '2023': {
-    title: '2023',
+    title: '2023 (November)',
     customUrl: 'https://eigood.github.io/iwwc-stats-data/iwwc-custom-2023.json',
     infoUrl: 'https://eigood.github.io/iwwc-stats-data/iwwc-info-2023.json',
+  },
+  '2022': {
+    title: '2022 (November)',
+    customUrl: 'https://eigood.github.io/iwwc-stats-data/iwwc-custom-2022.json',
+    infoUrl: 'https://eigood.github.io/iwwc-stats-data/iwwc-info-2022.json',
+  },
+  '2021': {
+    title: '2021 (July)',
+    customUrl: 'https://eigood.github.io/iwwc-stats-data/iwwc-custom-2021.json',
+    infoUrl: 'https://eigood.github.io/iwwc-stats-data/iwwc-info-2021.json',
   },
 }
 
