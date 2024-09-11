@@ -235,6 +235,13 @@ body {
 .stat-row.platinum .badge::before, .platinum::before	{ background-position:calc(var(--badge-width) * 3 * -1px); }
 .stat-row.onyx .badge::before, .onyx::before		{ background-position:calc(var(--badge-width) * 4 * -1px); }
 
+.stat-pane[data-medal='SEPARATOR'] {
+	grid-column: 1 / -1;
+}
+.stat-pane[data-medal='SEPARATOR'] .stat-footer {
+	display:none;
+}
+
 .stat-pane[data-medal='last_submit'] .stat-value {
 	white-space:nowrap;
 }

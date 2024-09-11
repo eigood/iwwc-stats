@@ -61,6 +61,7 @@ const displayStats = [
   ['specops', 'Specops'],
   ['translator', 'Translator'],
   ['trekker', 'Trekker'],
+  ['SEPARATOR', 'Extra Values'],
   ['ratio@mu/field', 'MindUnits / Field'],
   ['ratio@fields/link', 'Fields / Link'],
   ['ratio@pioneer/explorer', 'Pioneeer / Explorer'],
@@ -153,17 +154,21 @@ function handleLoad() {
   const statPaneTemplate = document.querySelector('#stat-pane')
   console.time('statInfos')
   statInfos = displayStats.map(([ statName, statTitle ]) => {
-    const statInfo = { statName, statTitle }
     const paneFragment = statPaneTemplate.content.cloneNode(true)
-    const paneNode = statInfo.paneNode = paneFragment.querySelector('.stat-pane')
+    const paneNode = paneFragment.querySelector('.stat-pane')
+    const statInfo = { statName, statTitle, paneNode }
+
     const contentNode = paneNode.querySelector('.stat-content')
     const listNode = paneNode.querySelector('.stat-list')
     const headerNode = paneFragment.querySelector('.stat-header')
 
     paneNode.dataset.medal = statName
     headerNode.querySelector('.title').textContent = statTitle
-
     appContentNode.appendChild(paneFragment)
+    if (statName === 'SEPARATOR') {
+      paneNode.classList.remove('stat-loading')
+      return statInfo
+    }
 
     const page = { full: { start: 0, scrollTop: 0 }, search: { start: 0, scrollTop: 0 } }
     const updatePage = () => {
@@ -223,7 +228,7 @@ function handleLoad() {
       }
     })
     return statInfo
-  })
+  }).filter(({ statName }) => statName !== 'SEPARATOR')
   console.timeEnd('statInfos')
 
   loadData()
