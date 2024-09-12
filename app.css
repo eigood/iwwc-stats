@@ -104,7 +104,6 @@ header .enl-stat, header .res-stat {
 	background:#aaaaaa;
 }
 .stat-pane {
-	max-height: 485px;
 	overflow: hidden;
 	border-radius: 10px;
 	padding: 0;
@@ -139,7 +138,8 @@ header .enl-stat, header .res-stat {
 .stat-content {
 	flex-grow:1;
 	overflow: hidden scroll;
-	background:rgba(100, 100, 100, .5)
+	background:rgba(100, 100, 100, .5);
+	max-height: 400px;
 }
 .stat-list {
 	counter-reset:stat-position;
