@@ -118,7 +118,6 @@ header .enl-stat, header .res-stat {
 	border-bottom:1px solid black;
 	margin:0;
 	padding: 5px 0 0 5px;
-	min-height:32px;
 	display:flex;
 	align-items:flex-start;
 	background:#eef0e3;
@@ -128,6 +127,9 @@ header .enl-stat, header .res-stat {
 }
 .stat-pane:not(.stat-loading) .stat-header .loading-icon {
 	display:none;
+}
+.stat-pane .stat-header .jump-up, .stat-pane .stat-header .jump-down {
+	padding:0 5px;
 }
 .stat-value {
 	padding-right:5px;

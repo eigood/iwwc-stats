@@ -279,6 +279,8 @@ class StatPane {
 
     contentNode.addEventListener('scroll', this.onScroll)
     contentNode.addEventListener('keydown', this.onKeyDown)
+    headerNode.querySelector('.jump-up').addEventListener('click', (e) => this.jumpUp(e))
+    headerNode.querySelector('.jump-down').addEventListener('click', (e) => this.jumpDown(e))
 
     this.checkRender()
   }
@@ -289,6 +291,9 @@ class StatPane {
     const contentNode = statPaneNode.querySelector('.stat-content')
     contentNode.removeEventListener('scroll', this.onScroll)
     contentNode.removeEventListener('keydown', this.onKeyDown)
+    const headerNode = statPaneNode.querySelector('.stat-header')
+    headerNode.querySelector('.jump-up').removeEventListener('click')
+    headerNode.querySelector('.jump-down').removeEventListener('click')
     statPaneNode.parentNode.removeChild(statPaneNode)
     delete this._statPaneNode
     delete this._pages.current
@@ -455,32 +460,39 @@ class StatPane {
     }
   }
 
+  jumpUp(e) {
+    if (!this._pages.full.rowInfos) return
+    const current = this._currentPage
+    current.scrollTop = 0
+    current.start = 0
+    this.renderPage()
+    e.stopPropagation()
+    e.preventDefault()
+    return false
+  }
+
+  jumpDown(e) {
+    if (!this._pages.full.rowInfos) return
+    const current = this._currentPage
+    const end = Math.min(current.start + pageSize, current.rowInfos.length)
+    current.start = current.rowInfos.length - pageSize
+    this.renderPage()
+    const listNode = this._statPaneNode.querySelector('.stat-list')
+    listNode.lastElementChild.scrollIntoView(false)
+    e.stopPropagation()
+    e.preventDefault()
+    return false
+  }
+
   onKeyDown(e) {
     const { keyCode, target, target: { scrollHeight } } = e
     switch (keyCode) {
-      case 36: {
+      case 36:
         // home
-        const current = this._currentPage
-        current.scrollTop = 0
-        current.start = 0
-        this.renderPage()
-        e.stopPropagation()
-        e.preventDefault()
-        return false
-      }
-      case 35: {
+        return this.jumpUp(e)
+      case 35:
         // end
-        const current = this._currentPage
-        const end = Math.min(current.start + pageSize, current.rowInfos.length)
-        const rowHeight = scrollHeight / (end - current.start)
-        current.start = current.rowInfos.length - pageSize
-        this.renderPage()
-        const listNode = this._statPaneNode.querySelector('.stat-list')
-        listNode.lastElementChild.scrollIntoView(false)
-        e.stopPropagation()
-        e.preventDefault()
-        return false
-      }
+        return this.jumpDown(e)
     }
   }
 }
