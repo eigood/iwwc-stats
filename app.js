@@ -243,25 +243,7 @@ function loadData(e) {
   fetchJSON(eventData[ currentEvent ].infoUrl, handleInfo)
 }
 
-let byAgent = {}, byStat = {}, iwwcCustom = {}, iwwcInfo = {}, statInfos = []
-
-function removeClassFromList(nodeList, className) {
-  for (const node of nodeList) {
-    node.classList.remove(className)
-  }
-}
-
-function addClassToList(nodeList, className) {
-  for (const node of nodeList) {
-    node.classList.add(className)
-  }
-}
-
-function getInnerHeight(element){
-  const { paddingTop, paddingBottom } = getComputedStyle(element)
-  const padding = parseInt(paddingTop) + parseInt(paddingBottom)
-  return element.clientHeight - padding
-}
+let byStat = {}, iwwcCustom = {}, iwwcInfo = {}, statInfos = []
 
 const handleAgentSearch = (e) => {
   e.preventDefault()
@@ -280,7 +262,6 @@ function setSearch(value) {
 }
 
 let lastSearch = null
-let lastSearchStyleElement = null
 const pageSize = 50
 
 function filterDisplay(search) {
@@ -291,7 +272,6 @@ function filterDisplay(search) {
   console.time('filterDisplay')
   history.replaceState(null, '', newHash)
   const agentSearch = search.toUpperCase()
-  //const foundAgents = agentSearch ? Object.keys(byAgent).filter(agentName => agentName.toUpperCase().indexOf(agentSearch) !== -1) : []
   //console.timeLog('filterDisplay', { foundAgents })
 
   setTimeout(() => {
@@ -306,24 +286,6 @@ function filterDisplay(search) {
     for (const statPane of statPanes) {
       statPane.dispatchEvent(paneChangeEvent)
     }
-    /*
-    if (lastSearchStyleElement) {
-      lastSearchStyleElement.parentNode.removeChild(lastSearchStyleElement)
-    }
-    lastSearchStyleElement = null
-    if (agentSearch) {
-      iwwcAppNode.classList.add('searching')
-      lastSearchStyleElement = document.createElement('style')
-      document.querySelector('head').appendChild(lastSearchStyleElement)
-      if (false) {
-      for (const agentName of foundAgents) {
-        const agentRows = byAgent[ agentName ].rows
-        lastMatchRows.splice(lastMatchRows.length, 0, ...agentRows)
-        addClassToList(agentRows, 'matched')
-      }
-      }
-    }
-    */
     console.timeEnd('filterDisplay')
   }, 0)
 }
@@ -370,7 +332,6 @@ function handleCustom(result) {
   const app = document.querySelector('#iwwc-app')
   app.classList.remove('loading')
 
-  byAgent = {}
   byStat = {};
 
   const factionCounts = { enl: 0, res: 0 }
@@ -378,7 +339,6 @@ function handleCustom(result) {
   Object.entries(iwwcCustom).forEach(([ agentName, agentData ]) => {
     factionCounts[ agentData.faction ]++
     calculateInferredStats(agentData)
-    const forAgent = byAgent[ agentName ] = { index: undefined, rows: [] }
     Object.entries(agentData).forEach(([ statName, statValue ]) => {
       const { [ statName ]: statParser } = statParsers
       if (statParser) {
@@ -405,15 +365,9 @@ function handleCustom(result) {
   app.querySelector('header .res-stat .total').textContent = factionCounts.res
 
   Object.keys(byStat).forEach(statName => {
-    const statSorted = byStat[ statName ] = [...allAgents].sort(statSorter(statName))
-    statSorted.forEach((agentName, index) => {
-      byAgent[ agentName ][ statName ] = index
-    })
+    byStat[ statName ] = [...allAgents].sort(statSorter(statName))
   })
   console.timeEnd('analyze')
-  //console.log('by', {byAgent, byStat})
-   //<span class="enl-sum"></span>[<span class="enl-agent"></span>/<span class="enl-total">]</span>
-   //<span class="res-sum"></span>[<span class="res-agent"></span>/<span class="res-total">]</span>
 
   const statListRowTemplate = document.querySelector('#stat-list-row')
     console.time('getNewNodes')
@@ -429,7 +383,6 @@ function handleCustom(result) {
       const sumAgents = { enl: 0, res: 0 }
       let lastValue = undefined, lastPosition = undefined
       const rowInfos = statList.map((agentName, index) => {
-        const forAgent = byAgent[ agentName ]
         const agentInfo = iwwcCustom[ agentName ]
         const faction = agentInfo.faction
         const statValue = agentInfo[ statName ]
@@ -444,7 +397,6 @@ function handleCustom(result) {
         if (statValue) activeAgents[ faction ]++
         sumAgents[ faction ] += statValue
 
-        forAgent.rows.push(rowNode)
         let position
         if (lastValue === undefined) {
           lastValue = statValue
