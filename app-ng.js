@@ -482,7 +482,6 @@ class StatPane {
         return false
       }
     }
-    console.log('keyDown', { keyCode })
   }
 }
 
