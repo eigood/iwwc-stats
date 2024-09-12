@@ -145,7 +145,7 @@ header .enl-stat, header .res-stat {
 	counter-reset:stat-position;
 	display:table;
 	margin:0;
-	padding:0 0 0 10px;
+	padding:0 0 0 2px;
 	position:relative;
 }
 .stat-row .agent {
@@ -200,9 +200,19 @@ header .enl-stat, header .res-stat {
 }
 .stat-row > * {
 	display:table-cell;
+	line-height:20px;
+	vertical-align:middle;
+}
+.stat-row.for-sizing > * {
+	line-height:0;
+	overflow:hidden;
+}
+.stat-row.for-sizing .badge::before {
+	height:0!important;
 }
 .stat-value-container {
 	position:relative;
+	text-align:right;
 }
 .stat-value-container .rollover {
 	display:none;
