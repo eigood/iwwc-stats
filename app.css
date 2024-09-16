@@ -135,7 +135,6 @@ header .enl-stat, header .res-stat {
 	padding-right:5px;
 	display:inline-block;
 	min-width:40px;
-	text-align:right;
 }
 .stat-content {
 	flex-grow:1;
@@ -153,13 +152,15 @@ header .enl-stat, header .res-stat {
 .stat-row .agent {
 	cursor:pointer;
 }
+.stat-row > :nth-child(1), .stat-row > :nth-child(3) {
+	text-align:right;
+}
 .stat-row {
 	display:table-row;
 	counter-increment:stat-position;
 	position:relative;
 }
 .stat-position {
-	text-align:right;
 	padding-right:5px;
 }
 .stat-reward {
@@ -214,7 +215,6 @@ header .enl-stat, header .res-stat {
 }
 .stat-value-container {
 	position:relative;
-	text-align:right;
 }
 .stat-value-container .rollover {
 	display:none;
