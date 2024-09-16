@@ -30,13 +30,19 @@ body {
 .reload-button {
 	cursor:pointer;
 }
-.reload-button, .start-date, .end-date, .agent-search, .event-selector {
+.reload-button, .start-date, .end-date, .agent-search, .event-selector, .toggles {
 	background:white;
 	border:1px solid black;
 	border-radius:5px;
 	padding:5px;
 	color:#888888;
 	display:inline-block;
+}
+.toggles :not(.toggle-selected) {
+	color:#aaaaaa;
+}
+.toggles .toggle-selected {
+	color:black;
 }
 .button .text {
 	display:none;
@@ -148,7 +154,12 @@ header .enl-stat, header .res-stat {
 	margin:0;
 	padding:0 0 0 2px;
 	position:relative;
+	width:100%;
 }
+.stat-list.searching .stat-row.matched {
+	background:rgba(100, 100, 100, .8);
+}
+
 .stat-row .agent {
 	cursor:pointer;
 }

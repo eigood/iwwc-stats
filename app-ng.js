@@ -84,6 +84,10 @@ class App {
     this._currentEvent = currentEvent
     this._displayStats = displayStats
     this._eventData = eventData
+    this._toggles = {}
+    this._toggleSelectors = {
+      '#': '.toggles .chart-position',
+    }
     makeHandlers(this, 'loadData', 'onSearch', 'onEventChange', 'setSearch', 'clearSearch')
     this.debouncedSetSearch = debounce(this.setSearch, 50)
     this._statPanes = this._displayStats.map(([ statName, statTitle ]) => new StatPane({ app: this, statName, statTitle }))
@@ -97,12 +101,13 @@ class App {
     document.querySelector('.reload-button').addEventListener('click', this.loadData)
     const searchInput = document.querySelector('.agent-search input')
     searchInput.addEventListener('keyup', this.onSearch)
-    const location = document.location
-    const hash = location.hash
-    if (hash) {
-      this.setSearch(hash.substring(1))
-    }
+    this.setLocation(document.location.hash)
     document.querySelector('.clear-search').addEventListener('click', this.clearSearch)
+    Object.entries(this._toggleSelectors).forEach(([ toggle, selector ]) => {
+      document.querySelector(selector).addEventListener('click', (e) => {
+        this.toggle(toggle, e)
+      })
+    })
 
     const currentEventSelect = document.querySelector('select[name="current-event"]')
     const eventData = this._eventData
@@ -140,6 +145,9 @@ class App {
 
   detatchFromDOM() {
     this._statPanes.forEach((statPane) => statPane.detachFromDOM())
+    Object.entries(this._toggleSelectors).forEach(([ toggle, selector ]) => {
+      document.querySelector(selector).removeEventListener('click')
+    })
     document.querySelector('.reload-button').removeEventListener('click', this.loadData)
     document.querySelector('.agent-search input').removeEventListener('keyup', this.onSearch)
     document.querySelector('.clear-search').removeEventListener('click', this.clearSearch)
@@ -198,7 +206,7 @@ class App {
         byStat[ statName ] = null;
       })
     })
-    const allAgents = Object.keys(data)
+    const allAgents = this._allAgents = Object.keys(data)
     const statSorter = statName => (a, b) => {
       const { [ a ]: agentA, [ b ]: agentB } = data
       const valueDiff = agentB[ statName ] - agentA[ statName ]
@@ -219,6 +227,7 @@ class App {
     this.updateDOM()
     console.time('absorb')
     this._statPanes.forEach((statPane) => statPane.setStatList(byStat[ statPane._statName ]))
+    this.propagateSearch()
     console.timeEnd('absorb')
   }
 
@@ -230,6 +239,12 @@ class App {
     }
   }
 
+  setLocation(hash = '') {
+    const [ all, hashSearch = '', hashToggles = ''] = hash.match(/^#(.*?)(?:;([#])?)?$/) || []
+    hashToggles.split('').forEach((toggle) => this.setToggle(toggle, true))
+    this.setSearch(hashSearch)
+  }
+
   onSearch(e) {
     const { target: { value } } = e
     e.preventDefault()
@@ -239,17 +254,51 @@ class App {
 
   setSearch(rawSearch) {
     const rawSearchLower = rawSearch.toLowerCase()
-    if (this._rawSearch === rawSearchLower) return
+    if (this._rawSearch === rawSearch) return
+    this._rawSearch = rawSearch
     document.querySelector('.agent-search input').value = rawSearch
-    const newHash = rawSearch ? '#' + rawSearch : '#'
-    history.replaceState(null, '', newHash)
-    this._rawSearch = rawSearchLower
+    this.propagateSearch()
+  }
+
+  propagateSearch() {
+    const rawSearch = this._rawSearch
+    const toggles = Object.keys(this._toggles).sort().join('')
+    let newHash = this._rawSearch
+    if (toggles) newHash += ';' + toggles
+    history.replaceState(null, '', newHash ? '#' + newHash : '#')
+    const rawSearchLower = rawSearch.toLowerCase()
     const searchTerms = rawSearchLower ? rawSearchLower.split('&') : []
-    this._statPanes.forEach((statPane) => statPane.setSearch(searchTerms))
+    const matchedAgents = searchTerms.length && this._allAgents ? this._allAgents.filter((agentName) => {
+      const agentNameLower = agentName.toLowerCase()
+      return searchTerms.filter(searchTerm => searchTerm.length && agentNameLower.indexOf(searchTerm) !== -1).length
+    }).reduce((result, matchedAgent) => (result[ matchedAgent ] = true, result), {}) : null
+    this._statPanes.forEach((statPane) => statPane.setSearch(matchedAgents, this._toggles))
   }
 
   clearSearch() {
     this.setSearch('')
+  }
+
+  toggle(toggle, e) {
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+    const { [ toggle ]: value = false } = this._toggles
+    this.setToggle(toggle, !value)
+    this.propagateSearch()
+  }
+
+  // internal
+  setToggle(toggle, value) {
+    const toggleElement = document.querySelector(this._toggleSelectors[ toggle ])
+    if (value) {
+      toggleElement.classList.add('toggle-selected')
+      this._toggles[ toggle ] = true
+    } else {
+      delete this._toggles[ toggle ]
+      toggleElement.classList.remove('toggle-selected')
+    }
   }
 }
 
@@ -260,8 +309,8 @@ class StatPane {
     this._statTitle = statTitle
     makeHandlers(this, 'onScroll', 'onKeyDown')
     this._pages = {
-      full: { start: 0, rowInfos: undefined, scrollTop: 0 },
-      search: { start: 0, rowInfos: undefined, scrollTop: 0 },
+      full: { start: 0, rowInfos: undefined, scrollTop: 0, exactMatchedAgents: {} },
+      search: { start: 0, rowInfos: undefined, scrollTop: 0, exactMatchedAgents: {} },
     }
     this._currentPage = undefined
   }
@@ -374,7 +423,7 @@ class StatPane {
           this._app.setSearch(agentName)
         })
       }
-      return { rowFragment, attachListeners, agentName, agentNameLower: agentName.toLowerCase() }
+      return { rowFragment, attachListeners, agentName, agentNameLower: agentName.toLowerCase(), position }
     })
     const footerNode = statPaneNode.querySelector('.stat-footer')
     footerNode.querySelector('.enl-stat .sum').textContent = numberFormat.format(sumAgents.enl)
@@ -387,9 +436,10 @@ class StatPane {
     this.checkRender()
   }
 
-  setSearch(searchTerms) {
-    if (this._searchTerms === searchTerms) return
-    this._searchTerms = searchTerms
+  setSearch(matchedAgents, toggles) {
+    if (this._matchedAgents === matchedAgents && this._toggles === toggles) return
+    this._matchedAgents = matchedAgents
+    this._toggles = toggles
     this.checkRender()
   }
 
@@ -401,6 +451,11 @@ class StatPane {
     while (listNode.lastChild) {
       listNode.removeChild(listNode.lastChild)
     }
+    if (this._matchedAgents) {
+      listNode.classList.add('searching')
+    } else {
+      listNode.classList.remove('searching')
+    }
     const firstRow = this._firstRow.cloneNode(true)
     firstRow.querySelector('.stat-row').classList.add('for-sizing')
     listNode.appendChild(firstRow)
@@ -408,9 +463,12 @@ class StatPane {
     lastRow.querySelector('.stat-row').classList.add('for-sizing')
     listNode.appendChild(lastRow)
     for (let i = start, j = pageSize; j && i < rowInfos.length; i++, j--) {
-      const { rowFragment, attachListeners } = rowInfos[ i ]
+      const { agentName, rowFragment, attachListeners } = rowInfos[ i ]
       const rowFragmentCloned = rowFragment.cloneNode(true)
       attachListeners(rowFragmentCloned)
+      if (this._matchedAgents?.[ agentName ]) {
+        rowFragmentCloned.querySelector('.stat-row').classList.add('matched')
+      }
       listNode.appendChild(rowFragmentCloned)
     }
     contentNode.scrollTop = scrollTop
@@ -426,13 +484,32 @@ class StatPane {
 
   applySearch() {
     if (!this._pages.full.rowInfos) return
-    const searchTerms = this._searchTerms
-    if (searchTerms && searchTerms.length) {
+    const toggles = this._toggles
+    const matchedAgents = this._matchedAgents
+    if (matchedAgents) {
       const searchPage = this._pages.search
       searchPage.start = 0
-      searchPage.rowInfos = this._pages.full.rowInfos.filter(({ agentNameLower }) => {
-        return searchTerms.filter(searchTerm => searchTerm.length && agentNameLower.indexOf(searchTerm) !== -1).length
-      })
+      const allRows = this._pages.full.rowInfos
+      const chartPositionToggle = toggles[ '#' ]
+      const matchedRows = []
+      searchPage.exactMatchedAgents = {}
+      let minMatchIndex
+      const matchedIndexes = allRows.reduce((result, rowInfo, index) => {
+        if (matchedAgents[ rowInfo.agentName ]) {
+          result[ index ] = true
+          if (chartPositionToggle) {
+            if (index > 19 && minMatchIndex === undefined) minMatchIndex = index
+            if (index > 0) result[ index - 1 ] = true
+            if (index + 1 !== allRows.length) result[ index + 1 ] = true
+          }
+        }
+        return result
+      }, [])
+      if (minMatchIndex !== undefined) {
+        matchedIndexes[ 18 ] = true
+        matchedIndexes[ 19 ] = true
+      }
+      searchPage.rowInfos = allRows.filter((rowInfo, index) => matchedIndexes[ index ])
       this._currentPage = searchPage
     } else {
       this._currentPage = this._pages.full
