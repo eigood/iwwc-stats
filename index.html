@@ -39,13 +39,18 @@
   <div class="loading">Loading, please wait.</div>
   <header>
    <div class="agent-search"><input type="text"/><span class="clear-search fa-solid fa-remove"></span></div>
-   <div class="reload-button">Reload</div>
+   <div class="button reload-button">
+    <span class="icon fa-solid fa-arrows-rotate"></span>
+    <span class="text">Reload</span>
+    <span class="status last-refresh"></span>
+   </div>
    <div class="event-selector">
     <select name="current-event"></select>
    </div>
-   <div class="enl-stat"><span class="total"></span></div>
-   <div class="res-stat"><span class="total"></span></div>
-   <div class="last-refresh"></div>
+   <div class="member-counts">
+    <div class="enl-stat"><span class="total"></span></div>
+    <div class="res-stat"><span class="total"></span></div>
+   </div>
    <div class="start-date"></div>
    <div class="end-date"></div>
   </header>

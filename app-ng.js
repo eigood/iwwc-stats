@@ -161,8 +161,14 @@ class App {
       e.preventDefault();
       e.stopPropagation();
     }
-    fetchJSON(this._eventData[ this._currentEvent ].customUrl, (data) => this.setData(data))
-    fetchJSON(this._eventData[ this._currentEvent ].infoUrl, (data) => this.setInfo(data))
+    const buttonIcon = document.querySelector('.reload-button .icon')
+    buttonIcon.classList.add('fa-spin')
+    Promise.all([
+      fetchJSON(this._eventData[ this._currentEvent ].customUrl, (data) => this.setData(data)),
+      fetchJSON(this._eventData[ this._currentEvent ].infoUrl, (data) => this.setInfo(data)),
+    ]).finally(() => {
+      buttonIcon.classList.remove('fa-spin')
+    })
   }
 
   setInfo(data) {

@@ -30,12 +30,21 @@ body {
 .reload-button {
 	cursor:pointer;
 }
-.reload-button, .start-date, .end-date, .last-refresh, .agent-search, .event-selector {
+.reload-button, .start-date, .end-date, .agent-search, .event-selector {
 	background:white;
 	border:1px solid black;
 	border-radius:5px;
 	padding:5px;
 	color:#888888;
+	display:inline-block;
+}
+.button .text {
+	display:none;
+}
+select {
+	border:0;
+}
+header > * {
 	display:inline-block;
 }
 header .enl-stat, header .res-stat {
@@ -70,10 +79,6 @@ header .enl-stat, header .res-stat {
 }
 .start-date, .end-date {
 	display:none;
-}
-.last-refresh::before {
-	content: "Updated:";
-	display:inline-block;
 }
 .start-date::before {
 	content: "From:";
