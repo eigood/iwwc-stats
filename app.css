@@ -117,6 +117,21 @@ header .enl-stat, header .res-stat {
 	flex-direction:column;
 	background:#333333;
 }
+.stat-pane.minimize-window {
+	display:none;
+}
+.stat-pane.maximize-window {
+	height:100%;
+}
+.stat-pane.maximize-window .stat-content {
+	max-height:initial;
+}
+.stat-pane.maximize-window .window-maximized {
+	display:none;
+}
+.stat-pane:not(.maximize-window) .window-minimized {
+	display:none;
+}
 .stat-value {
 	color:#eef0e3;
 }
@@ -134,8 +149,12 @@ header .enl-stat, header .res-stat {
 .stat-pane:not(.stat-loading) .stat-header .loading-icon {
 	display:none;
 }
-.stat-pane .stat-header .jump-up, .stat-pane .stat-header .jump-down {
+.stat-pane .stat-header .title {
+	font-size:16px;
+}
+.stat-pane .stat-header .window-toggle, .stat-pane .stat-header .jump-up, .stat-pane .stat-header .jump-down {
 	padding:0 5px;
+	cursor:pointer;
 }
 .stat-value {
 	padding-right:5px;
@@ -251,6 +270,12 @@ header .enl-stat, header .res-stat {
 	grid-template-columns: repeat(var(--grid-list-container-columns), minmax(calc(var(--grid-list-column-min-size) * 1px), 1fr));
 	grid-template-rows: 1fr;
 	background-color:#0f0f0f;
+}
+.iwwc-content.toggle-selected {
+	height:100%;
+}
+.iwwc-content.toggle-selected .stat-pane[data-medal='SEPARATOR'] {
+	display:none;
 }
 .stat-pane {
 	--badge-width:24;

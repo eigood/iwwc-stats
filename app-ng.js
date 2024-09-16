@@ -240,8 +240,9 @@ class App {
   }
 
   setLocation(hash = '') {
-    const [ all, hashSearch = '', hashToggles = ''] = hash.match(/^#(.*?)(?:;([#])?)?$/) || []
-    hashToggles.split('').forEach((toggle) => this.setToggle(toggle, true))
+    const [ all, hashSearch = '', hashIsolateList = '', hashChartList = ''] = hash.match(/^#(.*?)(?:;(?:_=(.*?))?(#)?)?$/) || []
+    if (hashChartList) this.setToggle('#', true)
+    if (hashIsolateList) this.setToggle('_', hashIsolateList)
     this.setSearch(hashSearch)
   }
 
@@ -262,7 +263,9 @@ class App {
 
   propagateSearch() {
     const rawSearch = this._rawSearch
-    const toggles = Object.keys(this._toggles).sort().join('')
+    const toggles = Object.entries(this._toggles).sort((a, b) => a[0].localeCompare(b[0])).map(([ key, value ]) => {
+      return value === true ? key : `${key}=${value}`
+    }).join('')
     let newHash = this._rawSearch
     if (toggles) newHash += ';' + toggles
     history.replaceState(null, '', newHash ? '#' + newHash : '#')
@@ -272,11 +275,25 @@ class App {
       const agentNameLower = agentName.toLowerCase()
       return searchTerms.filter(searchTerm => searchTerm.length && agentNameLower.indexOf(searchTerm) !== -1).length
     }).reduce((result, matchedAgent) => (result[ matchedAgent ] = true, result), {}) : null
-    this._statPanes.forEach((statPane) => statPane.setSearch(matchedAgents, this._toggles))
+    this._statPanes.forEach((statPane) => statPane.setSearch(matchedAgents))
   }
 
   clearSearch() {
     this.setSearch('')
+  }
+
+  toggleWindow(statName, e) {
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+    const { _: currentWindow } = this._toggles
+    if (currentWindow === statName) {
+      this.setToggle('_', false)
+    } else {
+      this.setToggle('_', statName)
+    }
+    this.propagateSearch()
   }
 
   toggle(toggle, e) {
@@ -291,10 +308,10 @@ class App {
 
   // internal
   setToggle(toggle, value) {
-    const toggleElement = document.querySelector(this._toggleSelectors[ toggle ])
+    const toggleElement = document.querySelector(toggle === '_' ? '.iwwc-content' : this._toggleSelectors[ toggle ])
     if (value) {
       toggleElement.classList.add('toggle-selected')
-      this._toggles[ toggle ] = true
+      this._toggles[ toggle ] = value
     } else {
       delete this._toggles[ toggle ]
       toggleElement.classList.remove('toggle-selected')
@@ -313,6 +330,7 @@ class StatPane {
       search: { start: 0, rowInfos: undefined, scrollTop: 0, exactMatchedAgents: {} },
     }
     this._currentPage = undefined
+    this._pageSize = 50
   }
 
   attachToDOM(appContentNode) {
@@ -334,6 +352,7 @@ class StatPane {
 
     contentNode.addEventListener('scroll', this.onScroll)
     contentNode.addEventListener('keydown', this.onKeyDown)
+    headerNode.querySelectorAll('.window-toggle').forEach((element) => element.addEventListener('click', (e) => this._app.toggleWindow(this._statName)))
     headerNode.querySelector('.jump-up').addEventListener('click', (e) => this.jumpUp(e))
     headerNode.querySelector('.jump-down').addEventListener('click', (e) => this.jumpDown(e))
 
@@ -347,6 +366,7 @@ class StatPane {
     contentNode.removeEventListener('scroll', this.onScroll)
     contentNode.removeEventListener('keydown', this.onKeyDown)
     const headerNode = statPaneNode.querySelector('.stat-header')
+    headerNode.querySelectorAll('.window-toggle').forEach((element) => element.removeEventListener('click'))
     headerNode.querySelector('.jump-up').removeEventListener('click')
     headerNode.querySelector('.jump-down').removeEventListener('click')
     statPaneNode.parentNode.removeChild(statPaneNode)
@@ -436,10 +456,14 @@ class StatPane {
     this.checkRender()
   }
 
-  setSearch(matchedAgents, toggles) {
-    if (this._matchedAgents === matchedAgents && this._toggles === toggles) return
+  setSearch(matchedAgents) {
+    //if (this._matchedAgents === matchedAgents) return
     this._matchedAgents = matchedAgents
-    this._toggles = toggles
+    if (this._app._toggles[ '_' ] === this._statName) {
+      this._pageSize = null
+    } else {
+      this._pageSize = 50
+    }
     this.checkRender()
   }
 
@@ -447,9 +471,25 @@ class StatPane {
     const contentNode = this._statPaneNode.querySelector('.stat-content')
     const listNode = this._statPaneNode.querySelector('.stat-list')
     const { start, rowInfos, scrollTop } = this._currentPage
-    this._statPaneNode.classList.add('stat-loading')
+    const pageSize = this._pageSize || rowInfos.length
+
     while (listNode.lastChild) {
       listNode.removeChild(listNode.lastChild)
+    }
+
+    const { ['_']: currentWindow } = this._app._toggles
+    if (currentWindow) {
+      if (currentWindow !== this._statName) {
+        this._statPaneNode.classList.add('minimize-window')
+        this._statPaneNode.classList.remove('maximize-window')
+        return
+      } else {
+        this._statPaneNode.classList.remove('minimize-window')
+        this._statPaneNode.classList.add('maximize-window')
+      }
+    } else {
+      this._statPaneNode.classList.remove('minimize-window')
+      this._statPaneNode.classList.remove('maximize-window')
     }
     if (this._matchedAgents) {
       listNode.classList.add('searching')
@@ -472,7 +512,6 @@ class StatPane {
       listNode.appendChild(rowFragmentCloned)
     }
     contentNode.scrollTop = scrollTop
-    this._statPaneNode.classList.remove('stat-loading')
   }
 
   checkRender() {
@@ -484,7 +523,7 @@ class StatPane {
 
   applySearch() {
     if (!this._pages.full.rowInfos) return
-    const toggles = this._toggles
+    const toggles = this._app._toggles
     const matchedAgents = this._matchedAgents
     if (matchedAgents) {
       const searchPage = this._pages.search
@@ -514,6 +553,7 @@ class StatPane {
     } else {
       this._currentPage = this._pages.full
     }
+    const pageSize = this._pageSize || this._currentPage.rowInfos.length
     if (this._currentPage.start + pageSize > this._currentPage.rowInfos.length) {
       this._currentPage.start = this._currentPage.rowInfos.length - pageSize
       if (this._currentPage.start < 0) this._currentPage.start = 0
@@ -523,6 +563,7 @@ class StatPane {
   onScroll(e) {
     let { target, target: { offsetTop, scrollTop, scrollHeight } } = e
     const current = this._currentPage
+    const pageSize = this._pageSize || current.rowInfos.length
     current.scrollTop = scrollTop
     const end = Math.min(current.start + pageSize, current.rowInfos.length)
     const rowHeight = scrollHeight / (end - current.start)
