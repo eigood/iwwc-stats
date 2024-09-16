@@ -205,7 +205,7 @@ header .enl-stat, header .res-stat {
 	line-height:20px;
 	vertical-align:middle;
 }
-.stat-row.for-sizing > * {
+.stat-row.for-sizing * {
 	line-height:0;
 	overflow:hidden;
 }
