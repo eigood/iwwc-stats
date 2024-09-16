@@ -151,6 +151,10 @@ header .enl-stat, header .res-stat {
 }
 .stat-pane .stat-header .title {
 	font-size:16px;
+	overflow:hidden;
+	width:100%;
+	text-overflow:ellipsis;
+	white-space:nowrap;
 }
 .stat-pane .stat-header .window-toggle, .stat-pane .stat-header .jump-up, .stat-pane .stat-header .jump-down {
 	padding:0 5px;
