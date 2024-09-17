@@ -14,5 +14,5 @@ exec docker run \
 	--volume="$PWD:/srv/jekyll:Z" \
 	--publish [::1]:$HOST_PORT:4000 \
 	jekyll/jekyll:$JEKYLL_VERSION \
-	jekyll serve
+	jekyll serve --incremental
 
