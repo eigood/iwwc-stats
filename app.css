@@ -4,6 +4,7 @@
 	--grid-list-container-columns: auto-fill;
 	--grid-list-column-min-size: 300;
 	--grid-list-gap: 24;
+	--grid-list-column-max-size: 1fr;
 	display:flex;
 	flex-direction:column;
 	height:100%;
@@ -136,9 +137,9 @@ header .enl-stat, header .res-stat {
 	color:#eef0e3;
 }
 .stat-header {
-	border-bottom:1px solid black;
+	-border-bottom:1px solid black;
 	margin:0;
-	padding: 5px 0 0 5px;
+	padding: 0 0 0 5px;
 	display:flex;
 	align-items:flex-start;
 	background:#eef0e3;
@@ -151,13 +152,16 @@ header .enl-stat, header .res-stat {
 }
 .stat-pane .stat-header .title {
 	font-size:16px;
+	-line-height:20px;
+	padding:2px 0;
 	overflow:hidden;
-	width:100%;
+	-width:100%;
 	text-overflow:ellipsis;
 	white-space:nowrap;
+	flex-grow:1;
 }
 .stat-pane .stat-header .window-toggle, .stat-pane .stat-header .jump-up, .stat-pane .stat-header .jump-down {
-	padding:0 5px;
+	padding:2px 5px;
 	cursor:pointer;
 }
 .stat-value {
@@ -240,6 +244,9 @@ header .enl-stat, header .res-stat {
 	line-height:20px;
 	vertical-align:middle;
 }
+.stat-row > *:last-child {
+	width:100%;
+}
 .stat-row.for-sizing * {
 	line-height:0;
 	overflow:hidden;
@@ -271,12 +278,13 @@ header .enl-stat, header .res-stat {
 .iwwc-content {
 	display: grid;
 	grid-gap:calc(var(--grid-list-gap) * 1px);
-	grid-template-columns: repeat(var(--grid-list-container-columns), minmax(calc(var(--grid-list-column-min-size) * 1px), 1fr));
+	grid-template-columns: repeat(var(--grid-list-container-columns), minmax(calc(var(--grid-list-column-min-size) * 1px), var(--grid-list-column-max-size)));
 	grid-template-rows: 1fr;
 	background-color:#0f0f0f;
 }
 .iwwc-content.toggle-selected {
 	height:100%;
+	--grid-list-column-max-size:100%;
 }
 .iwwc-content.toggle-selected .stat-pane[data-medal='SEPARATOR'] {
 	display:none;
@@ -320,6 +328,11 @@ header .enl-stat, header .res-stat {
 .stat-pane[data-medal='SEPARATOR'] .stat-footer {
 	display:none;
 }
+.stat-pane[data-medal='SEPARATOR'] .window-toggle,
+.stat-pane[data-medal='SEPARATOR'] .jump-up,
+.stat-pane[data-medal='SEPARATOR'] .jump-down {
+	display:none;
+}
 
 .stat-pane[data-medal='last_submit'] .stat-value {
 	white-space:nowrap;
@@ -331,6 +344,9 @@ header .enl-stat, header .res-stat {
 	display:none;
 }
 .stat-pane[data-medal='last_submit'] .stat-footer .sum {
+	display:none;
+}
+.stat-pane .stat-header .badge {
 	display:none;
 }
 .stat-pane .stat-header .badge::before {
