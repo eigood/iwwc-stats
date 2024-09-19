@@ -1,7 +1,5 @@
 source: .
 destination: dist
-plugins:
-  - jekyll-git-hash
 keep_files:
   - images
   - .git
