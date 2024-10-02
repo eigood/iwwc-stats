@@ -1,8 +1,8 @@
 const eventData = {
   '2024': {
-    title: '2024 (September)',
-    customUrl: 'https://eigood.github.io/iwwc-stats-data/iwwc-custom-2024.json',
-    infoUrl: 'https://eigood.github.io/iwwc-stats-data/iwwc-info-2024.json',
+    title: '2024 (September/Archive)',
+    customUrl: 'https://eigood.github.io/iwwc-stats-data/archive/2024-10-01T07:18:07-05:00.1e7405b5b5f8a093aa97e7bc99cbb51a5712ea64.iwwc-custom-2024.json',
+    infoUrl: 'https://eigood.github.io/iwwc-stats-data/archive/2024-10-01T07:18:07-05:00.1e7405b5b5f8a093aa97e7bc99cbb51a5712ea64.iwwc-info-2024.json',
   },
   '2023': {
     title: '2023 (November)',
