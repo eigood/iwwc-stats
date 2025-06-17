@@ -6,8 +6,6 @@ const eventData = {
   },
 }
 
-let currentEvent = '2025'
-
 const skipStats = {
   'ap': true,
   'level': true,
@@ -683,7 +681,7 @@ function calculateInferredStats(agentData) {
 }
 
 const app = new App({
-  currentEvent: '2024',
+  currentEvent: '2025',
   displayStats,
   eventData,
 })
