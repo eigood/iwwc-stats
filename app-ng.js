@@ -1,9 +1,9 @@
 const eventData = [
   {
     title: '2025 (Test)',
-    customUrl: 'https://eigood.github.io/wicked-houston-data/iwwc-custom-20250608.json',
-    infoUrl: 'https://eigood.github.io/wicked-houston-data/iwwc-info-20250608.json',
-    startDate: '2025-06-08',
+    customUrl: 'https://eigood.github.io/wicked-houston-data/iwwc-custom-20250601.json',
+    infoUrl: 'https://eigood.github.io/wicked-houston-data/iwwc-info-20250601.json',
+    startDate: '2025-06-01',
     endDate: '2025-07-05',
     primaryStat: null,
   },
