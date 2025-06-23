@@ -1,15 +1,68 @@
-const eventData = {
-  '2025': {
+const eventData = [
+  {
     title: '2025 (Test)',
-    customUrl: 'https://eigood.github.io/wicked-houston-data/iwwc-custom-2025.json',
-    infoUrl: 'https://eigood.github.io/wicked-houston-data/iwwc-info-2025.json',
+    customUrl: 'https://eigood.github.io/wicked-houston-data/iwwc-custom-20250608.json',
+    infoUrl: 'https://eigood.github.io/wicked-houston-data/iwwc-info-20250608.json',
+    startDate: '2025-06-08',
+    endDate: '2025-07-05',
+    primaryStat: null,
   },
-}
+  {
+    title: 'Dominant Builder',
+    description: 'Builder / Purifier',
+    customUrl: 'https://eigood.github.io/wicked-houston-data/iwwc-custom-20250706.json',
+    infoUrl: 'https://eigood.github.io/wicked-houston-data/iwwc-info-20250706.json',
+    startDate: '2025-07-06',
+    endDate: '2025-07-19',
+    primaryStat: 'ratio@purifier/builder',
+  },
+  {
+    title: 'Drone Hacker',
+    description: 'Maverick',
+    customUrl: 'https://eigood.github.io/wicked-houston-data/iwwc-custom-20250727.json',
+    infoUrl: 'https://eigood.github.io/wicked-houston-data/iwwc-info-20250727.json',
+    startDate: '2025-07-27',
+    endDate: '2025-08-09',
+    primaryStat: 'maverick',
+  },
+  {
+    title: 'Link Protective Aura',
+    description: 'Links Created / Illuminator',
+    customUrl: 'https://eigood.github.io/wicked-houston-data/iwwc-custom-20250817.json',
+    infoUrl: 'https://eigood.github.io/wicked-houston-data/iwwc-info-20250817.json',
+    startDate: '2025-08-17',
+    endDate: '2025-08-30',
+    primaryStat: 'ratio@connector/illuminator',
+  },
+  {
+    title: 'Buff Those Portals',
+    description: 'Engineer',
+    customUrl: 'https://eigood.github.io/wicked-houston-data/iwwc-custom-20250907.json',
+    infoUrl: 'https://eigood.github.io/wicked-houston-data/iwwc-info-20250907.json',
+    startDate: '2025-09-07',
+    endDate: '2025-09-20',
+    primaryStat: 'engineer',
+  },
+  {
+    title: 'Efficient Farmer',
+    description: 'Translator / Hacker',
+    customUrl: 'https://eigood.github.io/wicked-houston-data/iwwc-custom-20250928.json',
+    infoUrl: 'https://eigood.github.io/wicked-houston-data/iwwc-info-20250928.json',
+    startDate: '2025-09-28',
+    endDate: '2025-10-11',
+    primaryStat: 'ratio@translator/hacker',
+  },
+]
 
 const skipStats = {
   'ap': true,
   'level': true,
   'faction': true,
+}
+
+const makeSafeRatioParser = (numeratorKey, denominatorKey) => (value, agentData) => {
+  const { [numeratorKey]: numerator, [denominatorKey]: denominator } = agentData
+  return denominator ? numerator / denominator : null
 }
 
 const statParsers = {
@@ -18,7 +71,18 @@ const statParsers = {
     if (value) return new Date(Date.parse(value + '+0000'))
     return null
   },
+  ['ratio@builder/purifier']: makeSafeRatioParser('builder', 'purifier'),
+  ['ratio@connector/illuminator']: makeSafeRatioParser('connector', 'illuminator'),
 }
+/*
+  agentData['ratio@fields/link'] = connector ? mindController / connector : null
+  agentData['ratio@mu/field'] = mindController ? illuminator / mindController : null
+  agentData['ratio@pioneer/explorer'] = explorer ? pioneer / explorer : null
+  agentData['ratio@ap/hack'] = hacker ? ap / hacker : null
+  agentData['ratio@translator/hacker'] = hacker ? translator / hacker : null
+  agentData['ratio@purifier/builder'] = builder ? purifier / builder : null
+  agentData['ratio@ap/trekker'] = trekker ? ap / trekker : null
+*/
 
 const displayStats = [
   ['lifetime_ap', 'AP'],
@@ -52,6 +116,8 @@ const displayStats = [
   ['ratio@translator/hacker', 'Translator / Hacker'],
   ['ratio@purifier/builder', 'Purifier / Builder'],
   ['ratio@ap/trekker', 'AP / km'],
+  ['ratio@builder/purifier', 'Builder / Purifier'],
+  ['ratio@connector/illuminator', 'Connector / Illuminator'],
   ['last_submit', 'Last Submit'],
 ]
 
@@ -60,6 +126,12 @@ const makeHandlers = (self, ...names) => {
     const { [ name ]: func } = self
     self[ name ] = (...args) => func.apply(self, args)
   })
+}
+
+const adjustLastRefresh = (text) => {
+  const lastRefresh = new Date(text + 'Z')
+  lastRefresh.setHours(lastRefresh.getHours() - 2)
+  return lastRefresh
 }
 
 class App {
@@ -76,6 +148,7 @@ class App {
     this._statPanes = this._displayStats.map(([ statName, statTitle ]) => new StatPane({ app: this, statName, statTitle }))
 
     this._data = {}
+    this._info = {}
   }
 
   attachToDOM() {
@@ -94,11 +167,14 @@ class App {
 
     const currentEventSelect = document.querySelector('select[name="current-event"]')
     const eventData = this._eventData
-    const eventKeys = Object.keys(eventData).sort((a, b) => eventData[ a ].title.localeCompare(eventData[ b ].title))
+    const eventKeys = eventData.map((event, index) => index).sort((a, b) => {
+      return new Date(eventData[ a ].startDate).getTime() - new Date(eventData[ b ].startDate).getTime()
+    })
     for (const eventKey of eventKeys) {
+      const { [ eventKey ]: { title, startDate } } = eventData
       const option = document.createElement('option')
       option.setAttribute('value', eventKey)
-      option.textContent = eventData[ eventKey ].title
+      option.textContent = title + ' | ' + dateShortFormat.format(new Date(startDate + 'T00:00:00.0'))
       if (this._currentEvent == eventKey) option.setAttribute('selected', true)
       currentEventSelect.appendChild(option)
     }
@@ -110,13 +186,10 @@ class App {
 
   updateDOM() {
     if (!this._statPaneTemplate) return
-    if (this._info) {
-      const lastRefresh = new Date(this._info.lastRefresh + 'Z')
-      lastRefresh.setHours(lastRefresh.getHours() - 2)
-      document.querySelector('.last-refresh').textContent = dateFullFormat.format(lastRefresh)
-      document.querySelector('.start-date').textContent = dateShortFormat.format(new Date(this._info.startDate))
-      document.querySelector('.end-date').textContent = dateShortFormat.format(new Date(this._info.endDate))
-    }
+    const { lastRefresh, startDate, endDate } = this._info
+    document.querySelector('.last-refresh').textContent = lastRefresh ? dateFullFormat.format(adjustLastRefresh(lastRefresh)) : 'xx'
+    document.querySelector('.start-date').textContent = startDate ? dateShortFormat.format(new Date(startDate)) : 'xx'
+    document.querySelector('.end-date').textContent = endDate ? dateShortFormat.format(new Date(endDate)) : 'xx'
     if (this._factionCounts) {
       const app = document.querySelector('#iwwc-app')
       app.querySelector('header .enl-stat .total').textContent = this._factionCounts.enl
@@ -162,14 +235,12 @@ class App {
     })
   }
 
-  setInfo(data) {
-    if (!data) return
+  setInfo(data = {}) {
     this._info = data
     this.updateDOM()
   }
 
-  setData(data) {
-    if (!data) return
+  setData(data = {}) {
     this._data = data
     const app = document.querySelector('#iwwc-app')
     app.classList.remove('loading')
@@ -180,11 +251,11 @@ class App {
     Object.entries(data).forEach(([ agentName, agentData ]) => {
       factionCounts[ agentData.faction ]++
       calculateInferredStats(agentData)
+      Object.entries(statParsers).forEach(([ statName, statParser ]) => {
+        const { [statName]: statValue } = agentData
+        agentData[ statName ] = statParser(statValue, agentData)
+      })
       Object.entries(agentData).forEach(([ statName, statValue ]) => {
-        const { [ statName ]: statParser } = statParsers
-        if (statParser) {
-          agentData[ statName ] = statParser(statValue)
-        }
         if (skipStats[ statName ]) return
         byStat[ statName ] = null;
       })
@@ -359,7 +430,7 @@ class StatPane {
     delete this._pages.search.rowInfos
   }
 
-  setStatList(statList) {
+  setStatList(statList = []) {
     if (this._statList === statList) return
     this._statList = statList
 
@@ -433,8 +504,12 @@ class StatPane {
     footerNode.querySelector('.enl-stat .agent').textContent = activeAgents.enl
     footerNode.querySelector('.res-stat .sum').textContent = numberFormat.format(sumAgents.res)
     footerNode.querySelector('.res-stat .agent').textContent = activeAgents.res
-    this._firstRow = rowInfos[ 0 ].rowFragment
-    this._lastRow = rowInfos[ rowInfos.length - 1 ].rowFragment
+    if (rowInfos.length) {
+      this._firstRow = rowInfos[ 0 ].rowFragment
+      this._lastRow = rowInfos[ rowInfos.length - 1 ].rowFragment
+    } else {
+      this._firstRow = this._lastRow = undefined
+    }
 
     this.checkRender()
   }
@@ -479,6 +554,7 @@ class StatPane {
     } else {
       listNode.classList.remove('searching')
     }
+    if (!this._firstRow) return
     const firstRow = this._firstRow.cloneNode(true)
     firstRow.querySelector('.stat-row').classList.add('for-sizing')
     listNode.appendChild(firstRow)
@@ -642,8 +718,7 @@ const statValueDisplays = {
 }
 
 async function fetchJSON(url, handler) {
-  const response = await fetch(url, {_mode: 'no-cors'})
-  const json = await response.json()
+  const json = await fetch(url, {_mode: 'no-cors'}).then(response => response.json()).catch(e => undefined)
   return handler(json)
 }
 
@@ -678,10 +753,13 @@ function calculateInferredStats(agentData) {
   agentData['ratio@translator/hacker'] = hacker ? translator / hacker : null
   agentData['ratio@purifier/builder'] = builder ? purifier / builder : null
   agentData['ratio@ap/trekker'] = trekker ? ap / trekker : null
+
+  agentData['ratio@builder/purifier'] = purifier ? builder / purifier : null
+  agentData['ratio@connector/illuminator'] = illuminator ? connector / illuminator : null
 }
 
 const app = new App({
-  currentEvent: '2025',
+  currentEvent: 0,
   displayStats,
   eventData,
 })
