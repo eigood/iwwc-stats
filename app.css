@@ -369,9 +369,14 @@ header .enl-stat, header .res-stat {
 /* Theme settings */
 .stat-pane {
 	background:initial;
-	background-image:url('images/photo_2025-06-19_18-13-45.jpg');
 	background-size:100%;
 	background-repeat:repeat-y;
+}
+.stat-pane:nth-child(even) {
+	background-image:url('images/photo_2025-06-19_18-13-45.jpg');
+}
+.stat-pane:nth-child(odd) {
+	background-image:url('images/photo_2025-06-24_11-07-49.jpg');
 }
 .stat-header {
 	background:#333333;
