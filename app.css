@@ -55,9 +55,9 @@ header > * {
 	display:inline-block;
 }
 header .enl-stat, header .res-stat {
+	--faction-display:inline-block;
 	background:rgb(50, 50, 50, .9);
 	color:white;
-	display:inline-block;
 }
 .stat-footer {
 	background:rgba(50, 50, 50, .9);
@@ -68,7 +68,9 @@ header .enl-stat, header .res-stat {
 	display:none;
 }
 .enl-stat, .res-stat {
+	--faction-display:initial;
 	white-space:nowrap;
+	display:var(--faction-display);
 }
 .enl-stat::before, .res-stat::before {
 	content: '';
@@ -83,6 +85,12 @@ header .enl-stat, header .res-stat {
 }
 .res-stat::before {
 	background-image:url('images/logo_res.png');
+}
+#iwwc-app:not([data-enl='true']) .enl-stat {
+	display:none;
+}
+#iwwc-app:not([data-res='true']) .res-stat {
+	display:none;
 }
 .start-date, .end-date {
 	display:none;

@@ -135,10 +135,11 @@ const adjustLastRefresh = (text) => {
 }
 
 class App {
-  constructor({ currentEvent, displayStats, eventData }) {
+  constructor({ currentEvent, displayStats, eventData, enabledFactions = { enl: true, res: true } }) {
     this._currentEvent = currentEvent
     this._displayStats = displayStats
     this._eventData = eventData
+    this._enabledFactions = { enl: !!enabledFactions.enl, res: !!enabledFactions.res }
     this._toggles = {}
     this._toggleSelectors = {
       '#': '.toggles .chart-position',
@@ -190,8 +191,10 @@ class App {
     document.querySelector('.last-refresh').textContent = lastRefresh ? dateFullFormat.format(adjustLastRefresh(lastRefresh)) : 'xx'
     document.querySelector('.start-date').textContent = startDate ? dateShortFormat.format(new Date(startDate)) : 'xx'
     document.querySelector('.end-date').textContent = endDate ? dateShortFormat.format(new Date(endDate)) : 'xx'
+    const app = document.querySelector('#iwwc-app')
+    app.dataset.enl = String(this._enabledFactions.enl)
+    app.dataset.res = String(this._enabledFactions.res)
     if (this._factionCounts) {
-      const app = document.querySelector('#iwwc-app')
       app.querySelector('header .enl-stat .total').textContent = this._factionCounts.enl
       app.querySelector('header .res-stat .total').textContent = this._factionCounts.res
     }
@@ -443,7 +446,10 @@ class StatPane {
     const activeAgents = { enl: 0, res: 0 }
     const sumAgents = { enl: 0, res: 0 }
     let lastValue = undefined, lastPosition = undefined
-    const rowInfos = this._pages.full.rowInfos = statList.map((agentName, index) => {
+    const rowInfos = this._pages.full.rowInfos = statList.filter((agentName) => {
+      const { faction } = this._app._data[ agentName ]
+      return this._app._enabledFactions[ faction ]
+    }).map((agentName, index) => {
       const agentInfo = this._app._data[ agentName ]
       const faction = agentInfo.faction
       const statValue = agentInfo[ statName ]
@@ -762,6 +768,7 @@ const app = new App({
   currentEvent: 0,
   displayStats,
   eventData,
+  enabledFactions: { res: true },
 })
 
 function handleLoad() {
