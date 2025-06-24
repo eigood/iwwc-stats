@@ -393,4 +393,9 @@ header .enl-stat, header .res-stat {
 .stat-header .title {
 	color:#5555ff;
 }
+.stat-row .stat-position,
+.stat-row .stat-value,
+.stat-row .agent {
+	text-shadow:0px 0px 4px rgba(0, 0, 0, 1);
+}
 
