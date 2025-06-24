@@ -282,6 +282,9 @@ header .enl-stat, header .res-stat {
 	grid-template-rows: 1fr;
 	background-color:#0f0f0f;
 }
+.iwwc-content * {
+	max-width:calc((var(--grid-list-column-min-size) * 2 + var(--grid-list-gap) - 1) * 1px);
+}
 .iwwc-content.toggle-selected {
 	height:100%;
 	--grid-list-column-max-size:100%;
@@ -362,3 +365,19 @@ header .enl-stat, header .res-stat {
 .stat-row.none .stat-reward.badge::before {
 	-display:none;
 }
+
+/* Theme settings */
+.stat-pane {
+	background:initial;
+	background-image:url('images/photo_2025-06-19_18-13-45.jpg');
+	background-size:100%;
+	background-repeat:repeat-y;
+}
+.stat-header {
+	background:#333333;
+	color:#eef0e3;
+}
+.stat-header .title {
+	color:#5555ff;
+}
+
