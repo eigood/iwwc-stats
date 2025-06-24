@@ -10,6 +10,7 @@
 	height:100%;
 }
 #iwwc-app header {
+	opacity:0.99;
 }
 @media (max-width:500px) {
 	.iwwc-content {
@@ -59,8 +60,10 @@ header .enl-stat, header .res-stat {
 	background:rgb(50, 50, 50, .9);
 	color:white;
 }
+.stat-footer, .stat-header {
+	background:rgba(238, 240, 227, .2);
+}
 .stat-footer {
-	background:rgba(50, 50, 50, .9);
 	color:white;
 	font-size:16px;
 }
@@ -150,7 +153,6 @@ header .enl-stat, header .res-stat {
 	padding: 0 0 0 5px;
 	display:flex;
 	align-items:flex-start;
-	background:#eef0e3;
 }
 .stat-header .badge {
 	flex-grow:1;
@@ -374,6 +376,14 @@ header .enl-stat, header .res-stat {
 	-display:none;
 }
 
+#canvas {
+	position:absolute;
+	top:0;
+	left:0;
+	right:0;
+	bottom:0;
+	display:block;
+}
 /* Theme settings */
 .stat-pane {
 	background:initial;
@@ -389,8 +399,8 @@ header .enl-stat, header .res-stat {
 	background-image:url('images/photo_2025-06-24_11-07-49.jpg');
 }
 .stat-header {
-	background:#333333;
 	color:#eef0e3;
+	position:relative;
 }
 .stat-header .title {
 	color:#5555ff;

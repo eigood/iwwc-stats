@@ -2,6 +2,7 @@
 <link rel="stylesheet" href="app.css?{{ site.data['hash'] }}">
 <link rel="stylesheet" href="css/fontawesome-free-6.4.2-web/css/all.css">
 <script type='module' src="app-ng.js?{{ site.data['hash'] }}"></script>
+<script type='module' src="canvas-lightning.js?{{ site.data['hash'] }}"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <style id="search-style"></style>
 </head>
@@ -39,6 +40,7 @@
 </template>
 <div id='iwwc-app' class='loading'>
   <div class="loading">Loading, please wait.</div>
+  <canvas id='canvas'></canvas>
   <header>
    <div class="agent-search">
     <span class="icon fa-solid fa-magnifying-glass"></span>
