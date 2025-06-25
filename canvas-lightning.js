@@ -55,6 +55,14 @@ class Line {
     this.#opacity = opacity
   }
 
+  get x() {
+    return this.#start.x
+  }
+
+  get y() {
+    return this.#start.y
+  }
+
   decay() {
     this.#opacity -= 0.01
     this.#thickness -= 0.05
@@ -123,7 +131,6 @@ class Lightning {
     //getRandomInteger(x1 - strikeOffset, x1 + strikeOffset)
     //console.log('x1, x2', { lightningX1, lightningX2 })
     //let y1 = 0, y2 = boltLength
-    const points = []
     while (y1 < height) {
       const nextAngle = getRandomFloat(0, Math.PI)
       const nextLength = strikeOffset //getRandomInteger(1, strikeOffset)
@@ -132,25 +139,32 @@ class Lightning {
       instance.push(new Line(x1, y1, nextX, nextY, thickness, 1))
       y1 = nextY
       x1 = nextX
-      points.push({ x1, y1 })
       //if (instance.length > 300) break
     }
-    const branchPoint = getRandomInteger(instance.length * .25, instance.length / 4 * 3)
-    x1 = points[ branchPoint ].x1
-    y1 = points[ branchPoint ].y1
-    let branchLength = 50
-    const getNextAngle = getRandomInteger(0, 1) === 0 ? [Math.PI, 0.75 * 2 * Math.PI] : [0.75 * 2 * Math.PI, 2 * Math.PI]
-    while (branchLength > 0) {
-      const nextAngle = getRandomFloat(...getNextAngle)
-      const nextLength = strikeOffset //getRandomInteger(1, strikeOffset)
-      const nextX = x1 + nextLength * Math.cos(nextAngle)
-      const nextY = y1 + nextLength * Math.sin(nextAngle)
-      instance.push(new Line(x1, y1, nextX, nextY, thickness, 1))
-      y1 = nextY
-      x1 = nextX
-      points.push({ x1, y1 })
-      //if (instance.length > 300) break
-      branchLength--
+    const extraSegments = []
+    extraSegments.length = getRandomInteger(2, 5)
+    const primaryLength = instance.length
+    let extraAngleDirection = getRandomInteger(0, 2)
+    for (let i = 0; i < extraSegments.length; i++) {
+      const extraSegment = extraSegments[ i ] = []
+      const branchPoint = getRandomInteger(primaryLength * .25, primaryLength * .9)
+      x1 = instance[ branchPoint ].x
+      y1 = instance[ branchPoint ].y
+      let branchLength = getRandomInteger(5, 75)
+      const getNextAngle = extraAngleDirection === 0 ? [Math.PI, 0.75 * 2 * Math.PI] : [0.75 * 2 * Math.PI, 2 * Math.PI]
+      extraAngleDirection = !extraAngleDirection
+      while (branchLength > 0) {
+        const nextAngle = getRandomFloat(...getNextAngle)
+        const nextLength = strikeOffset //getRandomInteger(1, strikeOffset)
+        const nextX = x1 + nextLength * Math.cos(nextAngle)
+        const nextY = y1 + nextLength * Math.sin(nextAngle)
+        extraSegment.push(new Line(x1, y1, nextX, nextY, thickness, 1))
+        y1 = nextY
+        x1 = nextX
+        //if (instance.length > 300) break
+        branchLength--
+      }
+      instance.push(...extraSegment)
     }
 
     return instance
