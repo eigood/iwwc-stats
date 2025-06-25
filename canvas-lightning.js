@@ -1,123 +1,199 @@
+
+
+/*
 const canvas = document.getElementById("canvas");
 const context = canvas.getContext('2d');
-const lightningStrikeOffset = 5;
-const lightningStrikeLength = 200;
-const lightningBoltLength = 5;
-const lightningThickness = 4;
 let canvasHeight = () => canvas.height;
 let canvasWidth = () => canvas.width;
+*/
 
-const createVector = function(x, y) { return { x, y } }
+const createVector = (x, y) => ({ x, y })
+const getRandomFloat = (min, max) => Math.random() * (max - min + 1) + min
+const getRandomInteger = (min, max) => Math.floor(getRandomFloat(min, max))
 
-const getRandomFloat = function(min, max) {
-  const random = Math.random() * (max - min + 1) + min;
-  return random;
+class CanvasUtils {
+  #canvas
+  #context
+  constructor(canvas) {
+    this.#canvas = canvas
+    this.#context = canvas.getContext('2d')
+  }
+
+  get context() {
+    return this.#context
+  }
+
+  get height() {
+    return this.#canvas.height
+  }
+
+  get width() {
+    return this.#canvas.width
+  }
+
+  setSize(width, height) {
+    this.#canvas.width = width
+    this.#canvas.height = height
+  }
+
+  clearCanvas(x = 0, y = 0, h = this.width, w = this.height) {
+    this.#context.clearRect(x, y, h, w)
+    //context.beginPath();
+  }
 }
 
-const getRandomInteger = function(min, max) {
-  return Math.floor(getRandomFloat(min, max)); 
-}
+class Line {
+  #start
+  #end
+  #thickness
+  #opacity
 
-const clearCanvas = function(x, y, height, width) {
-  const rectX = x || 0;
-  const rectY = y || 0;
-  const rectHeight = height || canvasHeight();
-  const rectWidth = width || canvasWidth();
-  context.clearRect(rectX, rectY, rectWidth, rectHeight);
-  context.beginPath();
-}
-
-const line = function(start, end, thickness, opacity) {
-  context.beginPath();
-  context.moveTo(start.x, start.y);
-  context.lineTo(end.x, end.y);
-  context.lineWidth = thickness;
-  context.strokeStyle = `rgba(255, 255, 255, ${opacity})`;
-  context.shadowBlur = 30;
-  context.shadowColor = "#bd9df2";
-  context.stroke();
-  context.closePath();
-}
-
-class Lightning {
   constructor(x1, y1, x2, y2, thickness, opacity) {
-    this.start = createVector(x1, y1);
-    this.end = createVector(x2, y2);
-    this.thickness = thickness;
-    this.opacity = opacity;
+    this.#start = createVector(x1, y1)
+    this.#end = createVector(x2, y2)
+    this.#thickness = thickness
+    this.#opacity = opacity
   }
-  draw() {
-    return line(this.start, this.end, this.thickness, this.opacity);
+
+  decay() {
+    this.#opacity -= 0.01
+    this.#thickness -= 0.05
+    if (this.#thickness <= 2) {
+      this.#end.y -= 0.05
+    }
   }
+
+  draw(utils) {
+    const context = utils.context
+    context.beginPath()
+    context.moveTo(this.#start.x, this.#start.y)
+    context.lineTo(this.#end.x, this.#end.y)
+    context.lineWidth = this.#thickness
+    context.strokeStyle = `rgba(255, 255, 255, ${this.#opacity})`
+    context.shadowBlur = 30
+    context.shadowColor = '#bd9df2'
+    context.stroke()
+    context.closePath()
+  }
+
+  isDone() {
+    return !(this.#opacity > 0)
+  }
+
   get [Symbol.toStringTag]() {
-    return { start: this.start, end: this.end }
+    return { start: this.#start, end: this.#end }
   }
 }
 
 const interval = 3000;
 // const lightningStrikeOffset = 5;
-// const lightningStrikeLength = 100;
 // const lightningBoltLength = Math.random() * 10;
 // const lightningThickness = 4;
 let lightning = [];
 
+class Lightning {
+  #strikeOffset
+  #boltLength
+  #thickness
 
-const createLightning = function() {
-  lightning = [];
-  const currentCanvasHeight = canvasHeight()
-  console.log('createLigtning:width', canvasWidth())
-  let lightningX1 = getRandomInteger(2, canvasWidth() - 2);
-  let lightningX2 = getRandomInteger(lightningX1 - lightningStrikeOffset, lightningX1 + lightningStrikeOffset);
-  console.log('x1, x2', { lightningX1, lightningX2 })
-  lightning[0] = new Lightning(lightningX1, 0, lightningX2, lightningBoltLength, lightningThickness, 1);
-  let l = 0
-  while (lightning[l].end.y < currentCanvasHeight) {
-    l++
-    let lastBolt = lightning[l - 1];
-    let lx1 = lastBolt.end.x;
-    let lx2 = getRandomInteger(lx1 - lightningStrikeOffset, lx1 + lightningStrikeOffset);
-    lightning.push(new Lightning(
-      lx1, 
-      lastBolt.end.y, 
-      lx2, 
-      lastBolt.end.y + lightningBoltLength, 
-      lastBolt.thickness, 
-      lastBolt.opacity
-    ));
+  constructor(strikeOffset = 10, boltLength = 5, thickness = 4) {
+    this.#strikeOffset = strikeOffset
+    this.#boltLength = boltLength
+    this.#thickness = thickness
   }
-  console.log('0', lightning[0])
-  console.log('1', lightning[1])
+
+  draw(utils, instance) {
+    const isDone = instance[ 0 ].isDone()
+    for (const line of instance) {
+      line.draw(utils)
+      if (!isDone) line.decay()
+    }
+    return isDone
+  }
+
+  instance(utils) {
+    const strikeOffset = this.#strikeOffset
+    const boltLength = this.#boltLength
+    const thickness = this.#thickness
+    const instance = []
+    const height = utils.height
+    //console.log('createLigtning:width', canvasWidth())
+    let x1 = getRandomInteger(2, utils.width - 2)
+    let x2 = getRandomInteger(x1 - strikeOffset, x1 + strikeOffset)
+    //console.log('x1, x2', { lightningX1, lightningX2 })
+    let y1 = 0, y2 = boltLength
+    instance.push(new Line(x1, y1, x2, y2, thickness, 1))
+    let l = 0
+    while (y2 < height) {
+      l++
+      const nextX1 = x2
+      const nextX2 = getRandomInteger(nextX1 - strikeOffset, nextX1 + strikeOffset)
+      const nextY1 = y2
+      const nextY2 = y2 + boltLength
+      
+      instance.push(new Line(nextX1, nextY1, nextX2, nextY2, thickness, 1))
+      y2 = nextY2
+      x2 = nextX2
+    }
+    return instance
+  }
+
+  isDone(instance) {
+    return instance[ 0 ].isDone()
+  }
+
+  //console.log('0', lightning[0])
+  //console.log('1', lightning[1])
 }
 
+class Animation {
+  #animations = []
 
-const setup = function() {
-  createLightning();
-  for (let i = 0 ; i < lightning.length ; i++) {
-    lightning[i].draw();
+  constructor() {}
+
+  add(animation) {
+    this.#animations.push(animation)
+  }
+
+  draw(utils, instances = []) {
+    const newInstances = []
+    const now = Date.now()
+    this.#animations.forEach(animation => {
+      const found = instances.find(instance => instance.animation === animation)
+      if (!found) newInstances.push({ animation, isDone: true, doneAt: now })
+    })
+    if (newInstances.length) instances = [...instances, ...newInstances]
+    for (const item of instances) {
+      let { animation, instance, isDone, doneAt } = item
+      if (isDone && doneAt + 3000000 > now) {
+        instance = item.instance = animation.instance(utils)
+      }
+
+      if (instance) {
+        if (item.isDone = animation.draw(utils, instance)) {
+          item.doneAt = now
+        }
+      }
+    }
+    return instances
   }
 }
+
+const utils = new CanvasUtils(document.getElementById('canvas'))
+const animation = new Animation()
+animation.add(new Lightning())
+
+let instances
 
 const animate = function() {
-  clearCanvas();
+  utils.clearCanvas()
 
-  for (let i = 0 ; i < lightning.length ; i++) {
-    lightning[i].opacity -= 0.01;
-    lightning[i].thickness -= 0.05;
-    if (lightning[i].thickness <= 2) {
-      lightning[i].end.y -= 0.05;
-    }
-    lightning[i].draw();
-  }
+  instances = animation.draw(utils, instances)
 
-  requestAnimationFrame(animate);
+  requestAnimationFrame(animate)
 }
 
 window.addEventListener('load', (event) => {
-  canvas.width = window.innerWidth
-  canvas.height = window.innerHeight
-  setup();
-  requestAnimationFrame(animate);
-  setInterval(function() {
-    createLightning();
-  }, interval)
+  utils.setSize(window.innerWidth, window.innerHeight)
+  requestAnimationFrame(animate)
 })
