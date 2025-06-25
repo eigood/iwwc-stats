@@ -8,7 +8,7 @@ let canvasWidth = () => canvas.width;
 */
 
 const createVector = (x, y) => ({ x, y })
-const getRandomFloat = (min, max) => Math.random() * (max - min + 1) + min
+const getRandomFloat = (min, max) => Math.random() * (max - min) + min
 const getRandomInteger = (min, max) => Math.floor(getRandomFloat(min, max))
 
 class CanvasUtils {
@@ -119,22 +119,40 @@ class Lightning {
     const height = utils.height
     //console.log('createLigtning:width', canvasWidth())
     let x1 = getRandomInteger(2, utils.width - 2)
-    let x2 = getRandomInteger(x1 - strikeOffset, x1 + strikeOffset)
+    let y1 = 0
+    //getRandomInteger(x1 - strikeOffset, x1 + strikeOffset)
     //console.log('x1, x2', { lightningX1, lightningX2 })
-    let y1 = 0, y2 = boltLength
-    instance.push(new Line(x1, y1, x2, y2, thickness, 1))
-    let l = 0
-    while (y2 < height) {
-      l++
-      const nextX1 = x2
-      const nextX2 = getRandomInteger(nextX1 - strikeOffset, nextX1 + strikeOffset)
-      const nextY1 = y2
-      const nextY2 = y2 + boltLength
-      
-      instance.push(new Line(nextX1, nextY1, nextX2, nextY2, thickness, 1))
-      y2 = nextY2
-      x2 = nextX2
+    //let y1 = 0, y2 = boltLength
+    const points = []
+    while (y1 < height) {
+      const nextAngle = getRandomFloat(0, Math.PI)
+      const nextLength = strikeOffset //getRandomInteger(1, strikeOffset)
+      const nextX = x1 + nextLength * Math.cos(nextAngle)
+      const nextY = y1 + nextLength * Math.sin(nextAngle)
+      instance.push(new Line(x1, y1, nextX, nextY, thickness, 1))
+      y1 = nextY
+      x1 = nextX
+      points.push({ x1, y1 })
+      //if (instance.length > 300) break
     }
+    const branchPoint = getRandomInteger(instance.length * .25, instance.length / 4 * 3)
+    x1 = points[ branchPoint ].x1
+    y1 = points[ branchPoint ].y1
+    let branchLength = 50
+    const getNextAngle = getRandomInteger(0, 1) === 0 ? [Math.PI, 0.75 * 2 * Math.PI] : [0.75 * 2 * Math.PI, 2 * Math.PI]
+    while (branchLength > 0) {
+      const nextAngle = getRandomFloat(...getNextAngle)
+      const nextLength = strikeOffset //getRandomInteger(1, strikeOffset)
+      const nextX = x1 + nextLength * Math.cos(nextAngle)
+      const nextY = y1 + nextLength * Math.sin(nextAngle)
+      instance.push(new Line(x1, y1, nextX, nextY, thickness, 1))
+      y1 = nextY
+      x1 = nextX
+      points.push({ x1, y1 })
+      //if (instance.length > 300) break
+      branchLength--
+    }
+
     return instance
   }
 
