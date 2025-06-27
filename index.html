@@ -52,6 +52,7 @@
     <span class="status last-refresh"></span>
    </div>
    <div class="event-selector">
+    <span class="icon fa-solid fa-clipboard-list"></span>
     <select name="current-event"></select>
    </div>
    <div class="toggles">
@@ -63,6 +64,60 @@
    </div>
    <div class="start-date"></div>
    <div class="end-date"></div>
+   <div class="button show-help">
+    <span class="icon fa-solid fa-question"></span>
+   </div>
+   <div class="help-window">
+    <ul>
+     <li>
+      Header
+      <ul>
+       <li>
+        <span class="icon fa-solid fa-magnifying-glass"></span>
+         Text entered into the search box will find all agent names that match.
+         Separate multiple terms with '&amp;'.  Press <span class="clear-search fa-solid fa-remove"></span>
+         to clear the search terms.
+       </li>
+       <li>
+        <span class="icon fa-solid fa-arrows-rotate"></span>
+        Possibly fetch updated data from the server.  The date-time displayed is when AgentStats last did its calculations.
+       </li>
+       <li>
+        <span class="icon fa-solid fa-clipboard-list"></span>
+        Use the drop-down to select a different contest.
+       </li>
+       <li>
+        <span class="icon fa-solid fa-chart-line"></span>
+        In search mode, display agents just before and after the search result.
+       </li>
+      </ul>
+     </li>
+     <li>
+      Stat pane
+      <ul>
+       <li>
+        <span class="icon fa-solid fa-window-maximize"></span>
+        Maximize stat pane
+       </li>
+       <li>
+        <span class="icon fa-solid fa-window-minimize"></span>
+        Reduce stat pane
+       </li>
+       <li>
+        <span class="icon fa-solid fa-arrows-up-to-line"></span>
+        Scroll to top
+       </li>
+       <li>
+        <span class="icon fa-solid fa-arrows-down-to-line"></span>
+        Scroll to bottom
+       </li>
+       <li>
+        Clicking an agent name causes a "search" to occur.
+       </li>
+      </ul>
+     </li>
+    </ul>
+   </div>
   </header>
   <div class="container">
    <div class="iwwc-content">

@@ -1,4 +1,4 @@
-
+import { easeInExpo, easeInOutBounce, easeOutBounce } from './easing.js'
 
 /*
 const canvas = document.getElementById("canvas");
@@ -63,29 +63,19 @@ class Line {
     return this.#start.y
   }
 
-  decay() {
-    this.#opacity -= 0.01
-    this.#thickness -= 0.05
-    if (this.#thickness <= 2) {
-      this.#end.y -= 0.05
-    }
-  }
-
-  draw(utils) {
+  draw(utils, eased) {
     const context = utils.context
+    const opacity = this.#opacity * eased
+    const thickness = this.#thickness * eased
     context.beginPath()
     context.moveTo(this.#start.x, this.#start.y)
     context.lineTo(this.#end.x, this.#end.y)
-    context.lineWidth = this.#thickness
-    context.strokeStyle = `rgba(255, 255, 255, ${this.#opacity})`
+    context.lineWidth = thickness
+    context.strokeStyle = `rgba(255, 255, 255, ${opacity})`
     context.shadowBlur = 30
     context.shadowColor = '#bd9df2'
     context.stroke()
     context.closePath()
-  }
-
-  isDone() {
-    return !(this.#opacity > 0)
   }
 
   get [Symbol.toStringTag]() {
@@ -99,6 +89,32 @@ const interval = 3000;
 // const lightningThickness = 4;
 let lightning = [];
 
+const adjustT = (min, t, max) => {
+  return (t - min) / (max - min)
+}
+
+const lightningEasing = [
+  { min: 1, max: 2, easing: (t) => 0 },
+  { min: 0.8, max: 1, easing: (t) => easeInExpo(1 - t) },
+  { min: 0, max: 0.8, easing: easeOutBounce },
+]
+
+const easeLightning = (t) => {
+  if (t < 0) return 0
+  if (t > 1) return 1
+  const easing = lightningEasing.find((e) => e.min <= t && t < e.max)
+  return easing.easing(adjustT(easing.min, t, easing.max))
+}
+
+const testValues = []
+let p = 1
+while (p > 0) {
+  testValues.push(`${p}:${easeLightning(p)}`)
+  p -= 0.01
+  if (p < 0) testValues.push(`${p}:${easeLightning(p)}`)
+}
+console.log('testValues', testValues)
+
 class Lightning {
   #strikeOffset
   #boltLength
@@ -111,11 +127,13 @@ class Lightning {
   }
 
   draw(utils, instance) {
-    const isDone = instance[ 0 ].isDone()
-    for (const line of instance) {
-      line.draw(utils)
-      if (!isDone) line.decay()
+    const { t, lines } = instance
+    const isDone = t <= 0
+    const eased = easeLightning(t)
+    for (const line of lines) {
+      line.draw(utils, eased)
     }
+    instance.t -= 0.01
     return isDone
   }
 
@@ -123,7 +141,7 @@ class Lightning {
     const strikeOffset = this.#strikeOffset
     const boltLength = this.#boltLength
     const thickness = this.#thickness
-    const instance = []
+    const lines = []
     const height = utils.height
     //console.log('createLigtning:width', canvasWidth())
     let x1 = getRandomInteger(2, utils.width - 2)
@@ -136,20 +154,20 @@ class Lightning {
       const nextLength = strikeOffset //getRandomInteger(1, strikeOffset)
       const nextX = x1 + nextLength * Math.cos(nextAngle)
       const nextY = y1 + nextLength * Math.sin(nextAngle)
-      instance.push(new Line(x1, y1, nextX, nextY, thickness, 1))
+      lines.push(new Line(x1, y1, nextX, nextY, thickness, 1))
       y1 = nextY
       x1 = nextX
-      //if (instance.length > 300) break
+      //if (lines.length > 300) break
     }
     const extraSegments = []
     extraSegments.length = getRandomInteger(2, 5)
-    const primaryLength = instance.length
+    const primaryLength = lines.length
     let extraAngleDirection = getRandomInteger(0, 2)
     for (let i = 0; i < extraSegments.length; i++) {
       const extraSegment = extraSegments[ i ] = []
       const branchPoint = getRandomInteger(primaryLength * .25, primaryLength * .9)
-      x1 = instance[ branchPoint ].x
-      y1 = instance[ branchPoint ].y
+      x1 = lines[ branchPoint ].x
+      y1 = lines[ branchPoint ].y
       let branchLength = getRandomInteger(5, 75)
       const getNextAngle = extraAngleDirection === 0 ? [Math.PI, 0.75 * 2 * Math.PI] : [0.75 * 2 * Math.PI, 2 * Math.PI]
       extraAngleDirection = !extraAngleDirection
@@ -161,17 +179,13 @@ class Lightning {
         extraSegment.push(new Line(x1, y1, nextX, nextY, thickness, 1))
         y1 = nextY
         x1 = nextX
-        //if (instance.length > 300) break
+        //if (lines.length > 300) break
         branchLength--
       }
-      instance.push(...extraSegment)
+      lines.push(...extraSegment)
     }
 
-    return instance
-  }
-
-  isDone(instance) {
-    return instance[ 0 ].isDone()
+    return {t: 1, lines}
   }
 
   //console.log('0', lightning[0])
@@ -192,17 +206,19 @@ class Animation {
     const now = Date.now()
     this.#animations.forEach(animation => {
       const found = instances.find(instance => instance.animation === animation)
-      if (!found) newInstances.push({ animation, isDone: true, doneAt: now })
+      if (!found) newInstances.push({ animation, isDone: true, doneAt: 0 })
     })
     if (newInstances.length) instances = [...instances, ...newInstances]
     for (const item of instances) {
       let { animation, instance, isDone, doneAt } = item
-      if (isDone && doneAt + 3000000 > now) {
+      if (isDone && (now - doneAt) / 1000 > 3) {
+        //console.log('isDone, restart', { doneAt, now, diff: (now - doneAt) / 1000 })
         instance = item.instance = animation.instance(utils)
+        item.isDone = false
       }
 
       if (instance) {
-        if (item.isDone = animation.draw(utils, instance)) {
+        if (!item.isDone && (item.isDone = animation.draw(utils, instance))) {
           item.doneAt = now
         }
       }

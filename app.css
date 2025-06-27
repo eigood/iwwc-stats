@@ -32,7 +32,7 @@ body {
 .reload-button {
 	cursor:pointer;
 }
-.reload-button, .start-date, .end-date, .agent-search, .event-selector, .toggles {
+.reload-button, .start-date, .end-date, .agent-search, .event-selector, .toggles, .show-help {
 	background:white;
 	border:1px solid black;
 	border-radius:5px;
@@ -274,10 +274,10 @@ header .enl-stat, header .res-stat {
 	background:#bbb;
 	border-radius:3px;
 	border:1px solid #444;
-	z-index:2;
+	-z-index:2;
 	white-space:nowrap;
 }
-.stat-value-container:hover .rollover:not(:hover) {
+.stat-value-container:hover .rollover {
 	display:block;
 }
 
@@ -376,6 +376,29 @@ header .enl-stat, header .res-stat {
 	-display:none;
 }
 
+.show-help {
+	cursor:pointer;
+}
+.help-window {
+	max-height:0;
+	margin:0;
+	overflow:hidden;
+	transition: max-height 0.45s ease-out;
+	width:100%;
+	background:#0f0f0f;
+}
+.help-window > ul {
+	margin-top:calc(var(--grid-list-gap) * 1px);
+	margin-bottom:calc(var(--grid-list-gap) * 1px);
+	border-radius:10px;
+	color:#eef0e3;
+	background:rgba(100, 100, 100, 0.5);
+	padding-top:calc(var(--grid-list-gap) * 1px);
+	padding-bottom:calc(var(--grid-list-gap) * 1px);
+}
+#iwwc-app.display-help .help-window {
+	max-height:600px;
+}
 #canvas {
 	position:absolute;
 	top:0;
@@ -383,6 +406,8 @@ header .enl-stat, header .res-stat {
 	right:0;
 	bottom:0;
 	display:block;
+	pointer-events:none;
+	z-index:50;
 }
 /* Theme settings */
 .stat-pane {

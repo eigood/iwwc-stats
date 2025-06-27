@@ -144,7 +144,7 @@ class App {
     this._toggleSelectors = {
       '#': '.toggles .chart-position',
     }
-    makeHandlers(this, 'loadData', 'onSearch', 'onEventChange', 'setSearch', 'clearSearch')
+    makeHandlers(this, 'loadData', 'onSearch', 'onEventChange', 'setSearch', 'clearSearch', 'toggleHelp')
     this.debouncedSetSearch = debounce(this.setSearch, 50)
     this._statPanes = this._displayStats.map(([ statName, statTitle ]) => new StatPane({ app: this, statName, statTitle }))
 
@@ -159,6 +159,7 @@ class App {
     const searchInput = document.querySelector('.agent-search input')
     searchInput.addEventListener('keyup', this.onSearch)
     this.setLocation(document.location.hash)
+    document.querySelector('.show-help').addEventListener('click', this.toggleHelp)
     document.querySelector('.clear-search').addEventListener('click', this.clearSearch)
     Object.entries(this._toggleSelectors).forEach(([ toggle, selector ]) => {
       document.querySelector(selector).addEventListener('click', (e) => {
@@ -337,6 +338,22 @@ class App {
 
   clearSearch() {
     this.setSearch('')
+  }
+
+  toggleHelp() {
+    const appNode = document.querySelector('#iwwc-app')
+    appNode.classList.toggle('display-help')
+    /*
+    const toggleElement = document.querySelector(toggle === '_' ? '.iwwc-content' : this._toggleSelectors[ toggle ])
+    if (value) {
+      toggleElement.classList.add('toggle-selected')
+      this._toggles[ toggle ] = value
+    } else {
+      delete this._toggles[ toggle ]
+      toggleElement.classList.remove('toggle-selected')
+    }
+    */
+
   }
 
   toggleWindow(statName, e) {
