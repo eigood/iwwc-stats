@@ -230,10 +230,17 @@ class App {
       e.stopPropagation();
     }
     const buttonIcon = document.querySelector('.reload-button .icon')
+    const { [ this._currentEvent ]: { customUrl, infoUrl, primaryStat } } = this._eventData
+    if (primaryStat !== undefined) {
+      this.setToggle('_', primaryStat)
+    } else {
+      const { [ this._previousEvent ]: { primaryStat: previousPrimaryStat } = {} } = this._eventData
+      if (!previousPrimaryStat) this.setToggle('_', null)
+    }
     buttonIcon.classList.add('fa-spin')
     Promise.all([
-      fetchJSON(this._eventData[ this._currentEvent ].customUrl, (data) => this.setData(data)),
-      fetchJSON(this._eventData[ this._currentEvent ].infoUrl, (data) => this.setInfo(data)),
+      fetchJSON(customUrl, (data) => this.setData(data)),
+      fetchJSON(infoUrl, (data) => this.setInfo(data)),
     ]).finally(() => {
       buttonIcon.classList.remove('fa-spin')
     })
@@ -292,6 +299,7 @@ class App {
   onEventChange(e) {
     const { target: { value } } = e
     if (this._currentEvent !== value) {
+      this._previousEvent = this._currentEvent
       this._currentEvent = value
       this.loadData()
     }
