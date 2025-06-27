@@ -32,8 +32,8 @@ class CanvasUtils {
   }
 
   setSize(width, height) {
-    this.#canvas.width = width
-    this.#canvas.height = height
+    if (width != this.#canvas.width) this.#canvas.width = width
+    if (height != this.#canvas.height) this.#canvas.height = height
   }
 
   clearCanvas(x = 0, y = 0, h = this.width, w = this.height) {
@@ -225,6 +225,7 @@ animation.add(new Lightning())
 let instances
 
 const animate = function() {
+  utils.setSize(window.innerWidth, window.innerHeight)
   utils.clearCanvas()
 
   instances = animation.draw(utils, instances)
@@ -233,6 +234,5 @@ const animate = function() {
 }
 
 window.addEventListener('load', (event) => {
-  utils.setSize(window.innerWidth, window.innerHeight)
   requestAnimationFrame(animate)
 })
