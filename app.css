@@ -423,16 +423,32 @@ header .enl-stat, header .res-stat {
 .stat-pane:nth-child(odd) {
 	background-image:url('images/photo_2025-06-24_11-07-49.jpg');
 }
+.stat-content {
+	background-color:rgba(100, 100, 100, 0.5);
+}
 .stat-header {
-	color:#eef0e3;
+	color:#fb7d07;
 	position:relative;
+	background-color:rgba(100, 100, 100, 0.5);
 }
-.stat-header .title {
-	color:#5555ff;
+.stat-footer {
+	color:#fb7d07;
+	background-color:rgba(100, 100, 100, 0.5);
 }
-.stat-row .stat-position,
-.stat-row .stat-value,
-.stat-row .agent {
+.stat-row .stat-position {
 	text-shadow:0px 0px 4px rgba(0, 0, 0, 1);
 }
-
+.stat-row .stat-value {
+	color:#880808;
+	text-shadow:0px 0px 4px rgba(128, 128, 128, 1);
+	color:#888080;
+	text-shadow:0px 0px 4px rgba(136, 8, 8, 1);
+}
+.stat-value-container .rollover {
+	-color:#888080;
+	text-shadow:0px 0px 4px rgba(136, 8, 8, 1);
+	background-color:#888080;
+}
+.stat-row .agent {
+	text-shadow:0px 0px 4px rgba(128, 128, 128, 0.5);
+}
