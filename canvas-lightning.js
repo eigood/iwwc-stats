@@ -106,15 +106,6 @@ const easeLightning = (t) => {
   return easing.easing(adjustT(easing.min, t, easing.max))
 }
 
-const testValues = []
-let p = 1
-while (p > 0) {
-  testValues.push(`${p}:${easeLightning(p)}`)
-  p -= 0.01
-  if (p < 0) testValues.push(`${p}:${easeLightning(p)}`)
-}
-console.log('testValues', testValues)
-
 class Lightning {
   #strikeOffset
   #boltLength
