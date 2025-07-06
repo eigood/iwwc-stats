@@ -790,7 +790,7 @@ function calculateInferredStats(agentData) {
 }
 
 const app = new App({
-  currentEvent: 0,
+  currentEvent: 1,
   displayStats,
   eventData,
   enabledFactions: { res: true },
