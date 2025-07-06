@@ -119,6 +119,33 @@ const displayStats = [
   ['last_submit', 'Last Submit'],
 ]
 
+const statValueDiff = {
+  ['ratio@purifier/builder']: (a, b) => Math.abs(1 - a) - Math.abs(1 - b),
+  ['ratio@builder/purifier']: (a, b) => Math.abs(1 - a) - Math.abs(1 - b),
+}
+
+const getValueDiffBuilder = (statName) => {
+  const { [statName]: basicValueDiffFetcher = (a, b) => b - a } = statValueDiff
+  const valueDiffBuilder = (agentData) => (a, b) => {
+    const { [ a ]: { [statName]: valueA }, [ b ]: { [statName]: valueB } } = agentData
+    if (valueA === null) return 1
+    if (valueB === null) return -1
+    return basicValueDiffFetcher(valueA, valueB)
+  }
+  if (statName === 'lifetime_ap') {
+    return (agentData) => {
+      const valueDiffFetcher = valueDiffBuilder(agentData)
+      return (a, b) => {
+        const valueDiff = valueDiffFetcher(a, b)
+        if (valueDiff) return valueDiff
+        const { [ a ]: agentA, [ b ]: agentB } = agentData
+        return agentB[ 'lifetime_ap' ] - agentA[ 'lifetime_ap' ]
+      }
+    }
+  }
+  return valueDiffBuilder
+}
+
 const makeHandlers = (self, ...names) => {
   names.forEach((name) => {
     const { [ name ]: func } = self
@@ -283,7 +310,7 @@ class App {
     }
 
     Object.keys(byStat).forEach(statName => {
-      byStat[ statName ] = [...allAgents].sort(statSorter(statName))
+      byStat[ statName ] = [...allAgents].sort(getValueDiffBuilder(statName)(data))
     })
     console.timeEnd('analyze')
     this.updateDOM()
