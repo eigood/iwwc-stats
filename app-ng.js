@@ -255,14 +255,8 @@ class App {
       e.stopPropagation();
     }
     const buttonIcon = document.querySelector('.reload-button .icon')
-    const { [ this._currentEvent ]: { customUrl, infoUrl, primaryStat } } = this._eventData
-    if (primaryStat !== undefined) {
-      this.setToggle('_', primaryStat)
-    } else {
-      const { [ this._previousEvent ]: { primaryStat: previousPrimaryStat } = {} } = this._eventData
-      if (!previousPrimaryStat) this.setToggle('_', null)
-    }
     buttonIcon.classList.add('fa-spin')
+    const { [ this._currentEvent ]: { customUrl, infoUrl } } = this._eventData
     Promise.all([
       fetchJSON(customUrl, (data) => this.setData(data)),
       fetchJSON(infoUrl, (data) => this.setInfo(data)),
@@ -283,6 +277,7 @@ class App {
     const byStat = this._byStat = {}
 
     const factionCounts = this._factionCounts = { enl: 0, res: 0 }
+    const { [ this._currentEvent ]: { primaryStat } } = this._eventData
     console.time('analyze')
     Object.entries(data).forEach(([ agentName, agentData ]) => {
       factionCounts[ agentData.faction ]++
@@ -315,7 +310,14 @@ class App {
     console.timeEnd('analyze')
     this.updateDOM()
     console.time('absorb')
-    this._statPanes.forEach((statPane) => statPane.setStatList(byStat[ statPane._statName ]))
+    let primaryIndex
+    this._statPanes.forEach((statPane, index) => {
+      const statName = statPane._statName
+      const isPrimaryStat = statName === primaryStat
+      const order = primaryStat ? (isPrimaryStat ? 0 : primaryIndex !== undefined ? index : index + 1) : index
+      if (isPrimaryStat) primaryIndex = index
+      statPane.setStatList(byStat[ statName ], order, isPrimaryStat)
+    })
     this.propagateSearch()
     console.timeEnd('absorb')
   }
@@ -482,11 +484,17 @@ class StatPane {
     delete this._pages.search.rowInfos
   }
 
-  setStatList(statList = []) {
+  setStatList(statList = [], order, isPrimaryStat) {
+    const statPaneNode = this._statPaneNode
+    statPaneNode.style.setProperty('order', order)
+    if (isPrimaryStat) {
+      statPaneNode.classList.add('primary-stat')
+    } else {
+      statPaneNode.classList.remove('primary-stat')
+    }
     if (this._statList === statList) return
     this._statList = statList
 
-    const statPaneNode = this._statPaneNode
     const statName = this._statName
     const data = this._app._data
     const statListRowTemplate = this._app._statListRowTemplate

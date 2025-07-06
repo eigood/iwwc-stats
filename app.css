@@ -129,6 +129,9 @@ header .enl-stat, header .res-stat {
 	flex-direction:column;
 	background:#333333;
 }
+.stat-pane.primary-stat {
+	grid-column: 1 / -1;
+}
 .stat-pane.minimize-window {
 	display:none;
 }
