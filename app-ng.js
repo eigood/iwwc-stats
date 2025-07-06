@@ -120,8 +120,8 @@ const displayStats = [
 ]
 
 const statValueDiff = {
-  ['ratio@purifier/builder']: (a, b) => Math.abs(1 - a) - Math.abs(1 - b),
-  ['ratio@builder/purifier']: (a, b) => Math.abs(1 - a) - Math.abs(1 - b),
+  //['ratio@purifier/builder']: (a, b) => Math.abs(1 - a) - Math.abs(1 - b),
+  //['ratio@builder/purifier']: (a, b) => Math.abs(1 - a) - Math.abs(1 - b),
 }
 
 const getValueDiffBuilder = (statName) => {
