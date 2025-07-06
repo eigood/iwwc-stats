@@ -14,7 +14,7 @@ const eventData = [
     infoUrl: 'https://eigood.github.io/wicked-houston-data/iwwc-info-20250706.json',
     startDate: '2025-07-06',
     endDate: '2025-07-19',
-    primaryStat: 'ratio@purifier/builder',
+    primaryStat: 'ratio@builder/purifier',
   },
   {
     title: 'Drone Hacker',
