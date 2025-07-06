@@ -71,18 +71,16 @@ const statParsers = {
     if (value) return new Date(Date.parse(value + '+0000'))
     return null
   },
+  ['ratio@fields/link']: makeSafeRatioParser('mind-controller', 'connector'),
+  ['ratio@mu/field']: makeSafeRatioParser('illuminator', 'mind-controller'),
+  ['ratio@pioneer/explorer']: makeSafeRatioParser('pioneer', 'explorer'),
+  ['ratio@ap/hack']: makeSafeRatioParser('lifetime_ap', 'hacker'),
+  ['ratio@translator/hacker']: makeSafeRatioParser('translator', 'hacker'),
+  ['ratio@purifier/builder']: makeSafeRatioParser('purifier', 'builder'),
+  ['ratio@ap/trekker']: makeSafeRatioParser('lifetime_ap', 'trekker'),
   ['ratio@builder/purifier']: makeSafeRatioParser('builder', 'purifier'),
   ['ratio@connector/illuminator']: makeSafeRatioParser('connector', 'illuminator'),
 }
-/*
-  agentData['ratio@fields/link'] = connector ? mindController / connector : null
-  agentData['ratio@mu/field'] = mindController ? illuminator / mindController : null
-  agentData['ratio@pioneer/explorer'] = explorer ? pioneer / explorer : null
-  agentData['ratio@ap/hack'] = hacker ? ap / hacker : null
-  agentData['ratio@translator/hacker'] = hacker ? translator / hacker : null
-  agentData['ratio@purifier/builder'] = builder ? purifier / builder : null
-  agentData['ratio@ap/trekker'] = trekker ? ap / trekker : null
-*/
 
 const displayStats = [
   ['lifetime_ap', 'AP'],
@@ -261,7 +259,6 @@ class App {
     console.time('analyze')
     Object.entries(data).forEach(([ agentName, agentData ]) => {
       factionCounts[ agentData.faction ]++
-      calculateInferredStats(agentData)
       Object.entries(statParsers).forEach(([ statName, statParser ]) => {
         const { [statName]: statValue } = agentData
         agentData[ statName ] = statParser(statValue, agentData)
@@ -762,32 +759,6 @@ function debounce(func, timeout = 300){
 }
 
 const pageSize = 50
-
-function calculateInferredStats(agentData) {
-  const {
-    [ 'lifetime_ap' ]: ap,
-    builder,
-    connector,
-    explorer,
-    hacker,
-    illuminator,
-    [ 'mind-controller' ]: mindController,
-    pioneer,
-    purifier,
-    translator,
-    trekker,
-  } = agentData
-  agentData['ratio@fields/link'] = connector ? mindController / connector : null
-  agentData['ratio@mu/field'] = mindController ? illuminator / mindController : null
-  agentData['ratio@pioneer/explorer'] = explorer ? pioneer / explorer : null
-  agentData['ratio@ap/hack'] = hacker ? ap / hacker : null
-  agentData['ratio@translator/hacker'] = hacker ? translator / hacker : null
-  agentData['ratio@purifier/builder'] = builder ? purifier / builder : null
-  agentData['ratio@ap/trekker'] = trekker ? ap / trekker : null
-
-  agentData['ratio@builder/purifier'] = purifier ? builder / purifier : null
-  agentData['ratio@connector/illuminator'] = illuminator ? connector / illuminator : null
-}
 
 const app = new App({
   currentEvent: 1,
