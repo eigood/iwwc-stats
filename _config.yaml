@@ -3,6 +3,3 @@ destination: dist
 keep_files:
   - images
   - .git
-exclude:
-  - images
-
