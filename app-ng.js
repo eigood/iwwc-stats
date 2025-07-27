@@ -796,7 +796,7 @@ function debounce(func, timeout = 300){
 const pageSize = 50
 
 const app = new App({
-  currentEvent: 1,
+  currentEvent: 2,
   displayStats,
   eventData,
   enabledFactions: { res: true },
