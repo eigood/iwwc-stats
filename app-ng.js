@@ -27,12 +27,12 @@ const eventData = [
   },
   {
     title: 'Link Protective Aura',
-    description: 'Links Created / Illuminator',
+    description: 'Illuminator / Links Created',
     customUrl: 'https://eigood.github.io/wicked-houston-data/iwwc-custom-20250817.json',
     infoUrl: 'https://eigood.github.io/wicked-houston-data/iwwc-info-20250817.json',
     startDate: '2025-08-17',
     endDate: '2025-08-30',
-    primaryStat: 'ratio@connector/illuminator',
+    primaryStat: 'ratio@illuminator/connector',
   },
   {
     title: 'Buff Those Portals',
@@ -80,6 +80,7 @@ const statParsers = {
   ['ratio@ap/trekker']: makeSafeRatioParser('lifetime_ap', 'trekker'),
   ['ratio@builder/purifier']: makeSafeRatioParser('builder', 'purifier'),
   ['ratio@connector/illuminator']: makeSafeRatioParser('connector', 'illuminator'),
+  ['ratio@illuminator/connector']: makeSafeRatioParser('illuminator', 'connector'),
 }
 
 const displayStats = [
@@ -116,6 +117,7 @@ const displayStats = [
   ['ratio@ap/trekker', 'AP / km'],
   ['ratio@builder/purifier', 'Builder / Purifier'],
   ['ratio@connector/illuminator', 'Connector / Illuminator'],
+  ['ratio@illuminator/connector', 'Illuminator / Connector'],
   ['last_submit', 'Last Submit'],
 ]
 
