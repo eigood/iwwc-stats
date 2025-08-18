@@ -1,8 +1,24 @@
 <head>
 <link rel="stylesheet" href="app.css?{{ site.data['hash'] }}">
 <link rel="stylesheet" href="css/fontawesome-free-6.4.2-web/css/all.css">
-<script type='module' src="app-ng.js?{{ site.data['hash'] }}"></script>
-<script type='module' src="canvas-lightning.js?{{ site.data['hash'] }}"></script>
+<script type="module">
+ import { App } from './app-ng.js'
+ import { eventData, displayStats } from './houston-config.js'
+ import { CanvasAnimation, Lightning } from './canvas-lightning.js'
+ const c = new CanvasAnimation(document.getElementById('canvas'), new Lightning())
+ const app = new App({
+   currentEvent: 3,
+   displayStats,
+   eventData,
+   enabledFactions: { res: true },
+ })
+
+ window.addEventListener('load', (event) => {
+  c.start()
+  app.attachToDOM()
+  app.loadData()
+ })
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <style id="search-style"></style>
 </head>
@@ -38,9 +54,9 @@
   <span><span class="agent"></span></span>
  </li>
 </template>
+<canvas id='canvas'></canvas>
 <div id='iwwc-app' class='loading'>
   <div class="loading">Loading, please wait.</div>
-  <canvas id='canvas'></canvas>
   <header>
    <div class="agent-search">
     <span class="icon fa-solid fa-magnifying-glass"></span>

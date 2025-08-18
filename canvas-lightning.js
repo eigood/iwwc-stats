@@ -31,9 +31,12 @@ class CanvasUtils {
     return this.#canvas.width
   }
 
-  setSize(width, height) {
-    if (width != this.#canvas.width) this.#canvas.width = width
-    if (height != this.#canvas.height) this.#canvas.height = height
+  adjustSizeToContainer() {
+    const canvas = this.#canvas
+    const height = canvas.parentNode.offsetHeight
+    const width = canvas.parentNode.offsetWidth
+    if (width != canvas.width) canvas.width = width
+    if (height != canvas.height) canvas.height = height
   }
 
   clearCanvas(x = 0, y = 0, h = this.width, w = this.height) {
@@ -106,7 +109,7 @@ const easeLightning = (t) => {
   return easing.easing(adjustT(easing.min, t, easing.max))
 }
 
-class Lightning {
+export class Lightning {
   #strikeOffset
   #boltLength
   #thickness
@@ -218,21 +221,37 @@ class Animation {
   }
 }
 
-const utils = new CanvasUtils(document.getElementById('canvas'))
-const animation = new Animation()
-animation.add(new Lightning())
+export class CanvasAnimation {
+  #utils
+  #animation
+  #isAnimating = false
+  #instances
 
-let instances
+  constructor(canvas, ...animations) {
+    this.#utils = new CanvasUtils(canvas)
+    this.#animation = new Animation()
+    for (const animation of animations) {
+      this.#animation.add(animation)
+    }
+  }
 
-const animate = function() {
-  utils.setSize(window.innerWidth, window.innerHeight)
-  utils.clearCanvas()
+  start() {
+    if (this.#isAnimating) return
+    this.#isAnimating = true
+    this.animationFrame()
+  }
 
-  instances = animation.draw(utils, instances)
+  stop() {
+    this.#isAnimating = false
+  }
 
-  requestAnimationFrame(animate)
+  animationFrame = () => {
+    if (!this.#isAnimating) return
+    this.#utils.adjustSizeToContainer()
+    this.#utils.clearCanvas()
+    this.#instances = this.#animation.draw(this.#utils, this.#instances)
+    this.#isAnimating = 'requested'
+    requestAnimationFrame(this.animationFrame)
+  }
 }
 
-window.addEventListener('load', (event) => {
-  requestAnimationFrame(animate)
-})

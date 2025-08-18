@@ -1,59 +1,3 @@
-const eventData = [
-  {
-    title: '2025 (Test)',
-    customUrl: 'https://eigood.github.io/wicked-houston-data/iwwc-custom-20250601.json',
-    infoUrl: 'https://eigood.github.io/wicked-houston-data/iwwc-info-20250601.json',
-    startDate: '2025-06-01',
-    endDate: '2025-07-05',
-    primaryStat: null,
-  },
-  {
-    title: 'Dominant Builder',
-    description: 'Builder / Purifier',
-    customUrl: 'https://eigood.github.io/wicked-houston-data/iwwc-custom-20250706.json',
-    infoUrl: 'https://eigood.github.io/wicked-houston-data/iwwc-info-20250706.json',
-    startDate: '2025-07-06',
-    endDate: '2025-07-19',
-    primaryStat: 'ratio@builder/purifier',
-  },
-  {
-    title: 'Drone Hacker',
-    description: 'Maverick',
-    customUrl: 'https://eigood.github.io/wicked-houston-data/iwwc-custom-20250727.json',
-    infoUrl: 'https://eigood.github.io/wicked-houston-data/iwwc-info-20250727.json',
-    startDate: '2025-07-27',
-    endDate: '2025-08-09',
-    primaryStat: 'maverick',
-  },
-  {
-    title: 'Link Protective Aura',
-    description: 'Illuminator / Links Created',
-    customUrl: 'https://eigood.github.io/wicked-houston-data/iwwc-custom-20250817.json',
-    infoUrl: 'https://eigood.github.io/wicked-houston-data/iwwc-info-20250817.json',
-    startDate: '2025-08-17',
-    endDate: '2025-08-30',
-    primaryStat: 'ratio@illuminator/connector',
-  },
-  {
-    title: 'Buff Those Portals',
-    description: 'Engineer',
-    customUrl: 'https://eigood.github.io/wicked-houston-data/iwwc-custom-20250907.json',
-    infoUrl: 'https://eigood.github.io/wicked-houston-data/iwwc-info-20250907.json',
-    startDate: '2025-09-07',
-    endDate: '2025-09-20',
-    primaryStat: 'engineer',
-  },
-  {
-    title: 'Efficient Farmer',
-    description: 'Translator / Hacker',
-    customUrl: 'https://eigood.github.io/wicked-houston-data/iwwc-custom-20250928.json',
-    infoUrl: 'https://eigood.github.io/wicked-houston-data/iwwc-info-20250928.json',
-    startDate: '2025-09-28',
-    endDate: '2025-10-11',
-    primaryStat: 'ratio@translator/hacker',
-  },
-]
-
 const skipStats = {
   'ap': true,
   'level': true,
@@ -82,44 +26,6 @@ const statParsers = {
   ['ratio@connector/illuminator']: makeSafeRatioParser('connector', 'illuminator'),
   ['ratio@illuminator/connector']: makeSafeRatioParser('illuminator', 'connector'),
 }
-
-const displayStats = [
-  ['lifetime_ap', 'AP'],
-  ['builder', 'Builder'],
-  ['connector', 'Connector'],
-  ['engineer', 'Engineer'],
-  ['explorer', 'Explorer'],
-  ['hacker', 'Hacker'],
-  ['illuminator', 'Illuminator'],
-  ['crafter', 'Kinetic Capsules Completed'],
-  ['liberator', 'Liberator'],
-  ['maverick', 'Maverick'],
-  ['mind-controller', 'Mind Controller'],
-  ['overclocker', 'Overclock'],
-  ['pioneer', 'Pioneer'],
-  ['purifier', 'Purifier'],
-  ['recharger', 'Recharger'],
-  ['reclaimer', 'Reclaimer'],
-  ['recon', 'Recon'],
-  ['recursions', 'Recursions'],
-  ['scout', 'Scout'],
-  ['scout_controller', 'Scout Controller'],
-  ['specops', 'Specops'],
-  ['translator', 'Translator'],
-  ['trekker', 'Trekker'],
-  ['SEPARATOR', 'Extra Values'],
-  ['ratio@mu/field', 'MindUnits / Field'],
-  ['ratio@fields/link', 'Fields / Link'],
-  ['ratio@pioneer/explorer', 'Pioneeer / Explorer'],
-  ['ratio@ap/hack', 'AP / Hack'],
-  ['ratio@translator/hacker', 'Translator / Hacker'],
-  ['ratio@purifier/builder', 'Purifier / Builder'],
-  ['ratio@ap/trekker', 'AP / km'],
-  ['ratio@builder/purifier', 'Builder / Purifier'],
-  ['ratio@connector/illuminator', 'Connector / Illuminator'],
-  ['ratio@illuminator/connector', 'Illuminator / Connector'],
-  ['last_submit', 'Last Submit'],
-]
 
 const statValueDiff = {
   //['ratio@purifier/builder']: (a, b) => Math.abs(1 - a) - Math.abs(1 - b),
@@ -161,41 +67,74 @@ const adjustLastRefresh = (text) => {
   return lastRefresh
 }
 
-class App {
+export class App {
+  #currentEvent
+  #previousEvent
+  #displayStats
+  #eventData
+  #enabledFactions
+  #toggles
+  #toggleSelectors
+  #statPanes
+  #data
+  #info
+  #statPaneTemplate
+  #statListRowTemplate
+  #byStat
+  #factionCounts
+  #allAgents
+  #rawSearch
+
   constructor({ currentEvent, displayStats, eventData, enabledFactions = { enl: true, res: true } }) {
-    this._currentEvent = currentEvent
-    this._displayStats = displayStats
-    this._eventData = eventData
-    this._enabledFactions = { enl: !!enabledFactions.enl, res: !!enabledFactions.res }
-    this._toggles = {}
-    this._toggleSelectors = {
+    this.#currentEvent = currentEvent
+    this.#displayStats = displayStats
+    this.#eventData = eventData
+    this.#enabledFactions = { enl: !!enabledFactions.enl, res: !!enabledFactions.res }
+    this.#toggles = {}
+    this.#toggleSelectors = {
       '#': '.toggles .chart-position',
     }
     makeHandlers(this, 'loadData', 'onSearch', 'onEventChange', 'setSearch', 'clearSearch', 'toggleHelp')
     this.debouncedSetSearch = debounce(this.setSearch, 50)
-    this._statPanes = this._displayStats.map(([ statName, statTitle ]) => new StatPane({ app: this, statName, statTitle }))
+    this.#statPanes = this.#displayStats.map(([ statName, statTitle ]) => new StatPane({ app: this, statName, statTitle }))
 
-    this._data = {}
-    this._info = {}
+    this.#data = {}
+    this.#info = {}
+  }
+
+  enabledFaction(faction) {
+    return this.#enabledFactions[ faction ]
+  }
+
+  get data() {
+    return this.#data
+  }
+
+  get statPaneTemplate() {
+    return this.#statPaneTemplate
+  }
+
+  get statListRowTemplate() {
+    return this.#statListRowTemplate
   }
 
   attachToDOM() {
-    this._statPaneTemplate = document.querySelector('#stat-pane')
-    this._statListRowTemplate = document.querySelector('#stat-list-row')
+    this.#statPaneTemplate = document.querySelector('#stat-pane')
+    this.#statListRowTemplate = document.querySelector('#stat-list-row')
     document.querySelector('.reload-button').addEventListener('click', this.loadData)
     const searchInput = document.querySelector('.agent-search input')
     searchInput.addEventListener('keyup', this.onSearch)
     this.setLocation(document.location.hash)
     document.querySelector('.show-help').addEventListener('click', this.toggleHelp)
     document.querySelector('.clear-search').addEventListener('click', this.clearSearch)
-    Object.entries(this._toggleSelectors).forEach(([ toggle, selector ]) => {
+    Object.entries(this.#toggleSelectors).forEach(([ toggle, selector ]) => {
       document.querySelector(selector).addEventListener('click', (e) => {
         this.toggle(toggle, e)
       })
     })
 
     const currentEventSelect = document.querySelector('select[name="current-event"]')
-    const eventData = this._eventData
+    const eventData = this.#eventData
     const eventKeys = eventData.map((event, index) => index).sort((a, b) => {
       return new Date(eventData[ a ].startDate).getTime() - new Date(eventData[ b ].startDate).getTime()
     })
@@ -204,35 +143,35 @@ class App {
       const option = document.createElement('option')
       option.setAttribute('value', eventKey)
       option.textContent = title + ' | ' + dateShortFormat.format(new Date(startDate + 'T00:00:00.0'))
-      if (this._currentEvent == eventKey) option.setAttribute('selected', true)
+      if (this.#currentEvent == eventKey) option.setAttribute('selected', true)
       currentEventSelect.appendChild(option)
     }
     currentEventSelect.addEventListener('change', this.onEventChange)
     const appContentNode = document.querySelector('#iwwc-app .iwwc-content')
-    this._statPanes.forEach((statPane) => statPane.attachToDOM(appContentNode))
+    this.#statPanes.forEach((statPane) => statPane.attachToDOM(appContentNode))
     this.updateDOM()
   }
 
   updateDOM() {
-    if (!this._statPaneTemplate) return
-    const { lastRefresh, startDate, endDate } = this._info
+    if (!this.#statPaneTemplate) return
+    const { lastRefresh, startDate, endDate } = this.#info
     document.querySelector('.last-refresh').textContent = lastRefresh ? dateFullFormat.format(adjustLastRefresh(lastRefresh)) : 'xx'
     document.querySelector('.start-date').textContent = startDate ? dateShortFormat.format(new Date(startDate)) : 'xx'
     document.querySelector('.end-date').textContent = endDate ? dateShortFormat.format(new Date(endDate)) : 'xx'
     const app = document.querySelector('#iwwc-app')
-    app.dataset.enl = String(this._enabledFactions.enl)
-    app.dataset.res = String(this._enabledFactions.res)
-    if (this._factionCounts) {
-      app.querySelector('header .enl-stat .total').textContent = this._factionCounts.enl
-      app.querySelector('header .res-stat .total').textContent = this._factionCounts.res
+    app.dataset.enl = String(this.#enabledFactions.enl)
+    app.dataset.res = String(this.#enabledFactions.res)
+    if (this.#factionCounts) {
+      app.querySelector('header .enl-stat .total').textContent = this.#factionCounts.enl
+      app.querySelector('header .res-stat .total').textContent = this.#factionCounts.res
     }
-    if (!this._byStat) return
-    if (!this._factionCounts) return
+    if (!this.#byStat) return
+    if (!this.#factionCounts) return
   }
 
   detatchFromDOM() {
-    this._statPanes.forEach((statPane) => statPane.detachFromDOM())
-    Object.entries(this._toggleSelectors).forEach(([ toggle, selector ]) => {
+    this.#statPanes.forEach((statPane) => statPane.detachFromDOM())
+    Object.entries(this.#toggleSelectors).forEach(([ toggle, selector ]) => {
       document.querySelector(selector).removeEventListener('click')
     })
     document.querySelector('.reload-button').removeEventListener('click', this.loadData)
@@ -244,8 +183,8 @@ class App {
       currentEventSelect.removeChild(currentEventSelect.lastChild)
     }
     currentEventSelect.removeEventListener('change', this.onEventChange)
-    delete this._statPaneTemplate
-    delete this._statListRowTemplate
+    this.#statPaneTemplate = undefined
+    this.#statListRowTemplate = undefined
     const app = document.querySelector('#iwwc-app')
     app.querySelector('header .enl-stat .total').textContent = ''
     app.querySelector('header .res-stat .total').textContent = ''
@@ -258,7 +197,7 @@ class App {
     }
     const buttonIcon = document.querySelector('.reload-button .icon')
     buttonIcon.classList.add('fa-spin')
-    const { [ this._currentEvent ]: { customUrl, infoUrl } } = this._eventData
+    const { [ this.#currentEvent ]: { customUrl, infoUrl } } = this.#eventData
     Promise.all([
       fetchJSON(customUrl, (data) => this.setData(data)),
       fetchJSON(infoUrl, (data) => this.setInfo(data)),
@@ -268,18 +207,18 @@ class App {
   }
 
   setInfo(data = {}) {
-    this._info = data
+    this.#info = data
     this.updateDOM()
   }
 
   setData(data = {}) {
-    this._data = data
+    this.#data = data
     const app = document.querySelector('#iwwc-app')
     app.classList.remove('loading')
-    const byStat = this._byStat = {}
+    const byStat = this.#byStat = {}
 
-    const factionCounts = this._factionCounts = { enl: 0, res: 0 }
-    const { [ this._currentEvent ]: { primaryStat } } = this._eventData
+    const factionCounts = this.#factionCounts = { enl: 0, res: 0 }
+    const { [ this.#currentEvent ]: { primaryStat } } = this.#eventData
     console.time('analyze')
     Object.entries(data).forEach(([ agentName, agentData ]) => {
       factionCounts[ agentData.faction ]++
@@ -292,7 +231,7 @@ class App {
         byStat[ statName ] = null;
       })
     })
-    const allAgents = this._allAgents = Object.keys(data)
+    const allAgents = this.#allAgents = Object.keys(data)
     const statSorter = statName => (a, b) => {
       const { [ a ]: agentA, [ b ]: agentB } = data
       const valueDiff = agentB[ statName ] - agentA[ statName ]
@@ -313,8 +252,8 @@ class App {
     this.updateDOM()
     console.time('absorb')
     let primaryIndex
-    this._statPanes.forEach((statPane, index) => {
-      const statName = statPane._statName
+    this.#statPanes.forEach((statPane, index) => {
+      const statName = statPane.statName
       const isPrimaryStat = statName === primaryStat
       const order = primaryStat ? (isPrimaryStat ? 0 : primaryIndex !== undefined ? index : index + 1) : index
       if (isPrimaryStat) primaryIndex = index
@@ -326,9 +265,9 @@ class App {
 
   onEventChange(e) {
     const { target: { value } } = e
-    if (this._currentEvent !== value) {
-      this._previousEvent = this._currentEvent
-      this._currentEvent = value
+    if (this.#currentEvent !== value) {
+      this.#previousEvent = this.#currentEvent
+      this.#currentEvent = value
       this.loadData()
     }
   }
@@ -349,27 +288,27 @@ class App {
 
   setSearch(rawSearch) {
     const rawSearchLower = rawSearch.toLowerCase()
-    if (this._rawSearch === rawSearch) return
-    this._rawSearch = rawSearch
+    if (this.#rawSearch === rawSearch) return
+    this.#rawSearch = rawSearch
     document.querySelector('.agent-search input').value = rawSearch
     this.propagateSearch()
   }
 
   propagateSearch() {
-    const rawSearch = this._rawSearch
-    const toggles = Object.entries(this._toggles).sort((a, b) => a[0].localeCompare(b[0])).map(([ key, value ]) => {
+    const rawSearch = this.#rawSearch
+    const toggles = Object.entries(this.#toggles).sort((a, b) => a[0].localeCompare(b[0])).map(([ key, value ]) => {
       return value === true ? key : `${key}=${value}`
     }).join('')
-    let newHash = this._rawSearch
+    let newHash = this.#rawSearch
     if (toggles) newHash += ';' + toggles
     history.replaceState(null, '', newHash ? '#' + newHash : '#')
     const rawSearchLower = rawSearch.toLowerCase()
     const searchTerms = rawSearchLower ? rawSearchLower.split('&') : []
-    const matchedAgents = searchTerms.length && this._allAgents ? this._allAgents.filter((agentName) => {
+    const matchedAgents = searchTerms.length && this.#allAgents ? this.#allAgents.filter((agentName) => {
       const agentNameLower = agentName.toLowerCase()
       return searchTerms.filter(searchTerm => searchTerm.length && agentNameLower.indexOf(searchTerm) !== -1).length
     }).reduce((result, matchedAgent) => (result[ matchedAgent ] = true, result), {}) : null
-    this._statPanes.forEach((statPane) => statPane.setSearch(matchedAgents))
+    this.#statPanes.forEach((statPane) => statPane.setSearch(matchedAgents))
   }
 
   clearSearch() {
@@ -380,12 +319,12 @@ class App {
     const appNode = document.querySelector('#iwwc-app')
     appNode.classList.toggle('display-help')
     /*
-    const toggleElement = document.querySelector(toggle === '_' ? '.iwwc-content' : this._toggleSelectors[ toggle ])
+    const toggleElement = document.querySelector(toggle === '_' ? '.iwwc-content' : this.#toggleSelectors[ toggle ])
     if (value) {
       toggleElement.classList.add('toggle-selected')
-      this._toggles[ toggle ] = value
+      this.#toggles[ toggle ] = value
     } else {
-      delete this._toggles[ toggle ]
+      delete this.#toggles[ toggle ]
       toggleElement.classList.remove('toggle-selected')
     }
     */
@@ -397,7 +336,7 @@ class App {
       e.preventDefault()
       e.stopPropagation()
     }
-    const { _: currentWindow } = this._toggles
+    const { _: currentWindow } = this.#toggles
     if (currentWindow === statName) {
       this.setToggle('_', false)
     } else {
@@ -411,58 +350,78 @@ class App {
       e.preventDefault()
       e.stopPropagation()
     }
-    const { [ toggle ]: value = false } = this._toggles
+    const { [ toggle ]: value = false } = this.#toggles
     this.setToggle(toggle, !value)
     this.propagateSearch()
   }
 
+  getToggle(toggle) {
+    return this.#toggles[ toggle ]
+  }
+
   // internal
   setToggle(toggle, value) {
-    const toggleElement = document.querySelector(toggle === '_' ? '.iwwc-content' : this._toggleSelectors[ toggle ])
+    const toggleElement = document.querySelector(toggle === '_' ? '.iwwc-content' : this.#toggleSelectors[ toggle ])
     if (value) {
       toggleElement.classList.add('toggle-selected')
-      this._toggles[ toggle ] = value
+      this.#toggles[ toggle ] = value
     } else {
-      delete this._toggles[ toggle ]
+      delete this.#toggles[ toggle ]
       toggleElement.classList.remove('toggle-selected')
     }
   }
 }
 
 class StatPane {
+  #app
+  #statName
+  #statTitle
+  #pages
+  #currentPage
+  #pageSize
+  #statPaneNode
+  #statList
+  #firstRow
+  #lastRow
+  #matchedAgents
+
   constructor({ app, statName, statTitle }) {
-    this._app = app
-    this._statName = statName
-    this._statTitle = statTitle
+    this.#app = app
+    this.#statName = statName
+    this.#statTitle = statTitle
     makeHandlers(this, 'onScroll', 'onKeyDown')
-    this._pages = {
+    this.#pages = {
       full: { start: 0, rowInfos: undefined, scrollTop: 0, exactMatchedAgents: {} },
       search: { start: 0, rowInfos: undefined, scrollTop: 0, exactMatchedAgents: {} },
     }
-    this._currentPage = undefined
-    this._pageSize = 50
+    this.#currentPage = undefined
+    this.#pageSize = 50
+  }
+
+  get statName() {
+    return this.#statName
   }
 
   attachToDOM(appContentNode) {
-    if (this._statPaneNode) return
-    const statPaneFragment = this._app._statPaneTemplate.content.cloneNode(true)
-    const statPaneNode = this._statPaneNode = statPaneFragment.querySelector('.stat-pane')
+    if (this.#statPaneNode) return
+    const statPaneFragment = this.#app.statPaneTemplate.content.cloneNode(true)
+    const statPaneNode = this.#statPaneNode = statPaneFragment.querySelector('.stat-pane')
 
     const headerNode = statPaneFragment.querySelector('.stat-header')
     const contentNode = statPaneNode.querySelector('.stat-content')
     contentNode.tabIndex = 0
 
-    statPaneNode.dataset.medal = this._statName
-    headerNode.querySelector('.title').textContent = this._statTitle
+    statPaneNode.dataset.medal = this.#statName
+    headerNode.querySelector('.title').textContent = this.#statTitle
     appContentNode.appendChild(statPaneFragment)
 
-    if (this._statName === 'SEPARATOR') {
+    if (this.#statName === 'SEPARATOR') {
       statPaneNode.classList.remove('stat-loading')
     }
 
     contentNode.addEventListener('scroll', this.onScroll)
     contentNode.addEventListener('keydown', this.onKeyDown)
-    headerNode.querySelectorAll('.window-toggle').forEach((element) => element.addEventListener('click', (e) => this._app.toggleWindow(this._statName)))
+    headerNode.querySelectorAll('.window-toggle').forEach((element) => element.addEventListener('click', (e) => this.#app.toggleWindow(this.#statName)))
     headerNode.querySelector('.jump-up').addEventListener('click', (e) => this.jumpUp(e))
     headerNode.querySelector('.jump-down').addEventListener('click', (e) => this.jumpDown(e))
 
@@ -470,8 +429,8 @@ class StatPane {
   }
 
   detachFromDOM() {
-    if (!this_statPaneNode) return
-    const statPaneNode = this._statPaneNode
+    if (!this.#statPaneNode) return
+    const statPaneNode = this.#statPaneNode
     const contentNode = statPaneNode.querySelector('.stat-content')
     contentNode.removeEventListener('scroll', this.onScroll)
     contentNode.removeEventListener('keydown', this.onKeyDown)
@@ -480,36 +439,36 @@ class StatPane {
     headerNode.querySelector('.jump-up').removeEventListener('click')
     headerNode.querySelector('.jump-down').removeEventListener('click')
     statPaneNode.parentNode.removeChild(statPaneNode)
-    delete this._statPaneNode
-    delete this._pages.current
-    delete this._pages.full.rowInfos
-    delete this._pages.search.rowInfos
+    this.#statPaneNode = undefined
+    delete this.#pages.current
+    delete this.#pages.full.rowInfos
+    delete this.#pages.search.rowInfos
   }
 
   setStatList(statList = [], order, isPrimaryStat) {
-    const statPaneNode = this._statPaneNode
+    const statPaneNode = this.#statPaneNode
     statPaneNode.style.setProperty('order', order)
     if (isPrimaryStat) {
       statPaneNode.classList.add('primary-stat')
     } else {
       statPaneNode.classList.remove('primary-stat')
     }
-    if (this._statList === statList) return
-    this._statList = statList
+    if (this.#statList === statList) return
+    this.#statList = statList
 
-    const statName = this._statName
-    const data = this._app._data
-    const statListRowTemplate = this._app._statListRowTemplate
+    const statName = this.#statName
+    const data = this.#app.data
+    const statListRowTemplate = this.#app.statListRowTemplate
 
     const rolloverBuilder = rollovers[ statName ]
     const activeAgents = { enl: 0, res: 0 }
     const sumAgents = { enl: 0, res: 0 }
     let lastValue = undefined, lastPosition = undefined
-    const rowInfos = this._pages.full.rowInfos = statList.filter((agentName) => {
-      const { faction } = this._app._data[ agentName ]
-      return this._app._enabledFactions[ faction ]
+    const rowInfos = this.#pages.full.rowInfos = statList.filter((agentName) => {
+      const { faction } = this.#app.data[ agentName ]
+      return this.#app.enabledFaction(faction)
     }).map((agentName, index) => {
-      const agentInfo = this._app._data[ agentName ]
+      const agentInfo = this.#app.data[ agentName ]
       const faction = agentInfo.faction
       const statValue = agentInfo[ statName ]
       const { [ statName ]: statValueDisplay = (agentName, agentInfo, value) => numberFormat.format(value) } = statValueDisplays
@@ -533,7 +492,7 @@ class StatPane {
       } else {
         position = lastPosition
       }
-      const rolloverValue = rolloverBuilder ? rolloverBuilder(agentName, this._app._data) : null
+      const rolloverValue = rolloverBuilder ? rolloverBuilder(agentName, this.#app.data) : null
       rowNode.dataset.value = statValue
       rowNode.dataset.agent = agentName
       positionNode.textContent = position
@@ -559,7 +518,7 @@ class StatPane {
       const attachListeners = (rowFragmentClone) => {
         const agentNode = rowFragmentClone.querySelector('.agent')
         agentNode.addEventListener('click', e => {
-          this._app.setSearch(agentName)
+          this.#app.setSearch(agentName)
         })
       }
       return { rowFragment, attachListeners, agentName, agentNameLower: agentName.toLowerCase(), position }
@@ -570,67 +529,67 @@ class StatPane {
     footerNode.querySelector('.res-stat .sum').textContent = numberFormat.format(sumAgents.res)
     footerNode.querySelector('.res-stat .agent').textContent = activeAgents.res
     if (rowInfos.length) {
-      this._firstRow = rowInfos[ 0 ].rowFragment
-      this._lastRow = rowInfos[ rowInfos.length - 1 ].rowFragment
+      this.#firstRow = rowInfos[ 0 ].rowFragment
+      this.#lastRow = rowInfos[ rowInfos.length - 1 ].rowFragment
     } else {
-      this._firstRow = this._lastRow = undefined
+      this.#firstRow = this.#lastRow = undefined
     }
 
     this.checkRender()
   }
 
   setSearch(matchedAgents) {
-    //if (this._matchedAgents === matchedAgents) return
-    this._matchedAgents = matchedAgents
-    if (this._app._toggles[ '_' ] === this._statName) {
-      this._pageSize = null
+    //if (this.#matchedAgents === matchedAgents) return
+    this.#matchedAgents = matchedAgents
+    if (this.#app.getToggle('_') === this.#statName) {
+      this.#pageSize = null
     } else {
-      this._pageSize = 50
+      this.#pageSize = 50
     }
     this.checkRender()
   }
 
   renderPage() {
-    const contentNode = this._statPaneNode.querySelector('.stat-content')
-    const listNode = this._statPaneNode.querySelector('.stat-list')
-    const { start, rowInfos, scrollTop } = this._currentPage
-    const pageSize = this._pageSize || rowInfos.length
+    const contentNode = this.#statPaneNode.querySelector('.stat-content')
+    const listNode = this.#statPaneNode.querySelector('.stat-list')
+    const { start, rowInfos, scrollTop } = this.#currentPage
+    const pageSize = this.#pageSize || rowInfos.length
 
     while (listNode.lastChild) {
       listNode.removeChild(listNode.lastChild)
     }
 
-    const { ['_']: currentWindow } = this._app._toggles
+    const currentWindow = this.#app.getToggle('_')
     if (currentWindow) {
-      if (currentWindow !== this._statName) {
-        this._statPaneNode.classList.add('minimize-window')
-        this._statPaneNode.classList.remove('maximize-window')
+      if (currentWindow !== this.#statName) {
+        this.#statPaneNode.classList.add('minimize-window')
+        this.#statPaneNode.classList.remove('maximize-window')
         return
       } else {
-        this._statPaneNode.classList.remove('minimize-window')
-        this._statPaneNode.classList.add('maximize-window')
+        this.#statPaneNode.classList.remove('minimize-window')
+        this.#statPaneNode.classList.add('maximize-window')
       }
     } else {
-      this._statPaneNode.classList.remove('minimize-window')
-      this._statPaneNode.classList.remove('maximize-window')
+      this.#statPaneNode.classList.remove('minimize-window')
+      this.#statPaneNode.classList.remove('maximize-window')
     }
-    if (this._matchedAgents) {
+    if (this.#matchedAgents) {
       listNode.classList.add('searching')
     } else {
       listNode.classList.remove('searching')
     }
-    if (!this._firstRow) return
-    const firstRow = this._firstRow.cloneNode(true)
+    if (!this.#firstRow) return
+    const firstRow = this.#firstRow.cloneNode(true)
     firstRow.querySelector('.stat-row').classList.add('for-sizing')
     listNode.appendChild(firstRow)
-    const lastRow = this._lastRow.cloneNode(true)
+    const lastRow = this.#lastRow.cloneNode(true)
     lastRow.querySelector('.stat-row').classList.add('for-sizing')
     listNode.appendChild(lastRow)
     for (let i = start, j = pageSize; j && i < rowInfos.length; i++, j--) {
       const { agentName, rowFragment, attachListeners } = rowInfos[ i ]
       const rowFragmentCloned = rowFragment.cloneNode(true)
       attachListeners(rowFragmentCloned)
-      if (this._matchedAgents?.[ agentName ]) {
+      if (this.#matchedAgents?.[ agentName ]) {
         rowFragmentCloned.querySelector('.stat-row').classList.add('matched')
       }
       listNode.appendChild(rowFragmentCloned)
@@ -639,21 +598,20 @@ class StatPane {
   }
 
   checkRender() {
-    if (!this._statPaneNode) return
-    if (!this._pages.full.rowInfos) return
+    if (!this.#statPaneNode) return
+    if (!this.#pages.full.rowInfos) return
     this.applySearch()
     this.renderPage()
   }
 
   applySearch() {
-    if (!this._pages.full.rowInfos) return
-    const toggles = this._app._toggles
-    const matchedAgents = this._matchedAgents
+    if (!this.#pages.full.rowInfos) return
+    const matchedAgents = this.#matchedAgents
     if (matchedAgents) {
-      const searchPage = this._pages.search
+      const searchPage = this.#pages.search
       searchPage.start = 0
-      const allRows = this._pages.full.rowInfos
-      const chartPositionToggle = toggles[ '#' ]
+      const allRows = this.#pages.full.rowInfos
+      const chartPositionToggle = this.#app.getToggles('#')
       const matchedRows = []
       searchPage.exactMatchedAgents = {}
       let minMatchIndex
@@ -673,21 +631,21 @@ class StatPane {
         matchedIndexes[ 19 ] = true
       }
       searchPage.rowInfos = allRows.filter((rowInfo, index) => matchedIndexes[ index ])
-      this._currentPage = searchPage
+      this.#currentPage = searchPage
     } else {
-      this._currentPage = this._pages.full
+      this.#currentPage = this.#pages.full
     }
-    const pageSize = this._pageSize || this._currentPage.rowInfos.length
-    if (this._currentPage.start + pageSize > this._currentPage.rowInfos.length) {
-      this._currentPage.start = this._currentPage.rowInfos.length - pageSize
-      if (this._currentPage.start < 0) this._currentPage.start = 0
+    const pageSize = this.#pageSize || this.#currentPage.rowInfos.length
+    if (this.#currentPage.start + pageSize > this.#currentPage.rowInfos.length) {
+      this.#currentPage.start = this.#currentPage.rowInfos.length - pageSize
+      if (this.#currentPage.start < 0) this.#currentPage.start = 0
     }
   }
 
   onScroll(e) {
     let { target, target: { offsetTop, scrollTop, scrollHeight } } = e
-    const current = this._currentPage
-    const pageSize = this._pageSize || current.rowInfos.length
+    const current = this.#currentPage
+    const pageSize = this.#pageSize || current.rowInfos.length
     current.scrollTop = scrollTop
     const end = Math.min(current.start + pageSize, current.rowInfos.length)
     const rowHeight = scrollHeight / (end - current.start)
@@ -709,8 +667,8 @@ class StatPane {
   }
 
   jumpUp(e) {
-    if (!this._pages.full.rowInfos) return
-    const current = this._currentPage
+    if (!this.#pages.full.rowInfos) return
+    const current = this.#currentPage
     current.scrollTop = 0
     current.start = 0
     this.renderPage()
@@ -720,12 +678,12 @@ class StatPane {
   }
 
   jumpDown(e) {
-    if (!this._pages.full.rowInfos) return
-    const current = this._currentPage
+    if (!this.#pages.full.rowInfos) return
+    const current = this.#currentPage
     const end = Math.min(current.start + pageSize, current.rowInfos.length)
     current.start = current.rowInfos.length - pageSize
     this.renderPage()
-    const listNode = this._statPaneNode.querySelector('.stat-list')
+    const listNode = this.#statPaneNode.querySelector('.stat-list')
     listNode.lastElementChild.scrollIntoView(false)
     e.stopPropagation()
     e.preventDefault()
@@ -794,19 +752,3 @@ function debounce(func, timeout = 300){
     timer = setTimeout(() => { func.apply(this, args) }, timeout)
   }
 }
-
-const pageSize = 50
-
-const app = new App({
-  currentEvent: 3,
-  displayStats,
-  eventData,
-  enabledFactions: { res: true },
-})
-
-function handleLoad() {
-  app.attachToDOM()
-  app.loadData()
-}
-
-window.addEventListener('load', handleLoad);
