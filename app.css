@@ -402,7 +402,7 @@ header .enl-stat, header .res-stat {
 #iwwc-app.display-help .help-window {
 	max-height:600px;
 }
-#canvas {
+canvas.animation {
 	position:absolute;
 	top:0;
 	left:0;
