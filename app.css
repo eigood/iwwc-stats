@@ -295,9 +295,6 @@ header .enl-stat, header .res-stat {
 	grid-template-rows: 1fr;
 	background-color:#0f0f0f;
 }
-.iwwc-content > *:not([data-medal='SEPARATOR']) {
-	max-width:calc((var(--grid-list-column-min-size) * 2 + var(--grid-list-gap) - 1) * 1px);
-}
 .iwwc-content.toggle-selected {
 	height:100%;
 	--grid-list-column-max-size:100%;
