@@ -1,20 +1,17 @@
 <head>
 <link rel="stylesheet" href="app.css?{{ site.data['hash'] }}">
+<link rel="stylesheet" href="houston.css?{{ site.data['hash'] }}">
 <link rel="stylesheet" href="css/fontawesome-free-6.4.2-web/css/all.css">
 <script type="module">
  import { App } from './app-ng.js'
- import { eventData, displayStats } from './houston-config.js'
- import { CanvasAnimation, Lightning } from './canvas-lightning.js'
- const c = new CanvasAnimation(document.getElementById('canvas'), new Lightning())
+ import { eventData, displayStats } from './iwwc-config.js'
  const app = new App({
-   currentEvent: 3,
+   currentEvent: 0,
    displayStats,
    eventData,
-   enabledFactions: { res: true },
  })
 
  window.addEventListener('load', (event) => {
-  c.start()
   app.attachToDOM()
   app.loadData()
  })
