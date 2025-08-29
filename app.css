@@ -9,6 +9,11 @@
 	--background:#0f0f0f;
 	--background-position:50% 50%;
 	--background-size:cover;
+	--stat-pane-background:#333333;
+	--stat-header-background:#eef0e3;
+	--stat-content-background:rgba(100, 100, 100, .5);
+	--stat-footer-background:initial;
+	--stat-matched-background:rgba(100, 100, 100, .8);
 }
 
 [data-faction="enl"] { --faction-color:var(--faction-color-enl); }
@@ -94,6 +99,7 @@ header .enl-stat, header .res-stat {
 .stat-footer {
 	color:white;
 	font-size:16px;
+	background:var(--stat-footer-background);
 }
 .stat-footer .total {
 	display:none;
@@ -165,7 +171,7 @@ header .enl-stat, header .res-stat {
 	padding: 0;
 	display:flex;
 	flex-direction:column;
-	background:#333333;
+	background:var(--stat-pane-background);
 }
 .stat-pane.primary-stat {
 	grid-column: 1 / -1;
@@ -194,7 +200,7 @@ header .enl-stat, header .res-stat {
 	padding: 0 0 0 5px;
 	display:flex;
 	align-items:flex-start;
-	background:#eef0e3;
+	background:var(--stat-header-background);
 }
 .stat-header .badge {
 	flex-grow:1;
@@ -224,7 +230,7 @@ header .enl-stat, header .res-stat {
 .stat-content {
 	flex-grow:1;
 	overflow: hidden scroll;
-	background:rgba(100, 100, 100, .5);
+	background:var(--stat-content-background);
 	max-height: 400px;
 }
 .stat-list {
@@ -236,7 +242,7 @@ header .enl-stat, header .res-stat {
 	width:100%;
 }
 .stat-list.searching .stat-row.matched {
-	background:rgba(100, 100, 100, .8);
+	background:var(--stat-matched-background);
 }
 
 .stat-row .agent {
