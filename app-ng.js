@@ -611,7 +611,7 @@ class StatPane {
       const searchPage = this.#pages.search
       searchPage.start = 0
       const allRows = this.#pages.full.rowInfos
-      const chartPositionToggle = this.#app.getToggles('#')
+      const chartPositionToggle = this.#app.getToggle('#')
       const matchedRows = []
       searchPage.exactMatchedAgents = {}
       let minMatchIndex
