@@ -485,3 +485,28 @@ canvas.animation {
 	pointer-events:none;
 	z-index:50;
 }
+
+/* Theme */
+:root {
+	--background:url(background.png);
+	--header-agent-stat-background:rgb(0, 0, 0, .5);
+	--header-agent-stat-color:white;
+	--help-window-background:initial;
+	--help-window-list-background:rgba(0, 0, 0, .5);
+	--stat-pane-background:initial;
+	--stat-content-background:rgba(0, 0, 0, .5);
+	--stat-header-background:rgba(0, 0, 0, .5);
+	--stat-footer-background:rgba(0, 0, 0, .5);
+	--stat-matched-background:rgba(255, 255, 255, .1);
+	--stat-header-color:white;
+	--button-text-color:white;
+	--button-background:rgba(0, 0, 0, .5);
+	--agent-search-background:rgba(255, 255, 255, .1);
+	--agent-search-color:white;
+	--icon-button-color:transparent;
+	--icon-notselected-color:transparent;
+	--icon-selected-color:transparent;
+	--icon-selected-background:linear-gradient(to bottom right, white, black);
+	--icon-notselected-background:linear-gradient(to bottom left, var(--faction-color-res), var(--faction-color-enl));
+	--icon-background-clip:text;
+}
