@@ -6,6 +6,9 @@
 	--gold-color:#cd7f32;
 	--silver-color:white;
 	--none-color:#000000;
+	--background:#0f0f0f;
+	--background-position:50% 50%;
+	--background-size:cover;
 }
 
 [data-faction="enl"] { --faction-color:var(--faction-color-enl); }
@@ -53,7 +56,9 @@ html, body {
 	height:100%;
 }
 body {
-	background:#333333;
+	background:var(--background);
+	background-position:var(--background-position);
+	background-size:var(--background-size);
 }
 .reload-button {
 	cursor:pointer;
@@ -323,7 +328,6 @@ header .enl-stat, header .res-stat {
 	grid-gap:calc(var(--grid-list-gap) * 1px);
 	grid-template-columns: repeat(var(--grid-list-container-columns), minmax(calc(var(--grid-list-column-min-size) * 1px), var(--grid-list-column-max-size)));
 	grid-template-rows: 1fr;
-	background-color:#0f0f0f;
 }
 .iwwc-content > *:not([data-medal='SEPARATOR']) {
 	max-width:calc((var(--grid-list-column-min-size) * 2 + var(--grid-list-gap) - 1) * 1px);
