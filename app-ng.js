@@ -495,6 +495,7 @@ class StatPane {
       const rolloverValue = rolloverBuilder ? rolloverBuilder(agentName, this.#app.data) : null
       rowNode.dataset.value = statValue
       rowNode.dataset.agent = agentName
+      rowNode.dataset.faction = faction
       positionNode.textContent = position
       if (position === 1) {
         rowNode.className += ' onyx'

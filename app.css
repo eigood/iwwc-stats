@@ -1,5 +1,10 @@
-.faction-enl { color: #3ad45a; }
-.faction-res { color: #0991fd; }
+:root {
+	--faction-color-enl: #3ad45a;
+	--faction-color-res: #0991fd;
+}
+
+[data-faction="enl"] { --faction-color:var(--faction-color-enl); }
+[data-faction="res"] { --faction-color:var(--faction-color-res); }
 
 #iwwc-app {
 	--app-flex-direction: column;
@@ -215,6 +220,7 @@ header .enl-stat, header .res-stat {
 
 .stat-row .agent {
 	cursor:pointer;
+	color:var(--faction-color);
 }
 .stat-row > :nth-child(1), .stat-row > :nth-child(3) {
 	text-align:right;
