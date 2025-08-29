@@ -15,6 +15,10 @@
 	--stat-footer-background:initial;
 	--stat-matched-background:rgba(100, 100, 100, .8);
 	--stat-header-color:inherit;
+	--button-text-color:#888888;
+	--button-background:white;
+	--agent-search-background:#aaaaaa;
+	--agent-search-color:#888888;
 }
 
 [data-faction="enl"] { --faction-color:var(--faction-color-enl); }
@@ -70,11 +74,11 @@ body {
 	cursor:pointer;
 }
 .reload-button, .start-date, .end-date, .agent-search, .event-selector, .toggles, .member-counts > *, .show-help {
-	background:white;
+	background:var(--button-background);
 	border:1px solid black;
 	border-radius:5px;
 	padding:5px;
-	color:#888888;
+	color:var(--button-text-color);
 	display:inline-block;
 }
 .toggles :not(.toggle-selected) {
@@ -154,7 +158,8 @@ header .enl-stat, header .res-stat {
 	width:100%;
 	padding:0;
 	border:0;
-	background:#aaaaaa;
+	background:var(--agent-search-background);
+	color:var(--agent-search-color);
 }
 .agent-search > * {
 	margin-left:2.5px;
