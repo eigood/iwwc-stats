@@ -1,6 +1,11 @@
 :root {
 	--faction-color-enl: #3ad45a;
 	--faction-color-res: #0991fd;
+	--onyx-color:#d4af37;
+	--platinum-color:#c0c0c0;
+	--gold-color:#cd7f32;
+	--silver-color:white;
+	--none-color:#000000;
 }
 
 [data-faction="enl"] { --faction-color:var(--faction-color-enl); }
@@ -250,37 +255,32 @@ header .enl-stat, header .res-stat {
 .stat-row .stat-position::before {
 	//content: counter(stat-position);
 	padding-right:5px;
+	--stat-row-reward-display:initial;
 }
-.stat-row.onyx .stat-reward::before {
-	color: #d4af37;
+.stat-row.onyx {
+	--stat-row-color:var(--onyx-color);
 }
-.stat-row.onyx .stat-position {
-	color: #d4af37;
+.stat-row.platinum {
+	--stat-row-color:var(--platinum-color);
+}
+.stat-row.gold {
+	--stat-row-color:var(--gold-color);
+}
+.stat-row.silver {
+	--stat-row-color:var(--silver-color);
+	--stat-row-reward-display:none;
+}
+.stat-row.none {
+	--stat-row-color:var(--none-color);
+	--stat-row-reward-display:none;
+}
+.stat-row .stat-reward::before {
+	color: var(--stat-row-color);
+	display:var(--stat-row-reward-display);
+}
+.stat-row .stat-position {
+	color: var(--stat-row-color);
 	font-weight:500;
-}
-.stat-row.platinum .stat-reward::before {
-	color: #c0c0c0;
-}
-.stat-row.platinum .stat-position {
-	color: #c0c0c0;
-	font-weight:500;
-}
-.stat-row.gold .stat-reward::before {
-	color: #cd7f32;
-}
-.stat-row.gold .stat-position {
-	color: #cd7f32;
-	font-weight:500;
-}
-.stat-row.silver .stat-position {
-	color:white;
-	font-weight:500;
-}
-.stat-row.silver .stat-reward::before {
-	display:none;
-}
-.stat-row.none .stat-reward::before {
-	display:none;
 }
 .stat-row > * {
 	display:table-cell;
