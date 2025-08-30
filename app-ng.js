@@ -680,6 +680,7 @@ class StatPane {
   jumpDown(e) {
     if (!this.#pages.full.rowInfos) return
     const current = this.#currentPage
+    const pageSize = this.#pageSize || currentPage.rowInfos.length
     const end = Math.min(current.start + pageSize, current.rowInfos.length)
     current.start = current.rowInfos.length - pageSize
     this.renderPage()
