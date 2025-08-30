@@ -25,6 +25,14 @@
 	--agent-search-background:#aaaaaa;
 	--agent-search-color:#888888;
 }
+:root {
+	--icon-button-color:var(--button-text-color);
+	--icon-selected-color:grey;
+	--icon-selected-background:var(--button-background);
+	--icon-notselected-color:black;
+	--icon-notselected-background:var(--button-background);
+	--icon-background-clip:none;
+}
 
 [data-faction="enl"] { --faction-color:var(--faction-color-enl); }
 [data-faction="res"] { --faction-color:var(--faction-color-res); }
@@ -78,6 +86,9 @@ body {
 .reload-button {
 	cursor:pointer;
 }
+.reload-button, .start-date, .end-date, .agent-search, .event-selector, .toggles, .show-help {
+	--icon-color:var(--icon-button-color);
+}
 .reload-button, .start-date, .end-date, .agent-search, .event-selector, .toggles, .member-counts > *, .show-help {
 	background:var(--button-background);
 	border:1px solid black;
@@ -86,11 +97,21 @@ body {
 	color:var(--button-text-color);
 	display:inline-block;
 }
-.toggles :not(.toggle-selected) {
-	color:#aaaaaa;
+.reload-button, .start-date, .end-date, .agent-search, .event-selector, .toggles *, .show-help {
+	color:var(--button-text-color);
+}
+.fa-solid {
+	--icon-color:var(--icon-notselected-color);
+	--icon-background:var(--icon-notselected-background);
 }
 .toggles .toggle-selected {
-	color:black;
+	--icon-color:var(--icon-selected-color);
+	--icon-background:var(--icon-selected-background);
+}
+.fa-solid {
+	color:var(--icon-color);
+	background-image:var(--icon-background);
+	background-clip:var(--icon-background-clip);
 }
 .button .text {
 	display:none;
