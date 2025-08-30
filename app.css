@@ -27,6 +27,7 @@
 }
 #iwwc-app header {
 	opacity:0.99;
+	margin-bottom:calc(var(--grid-list-gap) * 1px);
 }
 @media (max-width:500px) {
 	.iwwc-content {
