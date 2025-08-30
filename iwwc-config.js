@@ -54,12 +54,5 @@ export const displayStats = [
   ['translator', 'Translator'],
   ['trekker', 'Trekker'],
   ['SEPARATOR', 'Extra Values'],
-  ['ratio@mu/field', 'MindUnits / Field'],
-  ['ratio@fields/link', 'Fields / Link'],
-  ['ratio@pioneer/explorer', 'Pioneeer / Explorer'],
-  ['ratio@ap/hack', 'AP / Hack'],
-  ['ratio@translator/hacker', 'Translator / Hacker'],
-  ['ratio@purifier/builder', 'Purifier / Builder'],
-  ['ratio@ap/trekker', 'AP / km'],
   ['last_submit', 'Last Submit'],
 ]
