@@ -138,6 +138,16 @@ header .enl-stat, header .res-stat {
 	border:0;
 	background:#aaaaaa;
 }
+.agent-search > * {
+	margin-left:2.5px;
+	margin-right:2.5px;
+}
+.agent-search > :first-child {
+	margin-left:0;
+}
+.agent-search > :last-child {
+	margin-right:0;
+}
 .stat-pane {
 	overflow: hidden;
 	border-radius: 10px;
