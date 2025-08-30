@@ -52,7 +52,7 @@ body {
 .reload-button {
 	cursor:pointer;
 }
-.reload-button, .start-date, .end-date, .agent-search, .event-selector, .toggles, .show-help {
+.reload-button, .start-date, .end-date, .agent-search, .event-selector, .toggles, .member-counts > *, .show-help {
 	background:white;
 	border:1px solid black;
 	border-radius:5px;
