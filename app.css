@@ -9,6 +9,8 @@
 	--background:#0f0f0f;
 	--background-position:50% 50%;
 	--background-size:cover;
+	--header-agent-stat-background:rgb(50, 50, 50, .9);
+	--header-agent-stat-color:white;
 	--help-window-background:#0f0f0f;
 	--help-window-list-color:#eef0e3;
 	--help-window-list-background:rgba(100, 100, 100, 0.5);
@@ -101,8 +103,8 @@ header > * {
 }
 header .enl-stat, header .res-stat {
 	--faction-display:inline-block;
-	background:rgb(50, 50, 50, .9);
-	color:white;
+	background:var(--header-agent-stat-background);
+	color:var(--header-agent-stat-color);
 }
 .stat-footer {
 	color:white;
