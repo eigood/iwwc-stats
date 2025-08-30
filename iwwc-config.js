@@ -1,27 +1,34 @@
 export const eventData = [
   {
-    title: '2024 (September/Archive)',
+    title: '2025 September',
+    customUrl: 'https://eigood.github.io/iwwc-stats-data/iwwc-custom-2025.json',
+    infoUrl: 'https://eigood.github.io/iwwc-stats-data/iwwc-info-2025.json',
+    startDate: '2025-09-01',
+    endDate: '2025-09-30',
+  },
+  {
+    title: '2024 September',
     customUrl: 'https://eigood.github.io/iwwc-stats-data/archive/2024-10-01T07:18:07-05:00.1e7405b5b5f8a093aa97e7bc99cbb51a5712ea64.iwwc-custom-2024.json',
     infoUrl: 'https://eigood.github.io/iwwc-stats-data/archive/2024-10-01T07:18:07-05:00.1e7405b5b5f8a093aa97e7bc99cbb51a5712ea64.iwwc-info-2024.json',
     startDate: '2024-09-01',
     endDate: '2024-09-30',
   },
   {
-    title: '2023 (November)',
+    title: '2023 November',
     customUrl: 'https://eigood.github.io/iwwc-stats-data/iwwc-custom-2023.json',
     infoUrl: 'https://eigood.github.io/iwwc-stats-data/iwwc-info-2023.json',
     startDate: '2023-11-01',
     endDate: '2023-11-30',
   },
   {
-    title: '2022 (November)',
+    title: '2022 November',
     customUrl: 'https://eigood.github.io/iwwc-stats-data/iwwc-custom-2022.json',
     infoUrl: 'https://eigood.github.io/iwwc-stats-data/iwwc-info-2022.json',
     startDate: '2022-09-01',
     endDate: '2022-09-30',
   },
   {
-    title: '2021 (July)',
+    title: '2021 July',
     customUrl: 'https://eigood.github.io/iwwc-stats-data/iwwc-custom-2021.json',
     infoUrl: 'https://eigood.github.io/iwwc-stats-data/iwwc-info-2021.json',
     startDate: '2021-07-01',
