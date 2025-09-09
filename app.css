@@ -131,6 +131,7 @@ header .enl-stat, header .res-stat {
 	color:white;
 	font-size:16px;
 	background:var(--stat-footer-background);
+	text-shadow:1px 1px black;
 }
 .stat-footer .total {
 	display:none;
@@ -282,6 +283,13 @@ header .enl-stat, header .res-stat {
 .stat-row .agent {
 	cursor:pointer;
 	color:var(--faction-color);
+	text-shadow:
+	-1px -1px 1px rgb(from var(--faction-color) calc(r * 0.5) calc(g * 0.5) calc(b * 0.5) / 0.3),
+	-1px 1px 1px rgb(from var(--faction-color) calc(r * 0.5) calc(g * 0.5) calc(b * 0.5) / 0.3),
+	1px -1px 1px rgb(from var(--faction-color) calc(r * 0.5) calc(g * 0.5) calc(b * 0.5) / 0.3),
+	1px 1px 1px rgb(from var(--faction-color) calc(r * 0.5) calc(g * 0.5) calc(b * 0.5) / 0.3)
+	;
+
 }
 .stat-row > :nth-child(1), .stat-row > :nth-child(3) {
 	text-align:right;
