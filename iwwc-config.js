@@ -61,6 +61,7 @@ export const displayStats = [
   ['translator', 'Translator'],
   ['trekker', 'Trekker'],
   ['SEPARATOR', 'Extra Values'],
+  ['drone_sender', 'Drones Returned'],
   ['last_submit', 'Last Submit'],
 ]
 
