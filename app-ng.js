@@ -9,12 +9,19 @@ const makeSafeRatioParser = (numeratorKey, denominatorKey) => (value, agentData)
   return denominator ? numerator / denominator : null
 }
 
+const parseFullDate = (value) => {
+  if (value === '0000-00-00 00:00:00') value = 0
+  if (value) return new Date(Date.parse(value + '+0000'))
+  return null
+}
+
+const parseShortDate = (value) => {
+  if (!value) return null
+  return parseFullDate(value + 'T00:00:00.0')
+}
+
 const statParsers = {
-  ['last_submit']: (value) => {
-    if (value === '0000-00-00 00:00:00') value = 0
-    if (value) return new Date(Date.parse(value + '+0000'))
-    return null
-  },
+  ['last_submit']: parseFullDate,
   ['ratio@fields/link']: makeSafeRatioParser('mind-controller', 'connector'),
   ['ratio@mu/field']: makeSafeRatioParser('illuminator', 'mind-controller'),
   ['ratio@pioneer/explorer']: makeSafeRatioParser('pioneer', 'explorer'),
@@ -88,7 +95,14 @@ export class App {
   constructor({ currentEvent, displayStats, eventData, enabledFactions = { enl: true, res: true } }) {
     this.#currentEvent = currentEvent
     this.#displayStats = displayStats
-    this.#eventData = eventData
+    this.#eventData = eventData.map((event, index) => {
+      const { startDate, endDate, ...rest } = event
+      return {
+        startDate: parseShortDate(startDate),
+        endDate: parseShortDate(endDate),
+        ...rest,
+      }
+    })
     this.#enabledFactions = { enl: !!enabledFactions.enl, res: !!enabledFactions.res }
     this.#toggles = {}
     this.#toggleSelectors = {
@@ -136,13 +150,13 @@ export class App {
     const currentEventSelect = document.querySelector('select[name="current-event"]')
     const eventData = this.#eventData
     const eventKeys = eventData.map((event, index) => index).sort((a, b) => {
-      return new Date(eventData[ a ].startDate).getTime() - new Date(eventData[ b ].startDate).getTime()
+      return eventData[ a ].startDate.getTime() - eventData[ b ].startDate.getTime()
     })
     for (const eventKey of eventKeys) {
       const { [ eventKey ]: { title, startDate } } = eventData
       const option = document.createElement('option')
       option.setAttribute('value', eventKey)
-      option.textContent = title + ' | ' + dateShortFormat.format(new Date(startDate + 'T00:00:00.0'))
+      option.textContent = title + ' | ' + dateShortFormat.format(startDate)
       if (this.#currentEvent == eventKey) option.setAttribute('selected', true)
       currentEventSelect.appendChild(option)
     }
@@ -155,9 +169,9 @@ export class App {
   updateDOM() {
     if (!this.#statPaneTemplate) return
     const { lastRefresh, startDate, endDate } = this.#info
-    document.querySelector('.last-refresh').textContent = lastRefresh ? dateFullFormat.format(adjustLastRefresh(lastRefresh)) : 'xx'
-    document.querySelector('.start-date').textContent = startDate ? dateShortFormat.format(new Date(startDate)) : 'xx'
-    document.querySelector('.end-date').textContent = endDate ? dateShortFormat.format(new Date(endDate)) : 'xx'
+    document.querySelector('.last-refresh').textContent = lastRefresh ? dateFullFormat.format(lastRefresh) : 'xx'
+    document.querySelector('.start-date').textContent = startDate ? dateShortFormat.format(startDate) : 'xx'
+    document.querySelector('.end-date').textContent = endDate ? dateShortFormat.format(endDate) : 'xx'
     const app = document.querySelector('#iwwc-app')
     app.dataset.enl = String(this.#enabledFactions.enl)
     app.dataset.res = String(this.#enabledFactions.res)
@@ -207,7 +221,13 @@ export class App {
   }
 
   setInfo(data = {}) {
-    this.#info = data
+    const { lastRefresh, startDate, endDate, ...rest } = data
+    this.#info = {
+      lastRefresh: adjustLastRefresh(lastRefresh),
+      startDate: new Date(startDate),
+      endDate: new Date(endDate),
+      ...rest,
+    }
     this.updateDOM()
   }
 
