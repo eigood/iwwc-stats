@@ -86,10 +86,8 @@ body {
 .reload-button {
 	cursor:pointer;
 }
-.reload-button, .start-date, .end-date, .agent-search, .event-selector, .toggles, .show-help {
+.button-container {
 	--icon-color:var(--icon-button-color);
-}
-.reload-button, .start-date, .end-date, .agent-search, .event-selector, .toggles, .member-counts > *, .show-help {
 	background:var(--button-background);
 	border:1px solid black;
 	border-radius:5px;
@@ -97,7 +95,7 @@ body {
 	color:var(--button-text-color);
 	display:inline-block;
 }
-.reload-button, .start-date, .end-date, .agent-search, .event-selector, .toggles *, .show-help {
+.button {
 	color:var(--button-text-color);
 }
 .fa-solid {
