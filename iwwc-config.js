@@ -63,3 +63,9 @@ export const displayStats = [
   ['SEPARATOR', 'Extra Values'],
   ['last_submit', 'Last Submit'],
 ]
+
+export const agentStatus = {
+  'JCYOH': 'investigation',
+  'blackkarin': 'investigation',
+  'eigood': {'overclocker': 'banned' },
+}

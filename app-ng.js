@@ -91,8 +91,9 @@ export class App {
   #factionCounts
   #allAgents
   #rawSearch
+  #agentStatus
 
-  constructor({ currentEvent, displayStats, eventData, enabledFactions = { enl: true, res: true } }) {
+  constructor({ currentEvent, displayStats, eventData, enabledFactions = { enl: true, res: true }, agentStatus = {} }) {
     this.#currentEvent = currentEvent
     this.#displayStats = displayStats
     this.#eventData = eventData.map((event, index) => {
@@ -103,6 +104,21 @@ export class App {
         ...rest,
       }
     })
+    this.#agentStatus = Object.fromEntries(Object.entries(agentStatus).map(([ agentName, agentStatus ]) => {
+      if (Array.isArray(agentStatus)) {
+        agentStatus = { '*': agentStatus }
+      } else if (typeof agentStatus === 'string') {
+        agentStatus = { '*': agentStatus }
+      }
+      if (typeof agentStatus !== 'object') throw new Error('Invalid agentStatus from config')
+      agentStatus = Object.fromEntries(Object.entries(agentStatus).map(([ statName, statStatus ]) => {
+        if (typeof statStatus === 'string') statStatus = statStatus.split(',').map(value => value.trim())
+        if (!Array.isArray(statStatus)) throw new Error('Invalid agentStatus from config')
+        //statStatus = statStatus.reduce((result, item) => result[ item ] = (true, result), {})
+        return [ statName, statStatus ]
+      }))
+      return [ agentName, agentStatus ]
+    }))
     this.#enabledFactions = { enl: !!enabledFactions.enl, res: !!enabledFactions.res }
     this.#toggles = {}
     this.#toggleSelectors = {
@@ -390,6 +406,12 @@ export class App {
       toggleElement.classList.remove('toggle-selected')
     }
   }
+
+  getAgentStatus(agentName, statName) {
+    const { [ agentName ]: agentStatus = {} } = this.#agentStatus
+    const { [ statName ]: statStatus = agentStatus[ '*' ] } = agentStatus
+    return statStatus
+  }
 }
 
 class StatPane {
@@ -483,7 +505,7 @@ class StatPane {
     const rolloverBuilder = rollovers[ statName ]
     const activeAgents = { enl: 0, res: 0 }
     const sumAgents = { enl: 0, res: 0 }
-    let lastValue = undefined, lastPosition = undefined
+    let lastValue = undefined, lastPosition = undefined, lastAgentStatus
     const rowInfos = this.#pages.full.rowInfos = statList.filter((agentName) => {
       const { faction } = this.#app.data[ agentName ]
       return this.#app.enabledFaction(faction)
@@ -502,20 +524,28 @@ class StatPane {
       if (statValue) activeAgents[ faction ]++
       sumAgents[ faction ] += statValue
 
+      const agentStatus = this.#app.getAgentStatus(agentName, this.#statName)
       let position
       if (lastValue === undefined) {
         lastValue = statValue
-        position = lastPosition = index + 1
+        position = lastPosition = 1
       } else if (statValue !== lastValue) {
         lastValue = statValue
-        position = lastPosition = index + 1
+        position = lastAgentStatus ? lastPosition : ++lastPosition
       } else {
         position = lastPosition
       }
+      lastAgentStatus = agentStatus
       const rolloverValue = rolloverBuilder ? rolloverBuilder(agentName, this.#app.data) : null
       rowNode.dataset.value = statValue
       rowNode.dataset.agent = agentName
       rowNode.dataset.faction = faction
+      if (agentStatus) {
+          rowNode.dataset.status = ""
+        agentStatus.forEach((statusItem) => {
+          rowNode.dataset[ `status_${statusItem}` ] = ""
+        })
+      }
       positionNode.textContent = position
       if (position === 1) {
         rowNode.className += ' onyx'

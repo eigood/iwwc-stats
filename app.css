@@ -24,6 +24,9 @@
 	--button-background:white;
 	--agent-search-background:#aaaaaa;
 	--agent-search-color:#888888;
+	--data-status-text-decoration:line-through;
+	--data-status_investigation-color:rgba(30, 30, 30, .8);
+	--data-status_banned-color:rgba(100, 0, 0, .8);
 }
 :root {
 	--icon-button-color:var(--button-text-color);
@@ -278,6 +281,23 @@ header .enl-stat, header .res-stat {
 	background:var(--stat-matched-background);
 }
 
+.stat-row[data-status] {
+	--stat-row-reward-display:none;
+}
+li[data-status],
+li[data-status] .stat-position,
+li[data-status] .stat-reward,
+li[data-status] .stat-value,
+li[data-status] .agent {
+	text-decoration:var(--data-status-text-decoration);
+	text-decoration-color:var(--data-status-text-decoration-color);
+}
+li[data-status_investigation] {
+	--data-status-text-decoration-color:var(--data-status_investigation-color);
+}
+li[data-status_banned] {
+	--data-status-text-decoration-color:var(--data-status_banned-color);
+}
 .stat-row .agent {
 	cursor:pointer;
 	color:var(--faction-color);
@@ -530,4 +550,6 @@ canvas.animation {
 	--icon-selected-background:linear-gradient(to bottom right, white, black);
 	--icon-notselected-background:linear-gradient(to bottom left, var(--faction-color-res), var(--faction-color-enl));
 	--icon-background-clip:text;
+	--data-status_investigation-color:rgba(0, 0, 0, .5);
+	--data-status_banned-color:rgba(255, 0, 0, .8);
 }

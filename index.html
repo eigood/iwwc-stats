@@ -3,11 +3,12 @@
 <link rel="stylesheet" href="app.css?{{ site.data['hash'] }}">
 <script type="module">
  import { App } from './app-ng.js'
- import { eventData, displayStats } from './iwwc-config.js'
+ import { eventData, displayStats, agentStatus } from './iwwc-config.js'
  const app = new App({
    currentEvent: 0,
    displayStats,
    eventData,
+   agentStatus,
  })
 
  window.addEventListener('load', (event) => {
@@ -125,6 +126,12 @@
        </li>
        <li>
         Clicking an agent name causes a "search" to occur.
+       </li>
+       <li data-status data-status_investigation>
+        This agent/stat is under investigation
+       </li>
+       <li data-status data-status_banned>
+        This agent/stat is excluded from competing.
        </li>
       </ul>
      </li>
