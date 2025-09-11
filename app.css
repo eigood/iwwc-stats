@@ -529,6 +529,7 @@ canvas.animation {
 
 /* Theme */
 :root {
+	--none-color:rgba(200, 200, 200, 0.6);
 	--background:url(background.png);
 	--header-agent-stat-background:rgb(0, 0, 0, .7);
 	--header-agent-stat-color:white;
