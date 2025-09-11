@@ -85,6 +85,7 @@ const adjustLastRefresh = (text) => {
 }
 
 export class App {
+  #configUrl
   #currentEvent
   #previousEvent
   #displayStats
@@ -103,8 +104,22 @@ export class App {
   #rawSearch
   #agentStatus
 
-  constructor({ currentEvent, displayStats, eventData, enabledFactions = { enl: true, res: true }, agentStatus = {} }) {
-    this.#currentEvent = currentEvent
+  constructor(configUrl) {
+    this.#configUrl = configUrl
+    this.#toggles = {}
+    this.#toggleSelectors = {
+      '#': '.toggles .chart-position',
+    }
+    makeHandlers(this, 'loadData', 'onSearch', 'onEventChange', 'setSearch', 'clearSearch', 'toggleHelp')
+    this.debouncedSetSearch = debounce(this.setSearch, 50)
+    this.#data = {}
+    this.#info = {}
+    this.#statPanes = []
+    this.#eventData = []
+  }
+
+  setConfig({ currentEvent, displayStats, eventData, enabledFactions = { enl: true, res: true }, agentStatus = {} }) {
+    if (this.#currentEvent === undefined) this.#currentEvent = currentEvent
     this.#displayStats = displayStats
     this.#eventData = eventData.map((event, index) => {
       const { startDate, endDate, ...rest } = event
@@ -130,16 +145,7 @@ export class App {
       return [ agentName, agentStatus ]
     }))
     this.#enabledFactions = { enl: !!enabledFactions.enl, res: !!enabledFactions.res }
-    this.#toggles = {}
-    this.#toggleSelectors = {
-      '#': '.toggles .chart-position',
-    }
-    makeHandlers(this, 'loadData', 'onSearch', 'onEventChange', 'setSearch', 'clearSearch', 'toggleHelp')
-    this.debouncedSetSearch = debounce(this.setSearch, 50)
-    this.#statPanes = this.#displayStats.map(([ statName, statTitle ]) => new StatPane({ app: this, statName, statTitle }))
-
-    this.#data = {}
-    this.#info = {}
+    this.updateDOM()
   }
 
   enabledFaction(faction) {
@@ -174,6 +180,17 @@ export class App {
     })
 
     const currentEventSelect = document.querySelector('select[name="current-event"]')
+    currentEventSelect.addEventListener('change', this.onEventChange)
+
+  }
+
+  updateDOM() {
+    if (!this.#statPaneTemplate) return
+
+    const currentEventSelect = document.querySelector('select[name="current-event"]')
+    while (currentEventSelect.lastChild) {
+      currentEventSelect.removeChild(currentEventSelect.lastChild)
+    }
     const eventData = this.#eventData
     const eventKeys = eventData.map((event, index) => index).sort((a, b) => {
       return eventData[ a ].startDate.getTime() - eventData[ b ].startDate.getTime()
@@ -186,14 +203,25 @@ export class App {
       if (this.#currentEvent == eventKey) option.setAttribute('selected', true)
       currentEventSelect.appendChild(option)
     }
-    currentEventSelect.addEventListener('change', this.onEventChange)
-    const appContentNode = document.querySelector('#iwwc-app .iwwc-content')
-    this.#statPanes.forEach((statPane) => statPane.attachToDOM(appContentNode))
-    this.updateDOM()
-  }
 
-  updateDOM() {
-    if (!this.#statPaneTemplate) return
+    const statPanesByName = this.#statPanes.reduce((result, statPane) => {
+      if (statPane) result[ statPane.statName ] = statPane
+      return result
+    }, {})
+    const appContentNode = document.querySelector('#iwwc-app .iwwc-content')
+    this.#statPanes = this.#displayStats.map(([ statName, statTitle ]) => {
+      const { [ statName ]: statPane } = statPanesByName
+      if (statPane) {
+        delete statPanesByName[ statName ]
+        statPane.statTitle = statTitle
+        return statPane
+      }
+      const newStatPane = new StatPane({ app: this, statName, statTitle })
+      newStatPane.attachToDOM(appContentNode)
+      return newStatPane
+    })
+    Object.values(statPanesByName).forEach((statPane) => statPane.detatchFromDOM())
+
     const { lastRefresh, startDate, endDate } = this.#info
     document.querySelector('.last-refresh').textContent = lastRefresh ? dateFullFormat.format(lastRefresh) : 'xx'
     document.querySelector('.start-date').textContent = startDate ? dateShortFormat.format(startDate) : 'xx'
@@ -237,11 +265,13 @@ export class App {
     }
     const buttonIcon = document.querySelector('.reload-button .icon')
     buttonIcon.classList.add('fa-spin')
-    const { [ this.#currentEvent ]: { customUrl, infoUrl } } = this.#eventData
-    Promise.all([
-      fetchJSON(customUrl, (data) => this.setData(data)),
-      fetchJSON(infoUrl, (data) => this.setInfo(data)),
-    ]).finally(() => {
+    fetchJSON(this.#configUrl, (data) => this.setConfig(data)).then(() => {
+      const { [ this.#currentEvent ]: { customUrl, infoUrl } } = this.#eventData
+      return Promise.all([
+        fetchJSON(customUrl, (data) => this.setData(data)),
+        fetchJSON(infoUrl, (data) => this.setInfo(data)),
+      ])
+    }).finally(() => {
       buttonIcon.classList.remove('fa-spin')
     })
   }
@@ -440,6 +470,10 @@ class StatPane {
 
   get statName() {
     return this.#statName
+  }
+
+  set statTitle(statTitle) {
+    this.#statTitle = statTitle
   }
 
   attachToDOM(appContentNode) {
@@ -800,7 +834,10 @@ const statValueDisplays = {
 }
 
 async function fetchJSON(url, handler) {
-  const json = await fetch(url, {_mode: 'no-cors'}).then(response => response.json()).catch(e => undefined)
+  const json = await fetch(url, {_mode: 'no-cors'}).then(response => response.json()).catch(e => {
+    console.error(e)
+    return undefined
+  })
   return handler(json)
 }
 

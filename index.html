@@ -3,13 +3,7 @@
 <link rel="stylesheet" href="app.css?{{ site.data['hash'] }}">
 <script type="module">
  import { App } from './app-ng.js'
- import { eventData, displayStats, agentStatus } from './iwwc-config.js'
- const app = new App({
-   currentEvent: 0,
-   displayStats,
-   eventData,
-   agentStatus,
- })
+ const app = new App('./iwwc-config.json')
 
  window.addEventListener('load', (event) => {
   app.attachToDOM()
