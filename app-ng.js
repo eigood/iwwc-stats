@@ -602,11 +602,7 @@ class StatPane {
       valueNode.textContent = statValueDisplay(agentName, agentInfo, statValue)
       agentNode.className += ' faction-' + agentInfo.faction
       agentNode.textContent = agentName
-      if (rolloverValue) {
-        rolloverNode.textContent = rolloverValue
-      } else {
-        rolloverNode.parentNode.removeChild(rolloverNode)
-      }
+      rolloverNode.textContent = rolloverValue ? rolloverValue : ''
       const attachListeners = (rowFragmentClone) => {
         const agentNode = rowFragmentClone.querySelector('.agent')
         agentNode.addEventListener('click', e => {
