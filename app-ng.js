@@ -461,7 +461,7 @@ class StatPane {
     this.#statTitle = statTitle
     makeHandlers(this, 'onScroll', 'onKeyDown')
     this.#pages = {
-      full: { start: 0, rowInfos: undefined, scrollTop: 0, exactMatchedAgents: {} },
+      full: { start: 0, rowInfos: [], scrollTop: 0, exactMatchedAgents: {} },
       search: { start: 0, rowInfos: undefined, scrollTop: 0, exactMatchedAgents: {} },
     }
     this.#currentPage = undefined
@@ -538,21 +538,44 @@ class StatPane {
     const activeAgents = { enl: 0, res: 0 }
     const sumAgents = { enl: 0, res: 0 }
     let lastValues = undefined, lastPosition = undefined, lastAgentStatus, floatingIndex = 0
+    let newRowInfos = 0
+    const rowInfosByAgentName = this.#pages.full.rowInfos.reduce((result, rowInfo) => {
+      if (rowInfo) {
+        const { agentName } = rowInfo
+        result[ agentName ] = rowInfo
+      }
+      return result
+    }, {})
     const rowInfos = this.#pages.full.rowInfos = statList.filter((agentValues) => {
       const { [ 0 ]: agentName } = agentValues
       const { faction } = this.#app.data[ agentName ]
       return this.#app.enabledFaction(faction)
     }).map((agentValues, index) => {
-      const { [ 0 ]: agentName, [ 1 ]: statValue } = agentValues
+      const { [ 0 ]: agentName } = agentValues
+      const rowInfo = rowInfosByAgentName[ agentName ]
+      if (rowInfo) return rowInfo
+      const rowNode = statListRowTemplate.content.cloneNode(true).querySelector('.stat-row')
+      const agentNode = rowNode.querySelector('.agent')
+      agentNode.addEventListener('click', e => {
+        this.#app.setSearch(agentName)
+      })
+      newRowInfos++
+      return rowInfosByAgentName[ agentName ] = {
+        rowNode,
+        agentName,
+        agentNameLower: agentName.toLowerCase(),
+        agentValues,
+      }
+    }).map((rowInfo, index) => {
+      const { rowNode, agentName, agentValues } = rowInfo
+      const { [ 1 ]: statValue } = agentValues
       const agentInfo = this.#app.data[ agentName ]
       const faction = agentInfo.faction
       const { [ statName ]: statValueDisplay = (agentName, agentInfo, value) => numberFormat.format(value) } = statValueDisplays
-      const rowFragment = statListRowTemplate.content.cloneNode(true)
-      const rowNode = rowFragment.querySelector('.stat-row')
-      const valueNode = rowFragment.querySelector('.stat-value')
-      const positionNode = rowFragment.querySelector('.stat-position')
-      const agentNode = rowFragment.querySelector('.agent')
-      const rolloverNode = rowFragment.querySelector('.rollover')
+      const valueNode = rowNode.querySelector('.stat-value')
+      const positionNode = rowNode.querySelector('.stat-position')
+      const agentNode = rowNode.querySelector('.agent')
+      const rolloverNode = rowNode.querySelector('.rollover')
 
       if (statValue) activeAgents[ faction ]++
       sumAgents[ faction ] += statValue
@@ -578,38 +601,36 @@ class StatPane {
       rowNode.dataset.agent = agentName
       rowNode.dataset.faction = faction
       if (agentStatus) {
-          rowNode.dataset.status = ""
+        rowNode.dataset.status = ""
         agentStatus.forEach((statusItem) => {
           rowNode.dataset[ `status_${statusItem}` ] = ""
         })
+      } else {
+        delete rowNode.dataset.status
       }
       positionNode.textContent = position
+      rowNode.classList.remove('onyx', 'platinum', 'gold', 'silver', 'none')
       if (floatingIndex < 21) {
         if (position === 1) {
-          rowNode.className += ' onyx'
+          rowNode.classList.add('onyx')
         } else if (position === 2) {
-          rowNode.className += ' platinum'
+          rowNode.classList.add('platinum')
         } else if (position === 3) {
-          rowNode.className += ' gold'
+          rowNode.classList.add('gold')
         } else if (position < 21) {
-          rowNode.className += ' silver'
+          rowNode.classList.add('silver')
         } else {
-          rowNode.className += ' none'
+          rowNode.classList.add('none')
         }
       } else {
-        rowNode.className += ' none'
+        rowNode.classList.add('none')
       }
       valueNode.textContent = statValueDisplay(agentName, agentInfo, statValue)
       agentNode.className += ' faction-' + agentInfo.faction
       agentNode.textContent = agentName
       rolloverNode.textContent = rolloverValue ? rolloverValue : ''
-      const attachListeners = (rowFragmentClone) => {
-        const agentNode = rowFragmentClone.querySelector('.agent')
-        agentNode.addEventListener('click', e => {
-          this.#app.setSearch(agentName)
-        })
-      }
-      return { rowFragment, attachListeners, agentName, agentNameLower: agentName.toLowerCase(), position }
+      rowInfo.position = position
+      return rowInfo
     })
     const footerNode = statPaneNode.querySelector('.stat-footer')
     footerNode.querySelector('.enl-stat .sum').textContent = numberFormat.format(sumAgents.enl)
@@ -617,8 +638,8 @@ class StatPane {
     footerNode.querySelector('.res-stat .sum').textContent = numberFormat.format(sumAgents.res)
     footerNode.querySelector('.res-stat .agent').textContent = activeAgents.res
     if (rowInfos.length) {
-      this.#firstRow = rowInfos[ 0 ].rowFragment
-      this.#lastRow = rowInfos[ rowInfos.length - 1 ].rowFragment
+      this.#firstRow = rowInfos[ 0 ].rowNode.cloneNode(true)
+      this.#lastRow = rowInfos[ rowInfos.length - 1 ].rowNode.cloneNode(true)
     } else {
       this.#firstRow = this.#lastRow = undefined
     }
@@ -667,20 +688,21 @@ class StatPane {
       listNode.classList.remove('searching')
     }
     if (!this.#firstRow) return
-    const firstRow = this.#firstRow.cloneNode(true)
-    firstRow.querySelector('.stat-row').classList.add('for-sizing')
+    const firstRow = this.#firstRow
+    firstRow.classList.add('for-sizing')
     listNode.appendChild(firstRow)
-    const lastRow = this.#lastRow.cloneNode(true)
-    lastRow.querySelector('.stat-row').classList.add('for-sizing')
+    const lastRow = this.#lastRow
+    lastRow.classList.add('for-sizing')
     listNode.appendChild(lastRow)
     for (let i = start, j = pageSize; j && i < rowInfos.length; i++, j--) {
-      const { agentName, rowFragment, attachListeners } = rowInfos[ i ]
-      const rowFragmentCloned = rowFragment.cloneNode(true)
-      attachListeners(rowFragmentCloned)
+      const { [ i ]: rowInfo } = rowInfos[ i ]
+      const { agentName, rowNode } = rowInfos[ i ]
       if (this.#matchedAgents?.[ agentName ]) {
-        rowFragmentCloned.querySelector('.stat-row').classList.add('matched')
+        rowNode.classList.add('matched')
+      } else {
+        rowNode.classList.remove('matched')
       }
-      listNode.appendChild(rowFragmentCloned)
+      listNode.appendChild(rowNode)
     }
     contentNode.scrollTop = scrollTop
   }
