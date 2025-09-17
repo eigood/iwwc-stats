@@ -148,10 +148,6 @@ export class App {
     this.updateDOM()
   }
 
-  enabledFaction(faction) {
-    return this.#enabledFactions[ faction ]
-  }
-
   get data() {
     return this.#data
   }
@@ -307,7 +303,10 @@ export class App {
         byStat[ statName ] = null;
       })
     })
-    const allAgents = this.#allAgents = Object.keys(data)
+    const allAgents = this.#allAgents = Object.keys(data).filter((agentName) => {
+      const { faction } = this.#data[ agentName ]
+      return this.#enabledFactions[ faction ]
+    })
 
     Object.keys(byStat).forEach(statName => {
       byStat[ statName ] = [...allAgents].map(getValueExtractor(data, statName)).sort(sortValues)
@@ -546,14 +545,13 @@ class StatPane {
       }
       return result
     }, {})
-    const rowInfos = this.#pages.full.rowInfos = statList.filter((agentValues) => {
-      const { [ 0 ]: agentName } = agentValues
-      const { faction } = this.#app.data[ agentName ]
-      return this.#app.enabledFaction(faction)
-    }).map((agentValues, index) => {
+    const rowInfos = this.#pages.full.rowInfos = statList.map((agentValues) => {
       const { [ 0 ]: agentName } = agentValues
       const rowInfo = rowInfosByAgentName[ agentName ]
-      if (rowInfo) return rowInfo
+      if (rowInfo) {
+        rowInfo.agentValues = agentValues
+        return rowInfo
+      }
       const rowNode = statListRowTemplate.content.cloneNode(true).querySelector('.stat-row')
       const agentNode = rowNode.querySelector('.agent')
       agentNode.addEventListener('click', e => {
