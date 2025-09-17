@@ -116,6 +116,7 @@ export class App {
     this.#info = {}
     this.#statPanes = []
     this.#eventData = []
+    this.#byStat = {}
   }
 
   setConfig({ currentEvent, displayStats, eventData, enabledFactions = { enl: true, res: true }, agentStatus = {} }) {
@@ -287,7 +288,7 @@ export class App {
     this.#data = data
     const app = document.querySelector('#iwwc-app')
     app.classList.remove('loading')
-    const byStat = this.#byStat = {}
+    const byStat = {}
 
     const factionCounts = this.#factionCounts = { enl: 0, res: 0 }
     const { [ this.#currentEvent ]: { primaryStat } } = this.#eventData
@@ -309,8 +310,64 @@ export class App {
     })
 
     Object.keys(byStat).forEach(statName => {
-      byStat[ statName ] = [...allAgents].map(getValueExtractor(data, statName)).sort(sortValues)
+      const activeAgents = { enl: 0, res: 0 }
+      const sumAgents = { enl: 0, res: 0 }
+      let lastValues = undefined, lastRanking = undefined, lastAgentStatus, floatingIndex = 0
+
+      const agentsSorted = [...allAgents].map(getValueExtractor(data, statName)).sort(sortValues)
+      const perStat = (this.#byStat[ statName ] ||= { rowInfos: [] })
+      const rowInfosByAgentName = perStat.rowInfos.reduce((result, rowInfo) => {
+        if (rowInfo) {
+          const { agentName } = rowInfo
+          result[ agentName ] = rowInfo
+        }
+        return result
+      }, {})
+      const rowInfos = perStat.rowInfos = agentsSorted.map((agentValues, currentIndex) => {
+        const { [ 0 ]: agentName } = agentValues
+        const rowInfo = rowInfosByAgentName[ agentName ] || { agentName, agentNameLower: agentName.toLowerCase() }
+        if (rowInfo.currentIndex !== undefined) rowInfo.previousIndex = rowInfo.currentIndex
+        rowInfo.currentIndex = currentIndex
+        rowInfo.agentValues = agentValues
+        return rowInfo
+      }).map((rowInfo) => {
+        const { agentName, agentValues, currentIndex, previousIndex } = rowInfo
+        const { [ 1 ]: statValue } = agentValues
+        const agentInfo = rowInfo.agentInfo = this.#data[ agentName ]
+        const { faction } = agentInfo
+
+        const agentStatus = this.getAgentStatus(agentName, statName)
+        let ranking
+        if (lastValues === undefined) {
+          ranking = lastRanking = 1
+        } else {
+          const areDifferent = areDifferentValues(agentValues, lastValues)
+          if (areDifferent) {
+            ranking = lastAgentStatus ? lastRanking : (lastRanking = floatingIndex + 1)
+          } else {
+            ranking = lastRanking
+          }
+        }
+        if (!agentStatus) floatingIndex++
+        lastValues = agentValues
+
+        rowInfo.previousRanking = rowInfo.currentRanking
+        rowInfo.currentRanking = ranking
+        lastAgentStatus = agentStatus
+        rowInfo.agentStatus = agentStatus
+        rowInfo.statValue = statValue
+
+        if (statValue) activeAgents[ faction ]++
+        sumAgents[ faction ] += statValue
+        return rowInfo
+      })
+      byStat[ statName ] = {
+        rowInfos,
+        activeAgents,
+        sumAgents,
+      }
     })
+    this.#byStat = byStat
     console.timeEnd('analyze')
     this.updateDOM()
     console.time('absorb')
@@ -518,7 +575,7 @@ class StatPane {
     delete this.#pages.search.rowInfos
   }
 
-  setStatList(statList = [], order, isPrimaryStat) {
+  setStatList({ rowInfos = [], activeAgents = {}, sumAgents = {} } = {}, order, isPrimaryStat) {
     const statPaneNode = this.#statPaneNode
     statPaneNode.style.setProperty('order', order)
     if (isPrimaryStat) {
@@ -526,76 +583,13 @@ class StatPane {
     } else {
       statPaneNode.classList.remove('primary-stat')
     }
-    if (this.#statList === statList) return
-    this.#statList = statList
 
     const statName = this.#statName
     const data = this.#app.data
     const statListRowTemplate = this.#app.statListRowTemplate
 
     const rolloverBuilder = rollovers[ statName ]
-    const activeAgents = { enl: 0, res: 0 }
-    const sumAgents = { enl: 0, res: 0 }
-    let lastValues = undefined, lastRanking = undefined, lastAgentStatus, floatingIndex = 0
-    let newRowInfos = 0
-    const rowInfosByAgentName = this.#pages.full.rowInfos.reduce((result, rowInfo) => {
-      if (rowInfo) {
-        const { agentName } = rowInfo
-        result[ agentName ] = rowInfo
-      }
-      return result
-    }, {})
-    const rowInfos = this.#pages.full.rowInfos = statList.map((agentValues, currentIndex) => {
-      const { [ 0 ]: agentName } = agentValues
-      const rowInfo = rowInfosByAgentName[ agentName ]
-      if (rowInfo) {
-        rowInfo.agentValues = agentValues
-        rowInfo.previousIndex = rowInfo.currentIndex
-        rowInfo.currentIndex = currentIndex
-        return rowInfo
-      }
-      const rowNode = statListRowTemplate.content.cloneNode(true).querySelector('.stat-row')
-      const agentNode = rowNode.querySelector('.agent')
-      agentNode.addEventListener('click', e => {
-        this.#app.setSearch(agentName)
-      })
-      newRowInfos++
-      return rowInfosByAgentName[ agentName ] = {
-        agentName,
-        agentNameLower: agentName.toLowerCase(),
-        agentValues,
-        currentIndex,
-      }
-    }).map((rowInfo, index) => {
-      const { agentName, agentValues, currentIndex, previousIndex } = rowInfo
-      const { [ 1 ]: statValue } = agentValues
-      const agentInfo = rowInfo.agentInfo = this.#app.data[ agentName ]
-      const faction = agentInfo.faction
-
-      const agentStatus = this.#app.getAgentStatus(agentName, this.#statName)
-      let ranking
-      if (lastValues === undefined) {
-        ranking = lastRanking = 1
-      } else {
-        const areDifferent = areDifferentValues(agentValues, lastValues)
-        if (areDifferent) {
-          ranking = lastAgentStatus ? lastRanking : (lastRanking = floatingIndex + 1)
-        } else {
-          ranking = lastRanking
-        }
-      }
-      if (!agentStatus) floatingIndex++
-      lastValues = agentValues
-      rowInfo.previousRanking = rowInfo.currentRanking
-      rowInfo.currentRanking = ranking
-      lastAgentStatus = agentStatus
-      rowInfo.agentStatus = agentStatus
-      rowInfo.statValue = statValue
-
-      if (statValue) activeAgents[ faction ]++
-      sumAgents[ faction ] += statValue
-      return rowInfo
-    }).map((rowInfo, index) => {
+    this.#pages.full.rowInfos = rowInfos.map((rowInfo) => {
       if (!rowInfo.rowNode) {
         const rowNode = rowInfo.rowNode = statListRowTemplate.content.cloneNode(true).querySelector('.stat-row')
         const agentNode = rowNode.querySelector('.agent')
@@ -627,20 +621,6 @@ class StatPane {
       }
       rankingNode.textContent = currentRanking
       rowNode.classList.remove('onyx', 'platinum', 'gold', 'silver', 'none')
-      /*
-      if (floatingIndex < 21) {
-        if (ranking === 1) {
-          rowNode.classList.add('onyx')
-        } else if (ranking === 2) {
-          rowNode.classList.add('platinum')
-        } else if (ranking === 3) {
-          rowNode.classList.add('gold')
-        } else if (ranking < 21) {
-          rowNode.classList.add('silver')
-        } else {
-          rowNode.classList.add('none')
-        }
-        */
       if (currentRanking === 1) {
         rowNode.classList.add('onyx')
       } else if (currentRanking === 2) {
@@ -756,9 +736,9 @@ class StatPane {
         if (matchedAgents[ rowInfo.agentName ]) {
           result[ currentIndex ] = true
           if (chartRankingToggle) {
-            if (index > 19 && minMatchIndex === undefined) minMatchIndex = index
-            if (index > 0) result[ currentIndex - 1 ] = true
-            if (index + 1 !== allRows.length) result[ currentIndex + 1 ] = true
+            if (currentIndex > 19 && minMatchIndex === undefined) minMatchIndex = currentIndex
+            if (currentIndex > 0) result[ currentIndex - 1 ] = true
+            if (currentIndex + 1 !== allRows.length) result[ currentIndex + 1 ] = true
           }
         }
         return result
