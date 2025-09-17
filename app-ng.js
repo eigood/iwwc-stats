@@ -545,11 +545,13 @@ class StatPane {
       }
       return result
     }, {})
-    const rowInfos = this.#pages.full.rowInfos = statList.map((agentValues) => {
+    const rowInfos = this.#pages.full.rowInfos = statList.map((agentValues, currentIndex) => {
       const { [ 0 ]: agentName } = agentValues
       const rowInfo = rowInfosByAgentName[ agentName ]
       if (rowInfo) {
         rowInfo.agentValues = agentValues
+        rowInfo.previousIndex = rowInfo.currentIndex
+        rowInfo.currentIndex = currentIndex
         return rowInfo
       }
       const rowNode = statListRowTemplate.content.cloneNode(true).querySelector('.stat-row')
@@ -559,24 +561,16 @@ class StatPane {
       })
       newRowInfos++
       return rowInfosByAgentName[ agentName ] = {
-        rowNode,
         agentName,
         agentNameLower: agentName.toLowerCase(),
         agentValues,
+        currentIndex,
       }
     }).map((rowInfo, index) => {
-      const { rowNode, agentName, agentValues } = rowInfo
+      const { agentName, agentValues, currentIndex, previousIndex } = rowInfo
       const { [ 1 ]: statValue } = agentValues
-      const agentInfo = this.#app.data[ agentName ]
+      const agentInfo = rowInfo.agentInfo = this.#app.data[ agentName ]
       const faction = agentInfo.faction
-      const { [ statName ]: statValueDisplay = (agentName, agentInfo, value) => numberFormat.format(value) } = statValueDisplays
-      const valueNode = rowNode.querySelector('.stat-value')
-      const rankingNode = rowNode.querySelector('.stat-ranking')
-      const agentNode = rowNode.querySelector('.agent')
-      const rolloverNode = rowNode.querySelector('.rollover')
-
-      if (statValue) activeAgents[ faction ]++
-      sumAgents[ faction ] += statValue
 
       const agentStatus = this.#app.getAgentStatus(agentName, this.#statName)
       let ranking
@@ -592,7 +586,32 @@ class StatPane {
       }
       if (!agentStatus) floatingIndex++
       lastValues = agentValues
+      rowInfo.previousRanking = rowInfo.currentRanking
+      rowInfo.currentRanking = ranking
       lastAgentStatus = agentStatus
+      rowInfo.agentStatus = agentStatus
+      rowInfo.statValue = statValue
+
+      if (statValue) activeAgents[ faction ]++
+      sumAgents[ faction ] += statValue
+      return rowInfo
+    }).map((rowInfo, index) => {
+      if (!rowInfo.rowNode) {
+        const rowNode = rowInfo.rowNode = statListRowTemplate.content.cloneNode(true).querySelector('.stat-row')
+        const agentNode = rowNode.querySelector('.agent')
+        agentNode.addEventListener('click', e => {
+          this.#app.setSearch(agentName)
+        })
+      }
+
+      const { rowNode, agentName, agentValues, agentInfo, agentStatus, statValue, currentRanking } = rowInfo
+      const faction = agentInfo.faction
+      const { [ statName ]: statValueDisplay = (agentName, agentInfo, value) => numberFormat.format(value) } = statValueDisplays
+      const valueNode = rowNode.querySelector('.stat-value')
+      const rankingNode = rowNode.querySelector('.stat-ranking')
+      const agentNode = rowNode.querySelector('.agent')
+      const rolloverNode = rowNode.querySelector('.rollover')
+
       const rolloverValue = rolloverBuilder ? rolloverBuilder(agentInfo) : null
       rowNode.dataset.value = statValue
       if (agentValues.length === 3) rowNode.dataset.tieValue = agentValues[ 2 ]
@@ -606,8 +625,9 @@ class StatPane {
       } else {
         delete rowNode.dataset.status
       }
-      rankingNode.textContent = ranking
+      rankingNode.textContent = currentRanking
       rowNode.classList.remove('onyx', 'platinum', 'gold', 'silver', 'none')
+      /*
       if (floatingIndex < 21) {
         if (ranking === 1) {
           rowNode.classList.add('onyx')
@@ -620,6 +640,15 @@ class StatPane {
         } else {
           rowNode.classList.add('none')
         }
+        */
+      if (currentRanking === 1) {
+        rowNode.classList.add('onyx')
+      } else if (currentRanking === 2) {
+        rowNode.classList.add('platinum')
+      } else if (currentRanking === 3) {
+        rowNode.classList.add('gold')
+      } else if (currentRanking < 21) {
+        rowNode.classList.add('silver')
       } else {
         rowNode.classList.add('none')
       }
@@ -627,8 +656,6 @@ class StatPane {
       agentNode.className += ' faction-' + agentInfo.faction
       agentNode.textContent = agentName
       rolloverNode.textContent = rolloverValue ? rolloverValue : ''
-      rowInfo.lastRanking = rowInfo.currentRanking
-      rowInfo.currentRanking = ranking
       return rowInfo
     })
     const footerNode = statPaneNode.querySelector('.stat-footer')
@@ -724,13 +751,14 @@ class StatPane {
       const matchedRows = []
       searchPage.exactMatchedAgents = {}
       let minMatchIndex
-      const matchedIndexes = allRows.reduce((result, rowInfo, index) => {
+      const matchedIndexes = allRows.reduce((result, rowInfo) => {
+        const { currentIndex } = rowInfo
         if (matchedAgents[ rowInfo.agentName ]) {
-          result[ index ] = true
+          result[ currentIndex ] = true
           if (chartRankingToggle) {
             if (index > 19 && minMatchIndex === undefined) minMatchIndex = index
-            if (index > 0) result[ index - 1 ] = true
-            if (index + 1 !== allRows.length) result[ index + 1 ] = true
+            if (index > 0) result[ currentIndex - 1 ] = true
+            if (index + 1 !== allRows.length) result[ currentIndex + 1 ] = true
           }
         }
         return result
