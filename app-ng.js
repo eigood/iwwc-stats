@@ -108,7 +108,7 @@ export class App {
     this.#configUrl = configUrl
     this.#toggles = {}
     this.#toggleSelectors = {
-      '#': '.toggles .chart-position',
+      '#': '.toggles .chart-ranking',
     }
     makeHandlers(this, 'loadData', 'onSearch', 'onEventChange', 'setSearch', 'clearSearch', 'toggleHelp')
     this.debouncedSetSearch = debounce(this.setSearch, 50)
@@ -536,7 +536,7 @@ class StatPane {
     const rolloverBuilder = rollovers[ statName ]
     const activeAgents = { enl: 0, res: 0 }
     const sumAgents = { enl: 0, res: 0 }
-    let lastValues = undefined, lastPosition = undefined, lastAgentStatus, floatingIndex = 0
+    let lastValues = undefined, lastRanking = undefined, lastAgentStatus, floatingIndex = 0
     let newRowInfos = 0
     const rowInfosByAgentName = this.#pages.full.rowInfos.reduce((result, rowInfo) => {
       if (rowInfo) {
@@ -571,7 +571,7 @@ class StatPane {
       const faction = agentInfo.faction
       const { [ statName ]: statValueDisplay = (agentName, agentInfo, value) => numberFormat.format(value) } = statValueDisplays
       const valueNode = rowNode.querySelector('.stat-value')
-      const positionNode = rowNode.querySelector('.stat-position')
+      const rankingNode = rowNode.querySelector('.stat-ranking')
       const agentNode = rowNode.querySelector('.agent')
       const rolloverNode = rowNode.querySelector('.rollover')
 
@@ -579,15 +579,15 @@ class StatPane {
       sumAgents[ faction ] += statValue
 
       const agentStatus = this.#app.getAgentStatus(agentName, this.#statName)
-      let position
+      let ranking
       if (lastValues === undefined) {
-        position = lastPosition = 1
+        ranking = lastRanking = 1
       } else {
         const areDifferent = areDifferentValues(agentValues, lastValues)
         if (areDifferent) {
-          position = lastAgentStatus ? lastPosition : (lastPosition = floatingIndex + 1)
+          ranking = lastAgentStatus ? lastRanking : (lastRanking = floatingIndex + 1)
         } else {
-          position = lastPosition
+          ranking = lastRanking
         }
       }
       if (!agentStatus) floatingIndex++
@@ -606,16 +606,16 @@ class StatPane {
       } else {
         delete rowNode.dataset.status
       }
-      positionNode.textContent = position
+      rankingNode.textContent = ranking
       rowNode.classList.remove('onyx', 'platinum', 'gold', 'silver', 'none')
       if (floatingIndex < 21) {
-        if (position === 1) {
+        if (ranking === 1) {
           rowNode.classList.add('onyx')
-        } else if (position === 2) {
+        } else if (ranking === 2) {
           rowNode.classList.add('platinum')
-        } else if (position === 3) {
+        } else if (ranking === 3) {
           rowNode.classList.add('gold')
-        } else if (position < 21) {
+        } else if (ranking < 21) {
           rowNode.classList.add('silver')
         } else {
           rowNode.classList.add('none')
@@ -627,7 +627,8 @@ class StatPane {
       agentNode.className += ' faction-' + agentInfo.faction
       agentNode.textContent = agentName
       rolloverNode.textContent = rolloverValue ? rolloverValue : ''
-      rowInfo.position = position
+      rowInfo.lastRanking = rowInfo.currentRanking
+      rowInfo.currentRanking = ranking
       return rowInfo
     })
     const footerNode = statPaneNode.querySelector('.stat-footer')
@@ -719,14 +720,14 @@ class StatPane {
       const searchPage = this.#pages.search
       searchPage.start = 0
       const allRows = this.#pages.full.rowInfos
-      const chartPositionToggle = this.#app.getToggle('#')
+      const chartRankingToggle = this.#app.getToggle('#')
       const matchedRows = []
       searchPage.exactMatchedAgents = {}
       let minMatchIndex
       const matchedIndexes = allRows.reduce((result, rowInfo, index) => {
         if (matchedAgents[ rowInfo.agentName ]) {
           result[ index ] = true
-          if (chartPositionToggle) {
+          if (chartRankingToggle) {
             if (index > 19 && minMatchIndex === undefined) minMatchIndex = index
             if (index > 0) result[ index - 1 ] = true
             if (index + 1 !== allRows.length) result[ index + 1 ] = true

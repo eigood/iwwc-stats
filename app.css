@@ -270,7 +270,7 @@ header .enl-stat, header .res-stat {
 	scrollbar-color:rgb(100 100 100 / 0.4) rgb(0 0 0 / 0.1);
 }
 .stat-list {
-	counter-reset:stat-position;
+	counter-reset:stat-ranking;
 	display:table;
 	margin:0;
 	padding:0 0 0 2px;
@@ -285,7 +285,7 @@ header .enl-stat, header .res-stat {
 	--stat-row-reward-display:none;
 }
 li[data-status],
-li[data-status] .stat-position,
+li[data-status] .stat-ranking,
 li[data-status] .stat-reward,
 li[data-status] .stat-value,
 li[data-status] .agent {
@@ -314,17 +314,17 @@ li[data-status_banned] {
 }
 .stat-row {
 	display:table-row;
-	counter-increment:stat-position;
+	counter-increment:stat-ranking;
 	position:relative;
 }
-.stat-position {
+.stat-ranking {
 	padding-right:5px;
 }
 .stat-reward {
 	padding-right:5px;
 }
-.stat-row .stat-position::before {
-	//content: counter(stat-position);
+.stat-row .stat-ranking::before {
+	//content: counter(stat-ranking);
 	padding-right:5px;
 }
 .stat-row {
@@ -350,7 +350,7 @@ li[data-status_banned] {
 	color: var(--stat-row-color);
 	display:var(--stat-row-reward-display);
 }
-.stat-row .stat-position {
+.stat-row .stat-ranking {
 	color: var(--stat-row-color);
 	font-weight:500;
 }
@@ -466,7 +466,7 @@ li[data-status_banned] {
 .stat-pane[data-medal='last_submit'] .stat-value {
 	white-space:nowrap;
 }
-.stat-pane[data-medal='last_submit'] .stat-position {
+.stat-pane[data-medal='last_submit'] .stat-ranking {
 	display:none;
 }
 .stat-pane[data-medal='last_submit'] .stat-reward {
