@@ -593,7 +593,7 @@ class StatPane {
       if (!agentStatus) floatingIndex++
       lastValues = agentValues
       lastAgentStatus = agentStatus
-      const rolloverValue = rolloverBuilder ? rolloverBuilder(agentName, this.#app.data) : null
+      const rolloverValue = rolloverBuilder ? rolloverBuilder(agentInfo) : null
       rowNode.dataset.value = statValue
       if (agentValues.length === 3) rowNode.dataset.tieValue = agentValues[ 2 ]
       rowNode.dataset.agent = agentName
@@ -817,13 +817,13 @@ const dateFullFormat = Intl.DateTimeFormat(navigator.language, { year:"numeric",
 const dateShortFormat = Intl.DateTimeFormat(navigator.language, { weekday:"short", year:"numeric", month:"short", day:"numeric" })
 const lastSubmitFormat = Intl.DateTimeFormat(navigator.language, { timeZone: 'UTC', year: 'numeric', month: '2-digit', day:"2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: 'h23' })
 
-const apRollover = (agentName, data) => {
-  const { [ agentName ]: { [ 'lifetime_ap' ]: lifetimeAp } } = data
+const apRollover = (agentInfo) => {
+  const { [ 'lifetime_ap' ]: lifetimeAp } = agentInfo
   return numberFormat.format(lifetimeAp) + ' AP'
 }
 
-const statRollover = (statName) => (agentName, data) => {
-  const { [ agentName ]: { [ statName ]: statValue } } = data
+const statRollover = (statName) => (agentInfo) => {
+  const { [ statName ]: statValue } = agentInfo
   if (!statValue) return null
   return numberFormat.format(statValue)
 }
