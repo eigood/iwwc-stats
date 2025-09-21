@@ -65,8 +65,4 @@ export const displayStats = [
   ['last_submit', 'Last Submit'],
 ]
 
-export const agentStatus = {
-  'JCYOH': 'investigation',
-  'blackkarin': 'investigation',
-  'eigood': {'overclocker': 'banned' },
-}
+export const agentStatus = {}
