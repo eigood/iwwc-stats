@@ -39,26 +39,36 @@ const statValueDiff = {
   //['ratio@builder/purifier']: (a, b) => Math.abs(1 - a) - Math.abs(1 - b),
 }
 
-const getValueDiffBuilder = (statName) => {
-  const { [statName]: basicValueDiffFetcher = (a, b) => b - a } = statValueDiff
-  const valueDiffBuilder = (agentData) => (a, b) => {
-    const { [ a ]: { [statName]: valueA }, [ b ]: { [statName]: valueB } } = agentData
+const getValueExtractor = (agentData, statName) => {
+  return (agentName) => {
+    const { [agentName]: agentInfo } = agentData
+    const { [statName]: statValue } = agentInfo
+    const statValues = [ agentName, statValue ]
+    if (statName !== 'lifetime_ap') statValues.push(agentInfo[ 'lifetime_ap' ])
+    return statValues
+  }
+}
+
+const sortValues = (aValues, bValues) => {
+  // agentName, followed by 1 or 2 values
+  for (var i = 1; i < aValues.length; i++) {
+    const { [ i ]: valueA } = aValues
+    const { [ i ]: valueB } = bValues
     if (valueA === null) return 1
     if (valueB === null) return -1
-    return basicValueDiffFetcher(valueA, valueB)
+    const valueDiff = valueB - valueA
+    if (valueDiff) return valueDiff
   }
-  if (statName === 'lifetime_ap') {
-    return (agentData) => {
-      const valueDiffFetcher = valueDiffBuilder(agentData)
-      return (a, b) => {
-        const valueDiff = valueDiffFetcher(a, b)
-        if (valueDiff) return valueDiff
-        const { [ a ]: agentA, [ b ]: agentB } = agentData
-        return agentB[ 'lifetime_ap' ] - agentA[ 'lifetime_ap' ]
-      }
-    }
+  return aValues[ 0 ].localeCompare(bValues[ 0 ])
+}
+
+const areDifferentValues = (aValues, bValues) => {
+  for (var i = 1; i < aValues.length; i++) {
+    const { [ i ]: valueA } = aValues
+    const { [ i ]: valueB } = bValues
+    if (valueA !== valueB) return i
   }
-  return valueDiffBuilder
+  return 0
 }
 
 const makeHandlers = (self, ...names) => {
@@ -268,21 +278,9 @@ export class App {
       })
     })
     const allAgents = this.#allAgents = Object.keys(data)
-    const statSorter = statName => (a, b) => {
-      const { [ a ]: agentA, [ b ]: agentB } = data
-      const valueDiff = agentB[ statName ] - agentA[ statName ]
-      if (valueDiff) return valueDiff
-      if (statName !== 'lifetime_ap') {
-        const apDiff = agentB[ 'lifetime_ap' ] - agentA[ 'lifetime_ap' ]
-        if (apDiff) return apDiff
-      }
-      if (a < b) return -1
-      if (a > b) return 1
-      return 0
-    }
 
     Object.keys(byStat).forEach(statName => {
-      byStat[ statName ] = [...allAgents].sort(getValueDiffBuilder(statName)(data))
+      byStat[ statName ] = [...allAgents].map(getValueExtractor(data, statName)).sort(sortValues)
     })
     console.timeEnd('analyze')
     this.updateDOM()
@@ -505,14 +503,15 @@ class StatPane {
     const rolloverBuilder = rollovers[ statName ]
     const activeAgents = { enl: 0, res: 0 }
     const sumAgents = { enl: 0, res: 0 }
-    let lastValue = undefined, lastPosition = undefined, lastAgentStatus
-    const rowInfos = this.#pages.full.rowInfos = statList.filter((agentName) => {
+    let lastValues = undefined, lastPosition = undefined, lastAgentStatus, floatingIndex = 0
+    const rowInfos = this.#pages.full.rowInfos = statList.filter((agentValues) => {
+      const { [ 0 ]: agentName } = agentValues
       const { faction } = this.#app.data[ agentName ]
       return this.#app.enabledFaction(faction)
-    }).map((agentName, index) => {
+    }).map((agentValues, index) => {
+      const { [ 0 ]: agentName, [ 1 ]: statValue } = agentValues
       const agentInfo = this.#app.data[ agentName ]
       const faction = agentInfo.faction
-      const statValue = agentInfo[ statName ]
       const { [ statName ]: statValueDisplay = (agentName, agentInfo, value) => numberFormat.format(value) } = statValueDisplays
       const rowFragment = statListRowTemplate.content.cloneNode(true)
       const rowNode = rowFragment.querySelector('.stat-row')
@@ -526,18 +525,22 @@ class StatPane {
 
       const agentStatus = this.#app.getAgentStatus(agentName, this.#statName)
       let position
-      if (lastValue === undefined) {
-        lastValue = statValue
+      if (lastValues === undefined) {
         position = lastPosition = 1
-      } else if (statValue !== lastValue) {
-        lastValue = statValue
-        position = lastAgentStatus ? lastPosition : ++lastPosition
       } else {
-        position = lastPosition
+        const areDifferent = areDifferentValues(agentValues, lastValues)
+        if (areDifferent) {
+          position = lastAgentStatus ? lastPosition : (lastPosition = floatingIndex + 1)
+        } else {
+          position = lastPosition
+        }
       }
+      if (!agentStatus) floatingIndex++
+      lastValues = agentValues
       lastAgentStatus = agentStatus
       const rolloverValue = rolloverBuilder ? rolloverBuilder(agentName, this.#app.data) : null
       rowNode.dataset.value = statValue
+      if (agentValues.length === 3) rowNode.dataset.tieValue = agentValues[ 2 ]
       rowNode.dataset.agent = agentName
       rowNode.dataset.faction = faction
       if (agentStatus) {
@@ -547,14 +550,18 @@ class StatPane {
         })
       }
       positionNode.textContent = position
-      if (position === 1) {
-        rowNode.className += ' onyx'
-      } else if (position === 2) {
-        rowNode.className += ' platinum'
-      } else if (position === 3) {
-        rowNode.className += ' gold'
-      } else if (position < 21) {
-        rowNode.className += ' silver'
+      if (floatingIndex < 21) {
+        if (position === 1) {
+          rowNode.className += ' onyx'
+        } else if (position === 2) {
+          rowNode.className += ' platinum'
+        } else if (position === 3) {
+          rowNode.className += ' gold'
+        } else if (position < 21) {
+          rowNode.className += ' silver'
+        } else {
+          rowNode.className += ' none'
+        }
       } else {
         rowNode.className += ' none'
       }
