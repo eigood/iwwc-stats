@@ -111,7 +111,7 @@ export class App {
       '#': '.toggles .chart-ranking',
     }
     makeHandlers(this, 'loadData', 'onSearch', 'onEventChange', 'setSearch', 'clearSearch', 'toggleHelp')
-    this.debouncedSetSearch = debounce(this.setSearch, 50)
+    this.debouncedPropagateSearch = debounce(this.propagateSearch, 50, this)
     this.#data = {}
     this.#info = {}
     this.#statPanes = []
@@ -403,15 +403,16 @@ export class App {
     const { target: { value } } = e
     e.preventDefault()
     e.stopPropagation()
-    this.debouncedSetSearch(value)
+    if (this.#rawSearch === value) return
+    this.#rawSearch = value
+    this.debouncedPropagateSearch()
   }
 
   setSearch(rawSearch) {
-    const rawSearchLower = rawSearch.toLowerCase()
     if (this.#rawSearch === rawSearch) return
     this.#rawSearch = rawSearch
     document.querySelector('.agent-search input').value = rawSearch
-    this.propagateSearch()
+    this.debouncedPropagateSearch()
   }
 
   propagateSearch() {
@@ -866,10 +867,10 @@ async function fetchJSON(url, handler) {
   return handler(json)
 }
 
-function debounce(func, timeout = 300){
+function debounce(func, timeout = 300, self = this){
   let timer;
   return (...args) => {
     clearTimeout(timer);
-    timer = setTimeout(() => { func.apply(this, args) }, timeout)
+    timer = setTimeout(() => { func.apply(self, args) }, timeout)
   }
 }
