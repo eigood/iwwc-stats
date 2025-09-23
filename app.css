@@ -316,6 +316,11 @@ li[data-status_banned] {
 	display:table-row;
 	counter-increment:stat-ranking;
 	position:relative;
+	top:0;
+	transition:top 2s ease-in-out;
+}
+.stat-pane.data-updated .stat-row {
+	top:calc(-20px * var(--index-delta));
 }
 .stat-ranking {
 	padding-right:5px;

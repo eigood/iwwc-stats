@@ -590,6 +590,7 @@ class StatPane {
     const statListRowTemplate = this.#app.statListRowTemplate
 
     const rolloverBuilder = rollovers[ statName ]
+    let needsAnimation = 0
     this.#pages.full.rowInfos = rowInfos.map((rowInfo) => {
       if (!rowInfo.rowNode) {
         const rowNode = rowInfo.rowNode = statListRowTemplate.content.cloneNode(true).querySelector('.stat-row')
@@ -599,7 +600,7 @@ class StatPane {
         })
       }
 
-      const { rowNode, agentName, agentValues, agentInfo, agentStatus, statValue, currentRanking } = rowInfo
+      const { rowNode, agentName, agentValues, agentInfo, agentStatus, statValue, currentRanking, currentIndex, previousIndex } = rowInfo
       const faction = agentInfo.faction
       const { [ statName ]: statValueDisplay = (agentName, agentInfo, value) => numberFormat.format(value) } = statValueDisplays
       const valueNode = rowNode.querySelector('.stat-value')
@@ -612,6 +613,15 @@ class StatPane {
       if (agentValues.length === 3) rowNode.dataset.tieValue = agentValues[ 2 ]
       rowNode.dataset.agent = agentName
       rowNode.dataset.faction = faction
+      rowNode.dataset.currentIndex = currentIndex
+      if (previousIndex !== undefined) {
+        if (currentIndex !== previousIndex) needsAnimation++
+        rowNode.dataset.previousIndex = previousIndex
+        rowNode.style.setProperty('--index-delta', currentIndex - previousIndex)
+      } else {
+        rowNode.style.setProperty('--index-delta', currentIndex - (this.#pageSize ? this.#pageSize : rowInfos.length))
+        delete rowNode.dataset.previousIndex
+      }
       if (agentStatus) {
         rowNode.dataset.status = ""
         agentStatus.forEach((statusItem) => {
@@ -652,6 +662,19 @@ class StatPane {
     }
 
     this.checkRender()
+    if (needsAnimation) {
+      if (true) {
+        this.#statPaneNode.classList.add('data-updated')
+        requestAnimationFrame(() => {
+          this.#statPaneNode.classList.remove('data-updated')
+        })
+      } else {
+        this.#statPaneNode.classList.add('data-updated')
+        setTimeout(() => {
+          this.#statPaneNode.classList.remove('data-updated')
+        }, 0.5)
+      }
+    }
   }
 
   setSearch(matchedAgents) {
