@@ -535,18 +535,18 @@ canvas.animation {
 :root {
 	--none-color:rgba(200, 200, 200, 0.6);
 	--background:url(background.png);
-	--header-agent-stat-background:rgb(0, 0, 0, .7);
+	--header-agent-stat-background:rgb(0, 0, 0, .85);
 	--header-agent-stat-color:white;
 	--help-window-background:initial;
-	--help-window-list-background:rgba(0, 0, 0, .7);
+	--help-window-list-background:rgba(0, 0, 0, .85);
 	--stat-pane-background:initial;
-	--stat-content-background:rgba(0, 0, 0, .7);
-	--stat-header-background:rgba(0, 0, 0, .7);
-	--stat-footer-background:rgba(0, 0, 0, .7);
+	--stat-content-background:rgba(0, 0, 0, .85);
+	--stat-header-background:rgba(0, 0, 0, .85);
+	--stat-footer-background:rgba(0, 0, 0, .85);
 	--stat-matched-background:rgba(255, 255, 255, .1);
 	--stat-header-color:white;
 	--button-text-color:white;
-	--button-background:rgba(0, 0, 0, .7);
+	--button-background:rgba(0, 0, 0, .85);
 	--agent-search-background:rgba(255, 255, 255, .1);
 	--agent-search-color:white;
 	--icon-button-color:transparent;
