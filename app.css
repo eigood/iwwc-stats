@@ -2,10 +2,15 @@
 	--faction-color-enl: #3ad45a;
 	--faction-color-res: #0991fd;
 	--onyx-color:#d4af37;
+	--onyx-font-size:initial;
 	--platinum-color:#c0c0c0;
+	--platinum-font-size:initial;
 	--gold-color:#cd7f32;
+	--gold-font-size:initial;
 	--silver-color:white;
+	--silver-font-size:initial;
 	--none-color:#000000;
+	--none-font-size:initial;
 	--background:#0f0f0f;
 	--background-position:50% 50%;
 	--background-size:cover;
@@ -324,6 +329,7 @@ li[data-status_banned] {
 }
 .stat-ranking {
 	padding-right:5px;
+	font-size:var(--stat-row-font-size);
 }
 .stat-reward {
 	padding-right:5px;
@@ -337,18 +343,23 @@ li[data-status_banned] {
 }
 .stat-row.onyx {
 	--stat-row-color:var(--onyx-color);
+	--stat-row-font-size:var(--onyx-font-size);
 }
 .stat-row.platinum {
 	--stat-row-color:var(--platinum-color);
+	--stat-row-font-size:var(--platinum-font-size);
 }
 .stat-row.gold {
 	--stat-row-color:var(--gold-color);
+	--stat-row-font-size:var(--gold-font-size);
 }
 .stat-row.silver {
 	--stat-row-color:var(--silver-color);
+	--stat-row-font-size:var(--silver-font-size);
 }
 .stat-row.none {
 	--stat-row-color:var(--none-color);
+	--stat-row-font-size:var(--none-font-size);
 	--stat-row-reward-display:none;
 }
 .stat-row .stat-reward::before {
@@ -533,7 +544,8 @@ canvas.animation {
 
 /* Theme */
 :root {
-	--none-color:rgba(200, 200, 200, 0.6);
+	--none-color:var(--silver-color);
+	--none-font-size:smaller;
 	--background:url(background.png);
 	--header-agent-stat-background:rgb(0, 0, 0, .85);
 	--header-agent-stat-color:white;
