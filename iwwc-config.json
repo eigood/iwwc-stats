@@ -6,7 +6,8 @@
       "customUrl": "https://eigood.github.io/iwwc-stats-data/iwwc-custom-2025-OPR.json",
       "infoUrl": "https://eigood.github.io/iwwc-stats-data/iwwc-info-2025-OPR.json",
       "startDate": "2025-11-11",
-      "endDate": "2025-12-10"
+      "endDate": "2025-12-10",
+      "primaryStat": "recon"
     },
     {
       "title": "2025 September",
