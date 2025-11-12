@@ -2,6 +2,13 @@
   "currentEvent": 0,
   "eventData": [
     {
+      "title": "2025 OPR - November",
+      "customUrl": "https://eigood.github.io/iwwc-stats-data/iwwc-custom-2025-OPR.json",
+      "infoUrl": "https://eigood.github.io/iwwc-stats-data/iwwc-info-2025-OPR.json",
+      "startDate": "2025-11-11",
+      "endDate": "2025-12-10"
+    },
+    {
       "title": "2025 September",
       "customUrl": "https://eigood.github.io/iwwc-stats-data/iwwc-custom-2025.json",
       "infoUrl": "https://eigood.github.io/iwwc-stats-data/iwwc-info-2025.json",
