@@ -411,9 +411,6 @@ li[data-status_banned] {
 	grid-template-columns: repeat(var(--grid-list-container-columns), minmax(calc(var(--grid-list-column-min-size) * 1px), var(--grid-list-column-max-size)));
 	grid-template-rows: 1fr;
 }
-.iwwc-content > *:not([data-medal='SEPARATOR']) {
-	max-width:calc((var(--grid-list-column-min-size) * 2 + var(--grid-list-gap) - 1) * 1px);
-}
 .iwwc-content.toggle-selected {
 	height:100%;
 	--grid-list-column-max-size:100%;

@@ -371,13 +371,17 @@ export class App {
     console.timeEnd('analyze')
     this.updateDOM()
     console.time('absorb')
-    let primaryIndex
     this.#statPanes.forEach((statPane, index) => {
       const statName = statPane.statName
-      const isPrimaryStat = statName === primaryStat
-      const order = primaryStat ? (isPrimaryStat ? 0 : primaryIndex !== undefined ? index : index + 1) : index
-      if (isPrimaryStat) primaryIndex = index
-      statPane.setStatList(byStat[ statName ], order, isPrimaryStat)
+      let order
+      if (statName === primaryStat) {
+        order = -2
+      } else if (primaryStat && statName === 'last_submit') {
+        order = -1
+      } else {
+        order = index
+      }
+      statPane.setStatList(byStat[ statName ], order, order < 0)
     })
     this.propagateSearch()
     console.timeEnd('absorb')
