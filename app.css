@@ -539,6 +539,15 @@ canvas.animation {
 	z-index:50;
 }
 
+#iwwc-app .turned-off {
+	display:none;
+}
+#iwwc-app.turned-off .turned-off {
+	display:initial;
+}
+#iwwc-app.turned-off .iwwc-content {
+	-display:none;
+}
 /* Theme */
 :root {
 	--none-color:var(--silver-color);

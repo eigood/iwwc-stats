@@ -86,6 +86,7 @@ const adjustLastRefresh = (text) => {
 
 export class App {
   #configUrl
+  #turnedOff
   #currentEvent
   #previousEvent
   #displayStats
@@ -119,8 +120,9 @@ export class App {
     this.#byStat = {}
   }
 
-  setConfig({ currentEvent, displayStats, eventData, enabledFactions = { enl: true, res: true }, agentStatus = {} }) {
+  setConfig({ turnedOff, currentEvent, displayStats, eventData, enabledFactions = { enl: true, res: true }, agentStatus = {} }) {
     if (this.#currentEvent === undefined) this.#currentEvent = currentEvent
+    this.#turnedOff = turnedOff
     this.#displayStats = displayStats
     this.#eventData = eventData.map((event, index) => {
       const { startDate, endDate, ...rest } = event
@@ -224,6 +226,11 @@ export class App {
     document.querySelector('.start-date').textContent = startDate ? dateShortFormat.format(startDate) : 'xx'
     document.querySelector('.end-date').textContent = endDate ? dateShortFormat.format(endDate) : 'xx'
     const app = document.querySelector('#iwwc-app')
+    if (this.#turnedOff) {
+      app.classList.add('turned-off')
+    } else {
+      app.classList.remove('turned-off')
+    }
     app.dataset.enl = String(this.#enabledFactions.enl)
     app.dataset.res = String(this.#enabledFactions.res)
     if (this.#factionCounts) {
@@ -264,10 +271,14 @@ export class App {
     buttonIcon.classList.add('fa-spin')
     fetchJSON(this.#configUrl, (data) => this.setConfig(data)).then(() => {
       const { [ this.#currentEvent ]: { customUrl, infoUrl } } = this.#eventData
-      return Promise.all([
-        fetchJSON(customUrl, (data) => this.setData(data)),
-        fetchJSON(infoUrl, (data) => this.setInfo(data)),
-      ])
+      const promises = []
+      if (this.#turnedOff) {
+        this.setData()
+      } else {
+        promises.push(fetchJSON(customUrl, (data) => this.setData(data)))
+      }
+      promises.push(fetchJSON(infoUrl, (data) => this.setInfo(data)))
+      return Promise.all(promises)
     }).finally(() => {
       buttonIcon.classList.remove('fa-spin')
     })
@@ -654,10 +665,10 @@ class StatPane {
       return rowInfo
     })
     const footerNode = statPaneNode.querySelector('.stat-footer')
-    footerNode.querySelector('.enl-stat .sum').textContent = numberFormat.format(sumAgents.enl)
-    footerNode.querySelector('.enl-stat .agent').textContent = activeAgents.enl
-    footerNode.querySelector('.res-stat .sum').textContent = numberFormat.format(sumAgents.res)
-    footerNode.querySelector('.res-stat .agent').textContent = activeAgents.res
+    footerNode.querySelector('.enl-stat .sum').textContent = numberFormat.format(sumAgents.enl || 0)
+    footerNode.querySelector('.enl-stat .agent').textContent = activeAgents.enl || 0
+    footerNode.querySelector('.res-stat .sum').textContent = numberFormat.format(sumAgents.res || 0)
+    footerNode.querySelector('.res-stat .agent').textContent = activeAgents.res || 0
     if (rowInfos.length) {
       this.#firstRow = rowInfos[ 0 ].rowNode.cloneNode(true)
       this.#lastRow = rowInfos[ rowInfos.length - 1 ].rowNode.cloneNode(true)
