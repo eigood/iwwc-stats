@@ -1,0 +1,60 @@
+x-logging: &_logging
+  driver: "json-file"
+  options:
+    max-size: "50m"
+    max-file: "10"
+
+x-node-environment: &_node-environment
+  {}
+
+x-node-base: &_node-base
+  environment:
+    <<: *_node-environment
+  image: node:24
+  logging:
+    <<: *_logging
+  restart: always
+
+volumes:
+  node_modules:
+#  postgresql-data:
+
+services:
+  fix-permissions:
+    image: node:24
+    user: root
+    volumes:
+      - ./:/srv/app:rw
+      - node_modules:/srv/app/node_modules
+    entrypoint:
+      - /bin/sh
+      - -c
+      - chown -R node:node /srv/app/node_modules
+
+  node:
+    <<: *_node-base
+    command:
+      - npm
+      - run
+      - dev
+    ports:
+      - "$HOST_PORT:4321"
+    user: "${UID}:${GID}"
+    working_dir: /srv/app
+    volumes:
+      - ./:/srv/app:rw
+      - node_modules:/srv/app/node_modules:rw
+    depends_on:
+      fix-permissions:
+        condition: service_completed_successfully
+
+#  postgresql:
+#    environment:
+#      POSTGRES_PASSWORD:
+#    image: postgres:16-bookworm
+#    logging:
+#      <<: *_logging
+#    restart: always
+#    volumes:
+#      - postgresql-data:/var/lib/postgresql/data
+

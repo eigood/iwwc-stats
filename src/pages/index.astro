@@ -1,0 +1,148 @@
+---
+import '@fortawesome/fontawesome-free/scss/fontawesome.scss'
+import '@fortawesome/fontawesome-free/scss/solid.scss'
+import '../css/app.scss'
+
+---
+<head>
+<script>
+ import { App } from '../js/app-ng.js'
+ const app = new App('./iwwc-config.json')
+
+ window.addEventListener('load', (event) => {
+  app.attachToDOM()
+  app.loadData()
+ })
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="utf-8" />
+<style id="search-style"></style>
+</head>
+<body>
+<template id="stat-pane">
+ <div class="stat-pane">
+  <h4 class="stat-header">
+   <span class="title"></span>
+   <span class="badge"></span>
+   <span class="window-toggle window-maximized fa-solid fa-window-maximize"></span>
+   <span class="window-toggle window-minimized fa-solid fa-window-minimize"></span>
+   <span class="jump-up fa-solid fa-arrows-up-to-line"></span>
+   <span class="jump-down fa-solid fa-arrows-down-to-line"></span>
+   <span class="loading-icon fa-solid fa-spinner fa-spin"></span>
+  </h4>
+  <div class="stat-content">
+    <ol class="stat-list"></ol>
+  </div>
+  <div class="stat-footer">
+   <span class="enl-stat"><span class="sum"></span>(<span class="agent"></span>)</span>
+   <span class="res-stat"><span class="sum"></span>(<span class="agent"></span>)</span>
+  </div>
+ </div>
+</template>
+<template id="stat-list-row">
+ <li class='stat-row' data-value="0">
+  <span><span class="stat-ranking"></span></span>
+  <span><span class="stat-reward fa-solid fa-medal badge"></span></span>
+  <span><div class="stat-value-container">
+   <dfn class="stat-value"></dfn>
+   <span class="rollover"></span>
+  </div></span>
+  <span><span class="agent"></span></span>
+ </li>
+</template>
+<canvas class='animation' id='canvas'></canvas>
+<div id='iwwc-app' class='loading'>
+  <div class="loading">Loading, please wait.</div>
+  <header>
+   <div class="button-container agent-search">
+    <span class="icon fa-solid fa-magnifying-glass"></span>
+    <input type="text"/><span class="clear-search fa-solid fa-remove"></span>
+   </div>
+   <div class="button-container button reload-button">
+    <span class="icon fa-solid fa-arrows-rotate"></span>
+    <span class="text">Reload</span>
+    <span class="status last-refresh"></span>
+   </div>
+   <div class="button-container event-selector">
+    <span class="icon fa-solid fa-clipboard-list"></span>
+    <select name="current-event"></select>
+   </div>
+   <div class="button-container toggles">
+    <span class="button chart-ranking icon fa-solid fa-chart-line"></span>
+   </div>
+   <div class="member-counts">
+    <div class="button-container enl-stat"><span class="total"></span></div>
+    <div class="button-container res-stat"><span class="total"></span></div>
+   </div>
+   <div class="start-date"></div>
+   <div class="end-date"></div>
+   <div class="button-container button show-help">
+    <span class="icon fa-solid fa-question"></span>
+   </div>
+   <div class="help-window">
+    <ul>
+     <li>
+      Header
+      <ul>
+       <li>
+        <span class="icon fa-solid fa-magnifying-glass"></span>
+         Text entered into the search box will find all agent names that match.
+         Separate multiple terms with '&amp;'.  Press <span class="clear-search fa-solid fa-remove"></span>
+         to clear the search terms.
+       </li>
+       <li>
+        <span class="icon fa-solid fa-arrows-rotate"></span>
+        Possibly fetch updated data from the server.  The date-time displayed is when AgentStats last did its calculations.
+       </li>
+       <li>
+        <span class="icon fa-solid fa-clipboard-list"></span>
+        Use the drop-down to select a different contest.
+       </li>
+       <li>
+        <span class="icon fa-solid fa-chart-line"></span>
+        In search mode, display agents just before and after the search result.
+       </li>
+      </ul>
+     </li>
+     <li>
+      Stat pane
+      <ul>
+       <li>
+        <span class="icon fa-solid fa-window-maximize"></span>
+        Maximize stat pane
+       </li>
+       <li>
+        <span class="icon fa-solid fa-window-minimize"></span>
+        Reduce stat pane
+       </li>
+       <li>
+        <span class="icon fa-solid fa-arrows-up-to-line"></span>
+        Scroll to top
+       </li>
+       <li>
+        <span class="icon fa-solid fa-arrows-down-to-line"></span>
+        Scroll to bottom
+       </li>
+       <li>
+        Clicking an agent name causes a "search" to occur.
+       </li>
+       <li data-status data-status_investigation>
+        This agent/stat is under investigation
+       </li>
+       <li data-status data-status_banned>
+        This agent/stat is excluded from competing.
+       </li>
+      </ul>
+     </li>
+    </ul>
+   </div>
+   <div class="turned-off button-container button">
+    Leaderboard turned off outside of competition timeframes.
+   </div>
+  </header>
+  <div class="container">
+   <div class="iwwc-content">
+   </div>
+  </div>
+</div>
+</body>
