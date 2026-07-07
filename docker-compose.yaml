@@ -21,15 +21,16 @@ volumes:
 
 services:
   fix-permissions:
+    entrypoint:
+      - /bin/sh
+      - -c
+      - find node_modules ! -user node ! -group node -exec chown -R node:node {} \;
     image: node:24
     user: root
     volumes:
       - ./:/srv/app:rw
       - node_modules:/srv/app/node_modules
-    entrypoint:
-      - /bin/sh
-      - -c
-      - chown -R node:node /srv/app/node_modules
+    working_dir: /srv/app
 
   node:
     <<: *_node-base

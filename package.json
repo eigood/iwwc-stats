@@ -1,21 +1,29 @@
 {
   "name": "iwwc astro",
-  "type": "app",
   "version": "0.0.1",
   "private": true,
   "scripts": {
+    "compile-data": "node src/bin/compile-data.mjs",
+    "wrangler": "wrangler",
     "install+dev": "npm install && astro dev --host",
-    "dev": "astro dev --host",
+    "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview --host",
-    "astro": "astro"
+    "astro": "astro",
+    "generate-types": "wrangler types"
   },
   "dependencies": {
+    "@astrojs/cloudflare": "^13.1.2",
     "@astrojs/react": "^3.0.6",
     "@fortawesome/fontawesome-free": "^7.2.0",
     "@nanostores/react": "^0.7.1",
     "astro": "^6.0.5",
+    "base-x": "^5.0.1",
+    "fflate": "^0.8.3",
     "nanostores": "^0.9.5",
     "sass-embedded": "^1.98.0"
+  },
+  "devDependencies": {
+    "wrangler": "^4.75.0"
   }
 }
