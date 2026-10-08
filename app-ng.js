@@ -80,6 +80,7 @@ const makeHandlers = (self, ...names) => {
 
 const adjustLastRefresh = (text) => {
   const lastRefresh = new Date(text + 'Z')
+  if (Number.isNaN(lastRefresh.getTime())) return undefined
   lastRefresh.setHours(lastRefresh.getHours() - 2)
   return lastRefresh
 }
