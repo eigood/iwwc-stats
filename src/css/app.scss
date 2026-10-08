@@ -378,12 +378,27 @@ li[data-status_banned] {
 .stat-row > *:last-child {
 	width:100%;
 }
-.stat-row.for-sizing * {
-	line-height:0;
-	overflow:hidden;
-}
-.stat-row.for-sizing .badge::before {
-	height:0!important;
+.stat-row.for-sizing {
+        -height:0;
+        > * {
+          height:0;
+          padding-top:0;
+          padding-bottom:0;
+          line-height:0;
+          visibility:hidden;
+          border:none;
+          vertical-align:top;
+          > * {
+            display:block;
+            line-height:0;
+            height:0;
+            overflow:hidden;
+            visibility:hidden;
+          }
+        }
+        .badge::before {
+	  height:0!important;
+        }
 }
 .stat-value-container {
 	position:relative;
